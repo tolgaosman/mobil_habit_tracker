@@ -46,7 +46,7 @@ class HabitModel extends HiveObject {
   }
 
   /// Toggle completion for a given date
-  void toggleCompletion(DateTime date) {
+  Future<void> toggleCompletion(DateTime date) async {
     final key = _dateKey(date);
     final idx = completions.indexWhere((c) => c.dateKey == key);
     if (idx >= 0) {
@@ -54,7 +54,7 @@ class HabitModel extends HiveObject {
     } else {
       completions.add(HabitCompletion(dateKey: key));
     }
-    save();
+    await save();
   }
 
   /// Count completions in the last [days] days

@@ -1,5 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mobil_habit_tracker">
+
+    <!-- Required for showing notifications on Android 13+ (API 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Required for scheduling exact alarms (habit reminders) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Required to reschedule notifications after device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Required for vibration on notifications -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
    <application
         android:label="mobil_habit_tracker"
         android:name="${applicationName}"

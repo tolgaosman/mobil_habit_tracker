@@ -387,13 +387,26 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     final timeString =
         '${_notificationTime.hour.toString().padLeft(2, '0')}:${_notificationTime.minute.toString().padLeft(2, '0')}';
 
-    await provider.addHabit(
-      name: name,
-      iconCodePoint: _selectedIconCodePoint,
-      colorHex: _selectedColorHex,
-      notificationsEnabled: _notificationsEnabled,
-      notificationTime: timeString,
-    );
+    if (widget.isEditing && widget.habitId != null) {
+      // Find the existing habit and update it
+      final existing = provider.habits.firstWhere((h) => h.id == widget.habitId!);
+      final updated = existing.copyWith(
+        name: name,
+        iconCodePoint: _selectedIconCodePoint,
+        colorHex: _selectedColorHex,
+        notificationsEnabled: _notificationsEnabled,
+        notificationTime: timeString,
+      );
+      await provider.updateHabit(updated);
+    } else {
+      await provider.addHabit(
+        name: name,
+        iconCodePoint: _selectedIconCodePoint,
+        colorHex: _selectedColorHex,
+        notificationsEnabled: _notificationsEnabled,
+        notificationTime: timeString,
+      );
+    }
 
     if (mounted) Navigator.of(context).pop();
   }

@@ -72,8 +72,8 @@ class HabitProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleCompletion(HabitModel habit) {
-    habit.toggleCompletion(_selectedDate);
+  Future<void> toggleCompletion(HabitModel habit) async {
+    await habit.toggleCompletion(_selectedDate);
     notifyListeners();
   }
 

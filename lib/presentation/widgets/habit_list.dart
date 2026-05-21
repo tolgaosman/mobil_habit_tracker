@@ -85,7 +85,10 @@ class _HabitCardState extends State<HabitCard>
   Color _hexToColor(String hex) => Color(int.parse(hex, radix: 16));
 
   IconData _codePointToIcon(String codePoint) {
-    final cp = int.tryParse(codePoint) ?? 0xe555;
+    // int.parse handles '0x...' hex prefix automatically
+    final cp = int.tryParse(codePoint) ??
+        int.tryParse(codePoint.replaceFirst('0x', ''), radix: 16) ??
+        0xe555;
     return IconData(cp, fontFamily: 'MaterialIcons');
   }
 
@@ -272,10 +275,10 @@ class _HabitCardState extends State<HabitCard>
       padding: const EdgeInsets.only(right: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.delete_outline_rounded,
+        children: const [
+          Icon(Icons.delete_outline_rounded,
               color: AppColors.error, size: 26),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             'Delete',
             style: TextStyle(
@@ -307,13 +310,13 @@ class _HabitCardState extends State<HabitCard>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel',
+            child: const Text('Cancel',
                 style: TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child:
-                Text('Delete', style: TextStyle(color: AppColors.error)),
+                const Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
