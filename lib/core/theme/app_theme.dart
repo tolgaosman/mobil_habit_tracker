@@ -11,11 +11,11 @@ class AppColors {
   static const Color card = Color(0xFFFFFFFF);
   static const Color cardElevated = Color(0xFFDFD7C0);
 
-  // Dark Mode (Cyberpunk Synthwave Arcade)
-  static const Color darkBackground = Color(0xFF120E22); // Retro neon dark purple
-  static const Color darkSurface = Color(0xFF211B3D); // Console deep violet
-  static const Color darkCard = Color(0xFF2C2450); // Dark arcade slot card
-  static const Color darkCardElevated = Color(0xFF3B3169);
+  // Dark Mode (Premium Retro Slate/Obsidian)
+  static const Color darkBackground = Color(0xFF141416); // Sleek charcoal console black
+  static const Color darkSurface = Color(0xFF1E1E22); // Deep graphite slate
+  static const Color darkCard = Color(0xFF282830); // Matte black cartridge card
+  static const Color darkCardElevated = Color(0xFF32323C);
 
   // Accents
   static const Color teal = Color(0xFFFFC01C); // Sunny Coin Yellow
@@ -29,13 +29,13 @@ class AppColors {
   static const Color textTertiary = Color(0xFF9A8F85);
 
   // Text Dark Mode
-  static const Color darkTextPrimary = Color(0xFF00FFD1); // Neon Cyan
-  static const Color darkTextSecondary = Color(0xFFFF007F); // Neon Magenta
-  static const Color darkTextTertiary = Color(0xFF8672C9);
+  static const Color darkTextPrimary = Color(0xFFECEFF4); // Crisp paper white
+  static const Color darkTextSecondary = Color(0xFF8E95A5); // Muted silver-grey console text
+  static const Color darkTextTertiary = Color(0xFF5E6575); // Darker steel-grey
 
   // Dividers / Borders
   static const Color divider = Color(0xFF1E1A17); // Thick black outline
-  static const Color darkDivider = Color(0xFF00FFD1); // Neon cyan borders
+  static const Color darkDivider = Color(0xFFECEFF4); // Crisp paper white outline
 
   // States
   static const Color success = Color(0xFF53B175);
@@ -217,7 +217,7 @@ class AppTheme {
       labelSmall: _style(9, FontWeight.w700, 0.0, textColor),
     );
 
-    return GoogleFonts.pixelifySansTextTheme(baseTheme);
+    return GoogleFonts.plusJakartaSansTextTheme(baseTheme);
   }
 
   static TextStyle _style(
@@ -234,4 +234,10 @@ class AppTheme {
       height: 1.4,
     );
   }
+}
+
+extension AppThemeContext on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+  Color get textSecondaryColor => isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary;
+  Color get textTertiaryColor => isDarkMode ? AppColors.darkTextTertiary : AppColors.textTertiary;
 }

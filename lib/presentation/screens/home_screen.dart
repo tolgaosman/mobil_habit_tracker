@@ -8,12 +8,13 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/habit_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/providers/language_provider.dart';
 import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/progress_header.dart';
 import 'add_habit_screen.dart';
 import 'profile_screen.dart';
-import 'routine_tab.dart';
+import 'history_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,13 +29,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: IndexedStack(
           index: _currentIndex,
           children: [
             _buildHabitsTab(context),
-            const RoutineTab(),
+            const HistoryTab(),
           ],
         ),
       ),
@@ -70,14 +71,14 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _greeting(name),
+                _greeting(name, context),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.textSecondaryColor,
                     ),
               ),
               const SizedBox(height: 2),
               Text(
-                'Your Habits',
+                'Your Habits'.tr(context),
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.8,
@@ -86,34 +87,107 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const Spacer(),
-          _buildThemeToggleButton(context),
+          _buildLanguageSelector(context),
           const SizedBox(width: 8),
           _buildAvatarButton(context, user),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 500.ms, curve: Curves.easeOut)
-        .slideY(begin: -0.1, end: 0, duration: 500.ms, curve: Curves.easeOut);
+    );
   }
 
-  Widget _buildThemeToggleButton(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-    final isDark = themeProvider.isDarkMode;
+  Widget _buildLanguageSelector(BuildContext context) {
+    final langProvider = context.watch<LanguageProvider>();
+    final currentLang = langProvider.currentLanguage;
 
-    return IconButton(
-      onPressed: () {
-        HapticFeedback.lightImpact();
-        themeProvider.toggleTheme();
-      },
-      icon: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
-        child: Icon(
-          isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-          key: ValueKey(isDark),
-          color: isDark ? AppColors.teal : AppColors.textSecondary,
-          size: 24,
+    final langFlags = {
+      'en': '🇺🇸',
+      'tr': '🇹🇷',
+      'de': '🇩🇪',
+      'fr': '🇫🇷',
+      'it': '🇮🇹',
+    };
+
+    final langNames = {
+      'en': 'English',
+      'tr': 'Türkçe',
+      'de': 'Deutsch',
+      'fr': 'Français',
+      'it': 'Italiano',
+    };
+
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        cardColor: Theme.of(context).cardTheme.color,
+      ),
+      child: PopupMenuButton<String>(
+        onSelected: (String langCode) {
+          HapticFeedback.mediumImpact();
+          langProvider.changeLanguage(langCode);
+        },
+        offset: const Offset(0, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: dividerColor, width: 2),
+        ),
+        elevation: 4,
+        itemBuilder: (BuildContext context) {
+          return langNames.entries.map((entry) {
+            final isSelected = entry.key == currentLang;
+            return PopupMenuItem<String>(
+              value: entry.key,
+              child: Row(
+                children: [
+                  Text(langFlags[entry.key] ?? '', style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 10),
+                  Text(
+                    entry.value,
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? AppColors.teal : null,
+                    ),
+                  ),
+                  if (isSelected) ...[
+                    const Spacer(),
+                    const Icon(Icons.check_rounded, color: AppColors.teal, size: 18),
+                  ],
+                ],
+              ),
+            );
+          }).toList();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: dividerColor, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: dividerColor,
+                offset: const Offset(2, 2),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(langFlags[currentLang] ?? '🇺🇸', style: const TextStyle(fontSize: 18)),
+              const SizedBox(width: 4),
+              Text(
+                currentLang.toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 2),
+              Icon(Icons.arrow_drop_down_rounded, size: 18, color: dividerColor),
+            ],
+          ),
         ),
       ),
     );
@@ -175,9 +249,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return Row(
             children: [
               Text(
-                'Today',
+                'Today'.tr(context),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.textSecondaryColor,
                       fontWeight: FontWeight.w600,
                     ),
               ),
@@ -207,19 +281,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget? _buildFAB(BuildContext context) {
+    if (_currentIndex == 1) return null;
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-    final isHabits = _currentIndex == 0;
-    final label = isHabits ? 'NEW QUEST' : 'ADD PLAN';
-    final icon = isHabits ? Icons.add_box_rounded : Icons.alarm_add_rounded;
+    const label = 'NEW QUEST';
+    const icon = Icons.add_box_rounded;
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        if (isHabits) {
-          _showAddAddHabit(context);
-        } else {
-          _showAddRoutine(context);
-        }
+        _showAddHabit(context);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 8, right: 8),
@@ -242,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Icon(icon, color: Colors.black, size: 22),
             const SizedBox(width: 8),
             Text(
-              label,
+              label.tr(context),
               style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -256,15 +326,6 @@ class _HomeScreenState extends State<HomeScreen> {
         .animate()
         .fadeIn(duration: 300.ms)
         .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), curve: Curves.easeOutBack);
-  }
-
-  void _showAddAddHabit(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const AddHabitSheet(),
-    );
   }
 
   Widget _buildBottomNavBar() {
@@ -282,8 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.sports_esports_rounded, 'QUESTS'),
-              _buildNavItem(1, Icons.alarm_rounded, 'TIMELINE'),
+              _buildNavItem(0, Icons.track_changes_rounded, 'TASKS'),
+              _buildNavItem(1, Icons.calendar_month_rounded, 'HISTORY'),
             ],
           ),
         ),
@@ -334,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              label,
+              label.tr(context),
               style: TextStyle(
                 color: isSelected ? Colors.black : (Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextTertiary : AppColors.textSecondary),
                 fontWeight: FontWeight.bold,
@@ -356,20 +417,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAddRoutine(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const AddRoutineSheet(),
-    );
-  }
 
-  String _greeting(String name) {
+  String _greeting(String name, BuildContext context) {
     final hour = DateTime.now().hour;
     final displayName = name.isNotEmpty ? name : 'Player 1';
-    if (hour < 12) return 'Ready Player: $displayName 🌤';
-    if (hour < 17) return 'Game On: $displayName 🎮';
-    return 'Save Game: $displayName 💾';
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning, $displayName 🌅'.tr(context);
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon, $displayName ☀️'.tr(context);
+    } else if (hour >= 17 && hour < 22) {
+      return 'Good Evening, $displayName 🌆'.tr(context);
+    } else {
+      return 'Good Night, $displayName 🌌'.tr(context);
+    }
   }
 }

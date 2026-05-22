@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
+import '../../core/providers/language_provider.dart';
 
 class WeekCalendar extends StatelessWidget {
   const WeekCalendar({super.key});
@@ -27,9 +28,9 @@ class WeekCalendar extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 14),
                 child: Text(
-                  DateFormat('MMMM yyyy').format(now),
+                  DateFormat('MMMM yyyy').format(now).tr(context),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.textSecondaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -82,19 +83,22 @@ class _DayChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dayLabel = DateFormat('E').format(day).substring(0, 1);
+    final dayLabel = DateFormat('E').format(day).tr(context).substring(0, 1);
     final dateLabel = day.day.toString();
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
     const double offsetVal = 3.0;
+
+    // Both selected day and current day (isToday) look pressed down/depressed
+    final isPressed = isSelected || isToday;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(
-          top: isSelected ? offsetVal : 0,
-          left: isSelected ? offsetVal : 0,
-          bottom: isSelected ? 0 : offsetVal,
-          right: isSelected ? 0 : offsetVal,
+          top: isPressed ? offsetVal : 0,
+          left: isPressed ? offsetVal : 0,
+          bottom: isPressed ? 0 : offsetVal,
+          right: isPressed ? 0 : offsetVal,
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
@@ -102,15 +106,13 @@ class _DayChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.teal
-                : isToday
-                    ? AppColors.teal.withOpacity(0.12)
-                    : Theme.of(context).cardTheme.color,
+                : (Theme.of(context).cardTheme.color ?? AppColors.card),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: dividerColor,
+              color: isToday ? AppColors.teal : dividerColor,
               width: 2,
             ),
-            boxShadow: isSelected
+            boxShadow: isPressed
                 ? null
                 : [
                     BoxShadow(
@@ -130,7 +132,7 @@ class _DayChip extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isSelected
                       ? Colors.black
-                      : null,
+                      : (isToday ? AppColors.teal : null),
                 ),
               ),
               const SizedBox(height: 4),
@@ -141,9 +143,7 @@ class _DayChip extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isSelected
                       ? Colors.black
-                      : isToday
-                          ? AppColors.violet
-                          : null,
+                      : (isToday ? AppColors.teal : null),
                 ),
               ),
             ],

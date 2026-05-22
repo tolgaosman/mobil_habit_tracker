@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -31,8 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (image != null && mounted) {
         await context.read<AuthProvider>().updateProfileImage(image.path);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile picture updated successfully!'),
+          SnackBar(
+            content: Text('Profile picture updated successfully!'.tr(context)),
             backgroundColor: AppColors.success,
           ),
         );
@@ -41,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile picture: $e'),
+            content: Text('Failed to update profile picture: '.tr(context) + '$e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -65,9 +66,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text('Profile'.tr(context)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -239,9 +240,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              label,
+              label.tr(context),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -270,16 +271,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              title: const Text('Log Out'),
-              content: const Text('Are you sure you want to log out of your account?'),
+              title: Text('Log Out'.tr(context)),
+              content: Text('Are you sure you want to log out of your account?'.tr(context)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+                  child: Text('Cancel'.tr(context), style: const TextStyle(color: AppColors.textSecondary)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Log Out', style: TextStyle(color: AppColors.error)),
+                  child: Text('Log Out'.tr(context), style: const TextStyle(color: AppColors.error)),
                 ),
               ],
             ),
@@ -298,12 +299,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
-            SizedBox(width: 10),
+          children: [
+            const Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
+            const SizedBox(width: 10),
             Text(
-              'Log Out',
-              style: TextStyle(
+              'Log Out'.tr(context),
+              style: const TextStyle(
                 color: AppColors.error,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,

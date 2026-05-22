@@ -4,11 +4,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/services/notification_service.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/habit_provider.dart';
 import 'core/providers/routine_provider.dart';
 import 'core/providers/theme_provider.dart';
-import 'core/services/notification_service.dart';
+import 'core/providers/language_provider.dart';
+
 import 'data/models/habit_model.dart';
 import 'data/models/user_model.dart';
 import 'presentation/screens/home_screen.dart';
@@ -46,6 +48,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, HabitProvider>(
           create: (_) => HabitProvider(),
@@ -68,13 +71,11 @@ class HabitTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
-      title: 'Habits+',
+      title: 'Quests+',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode,
+      themeMode: ThemeMode.light,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (auth.isAuthenticated) {

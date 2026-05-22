@@ -2,32 +2,32 @@ import 'package:flutter/material.dart';
 
 class IconMapper {
   static const Map<String, IconData> habitIcons = {
-    'run': Icons.directions_run_rounded,
-    'water': Icons.water_drop_rounded,
-    'book': Icons.menu_book_rounded,
+    'run': Icons.bolt_rounded,
+    'water': Icons.science_rounded,
+    'book': Icons.auto_stories_rounded,
     'heart': Icons.favorite_rounded,
-    'sleep': Icons.bedtime_rounded,
+    'sleep': Icons.nights_stay_rounded,
     'gym': Icons.fitness_center_rounded,
     'food': Icons.restaurant_rounded,
     'mind': Icons.self_improvement_rounded,
-    'work': Icons.work_outline_rounded,
+    'work': Icons.monetization_on_rounded,
     'music': Icons.music_note_rounded,
-    'code': Icons.code_rounded,
-    'star': Icons.star_rounded,
+    'code': Icons.terminal_rounded,
+    'star': Icons.emoji_events_rounded,
 
     // Hex fallbacks for backward compatibility
-    '0xe555': Icons.directions_run_rounded,
-    '0xe5aa': Icons.water_drop_rounded,
-    '0xe0bf': Icons.menu_book_rounded,
+    '0xe555': Icons.bolt_rounded,
+    '0xe5aa': Icons.science_rounded,
+    '0xe0bf': Icons.auto_stories_rounded,
     '0xe25a': Icons.favorite_rounded,
-    '0xe418': Icons.bedtime_rounded,
+    '0xe418': Icons.nights_stay_rounded,
     '0xe3ae': Icons.fitness_center_rounded,
     '0xe533': Icons.restaurant_rounded,
     '0xe336': Icons.self_improvement_rounded,
-    '0xe8f9': Icons.work_outline_rounded,
+    '0xe8f9': Icons.monetization_on_rounded,
     '0xe405': Icons.music_note_rounded,
-    '0xe86f': Icons.code_rounded,
-    '0xe838': Icons.star_rounded,
+    '0xe86f': Icons.terminal_rounded,
+    '0xe838': Icons.emoji_events_rounded,
   };
 
   static IconData getIcon(String key) {

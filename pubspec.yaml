@@ -28,6 +28,7 @@ dependencies:
   flutter_animate: ^4.2.0
   provider: ^6.0.5
   google_fonts: ^6.2.0
+  http: ^1.2.0
 
   # Auth & Profile
   image_picker: ^1.1.2
@@ -45,9 +46,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "appLogo_scaled.png"
-  adaptive_icon_background: "#1C1A27"
-  adaptive_icon_foreground: "appLogo_scaled.png"
+  image_path: "quests_logo.png"
+  adaptive_icon_background: "#F9F5EB"
+  adaptive_icon_foreground: "quests_logo.png"
 
 flutter:
   uses-material-design: true

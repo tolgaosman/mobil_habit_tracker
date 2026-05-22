@@ -52,7 +52,7 @@ class RoutineTab extends StatelessWidget {
               Text(
                 'Day Planner',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.textSecondaryColor,
                     ),
               ),
               const SizedBox(height: 2),
@@ -184,7 +184,7 @@ class RoutineTab extends StatelessWidget {
                     Text(
                       '${(progress * 100).toInt()}% COMPLETE',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.textSecondaryColor,
                           ),
                     ),
                   ],
@@ -199,7 +199,7 @@ class RoutineTab extends StatelessWidget {
                   icon: const Icon(Icons.refresh_rounded, size: 16),
                   label: const Text('RESET'),
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
+                    foregroundColor: context.textSecondaryColor,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
                 ),
@@ -240,7 +240,7 @@ class RoutineTab extends StatelessWidget {
           Text(
             'Timeline',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondaryColor,
                   fontWeight: FontWeight.w600,
                 ),
           ),

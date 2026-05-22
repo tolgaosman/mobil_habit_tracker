@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
@@ -41,7 +42,7 @@ class ProgressHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'QUEST: $completed / $total DONE',
+                      'QUEST: '.tr(context) + '$completed / $total ' + 'DONE'.tr(context),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -51,14 +52,14 @@ class ProgressHeader extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       total == 0
-                          ? 'Press NEW QUEST below!'
+                          ? 'Press NEW QUEST below!'.tr(context)
                           : rate == 1.0
-                              ? '🏆 QUEST COMPLETED!'
-                              : 'LEVEL PROGRESS: ${(rate * 100).toStringAsFixed(0)}%',
+                              ? '🏆 QUEST COMPLETED!'.tr(context)
+                              : 'LEVEL PROGRESS: '.tr(context) + '${(rate * 100).toStringAsFixed(0)}%',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: rate == 1.0
                                 ? AppColors.success
-                                : AppColors.textSecondary,
+                                : context.textSecondaryColor,
                             fontWeight: FontWeight.bold,
                           ),
                     ),

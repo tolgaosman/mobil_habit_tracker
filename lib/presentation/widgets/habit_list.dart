@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
@@ -98,13 +99,13 @@ class _HabitCardState extends State<HabitCard>
     if (!_canToggle(provider.selectedDate)) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Sadece bugün ve dün için işaretleme yapabilirsiniz.',
-            style: TextStyle(fontWeight: FontWeight.w600),
+            'You can only toggle completion for today and yesterday.'.tr(context),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppColors.textPrimary,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -127,7 +128,7 @@ class _HabitCardState extends State<HabitCard>
     return Dismissible(
       key: Key(widget.habit.id),
       direction: DismissDirection.endToStart,
-      background: _buildDeleteBackground(),
+      background: _buildDeleteBackground(context),
       confirmDismiss: (_) => _confirmDelete(context),
       onDismissed: (_) =>
           context.read<HabitProvider>().deleteHabit(widget.habit.id),
@@ -184,18 +185,18 @@ class _HabitCardState extends State<HabitCard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.habit.name,
+                            widget.habit.name.tr(context),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
                                 ?.copyWith(
                                   color: isCompleted
-                                      ? AppColors.textSecondary
+                                      ? context.textSecondaryColor
                                       : null,
                                   decoration: isCompleted
                                       ? TextDecoration.lineThrough
                                       : null,
-                                  decorationColor: AppColors.textTertiary,
+                                  decorationColor: context.textTertiaryColor,
                                 ),
                           ),
                           if (streak > 0) ...[
@@ -209,7 +210,7 @@ class _HabitCardState extends State<HabitCard>
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  'COMBO: $streak',
+                                  'COMBO: '.tr(context) + '$streak',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
@@ -279,28 +280,31 @@ class _HabitCardState extends State<HabitCard>
         );
   }
 
-  Widget _buildDeleteBackground() {
+  Widget _buildDeleteBackground(BuildContext context) {
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16, right: 4),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+        color: AppColors.error.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: dividerColor,
+          width: 2.5,
+        ),
       ),
       alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(right: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.delete_outline_rounded,
-              color: AppColors.error, size: 26),
-          SizedBox(height: 4),
+        children: [
+          Icon(Icons.delete_outline_rounded, color: AppColors.error),
+          const SizedBox(height: 4),
           Text(
-            'Delete',
+            'DELETE'.tr(context),
             style: TextStyle(
               color: AppColors.error,
               fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -316,9 +320,9 @@ class _HabitCardState extends State<HabitCard>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: const Text('Delete Habit'),
+        title: Text('Delete Habit'.tr(context)),
         content: Text(
-          'Are you sure you want to delete "${widget.habit.name}"? This cannot be undone.',
+          'Are you sure you want to delete this quest? This cannot be undone.'.tr(context),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -326,13 +330,13 @@ class _HabitCardState extends State<HabitCard>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: Text('Cancel'.tr(context),
+                style: const TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child:
-                const Text('Delete', style: TextStyle(color: AppColors.error)),
+                Text('Delete'.tr(context), style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -376,7 +380,7 @@ class _OptionsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            habit.name,
+            habit.name.tr(context),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -384,7 +388,7 @@ class _OptionsSheet extends StatelessWidget {
           const SizedBox(height: 20),
           _OptionTile(
             icon: Icons.edit_outlined,
-            label: 'Edit Habit',
+            label: 'Edit Habit'.tr(context),
             onTap: () {
               Navigator.pop(context);
               showModalBottomSheet(
@@ -404,7 +408,7 @@ class _OptionsSheet extends StatelessWidget {
           ),
           _OptionTile(
             icon: Icons.delete_outline_rounded,
-            label: 'Delete Habit',
+            label: 'Delete Habit'.tr(context),
             color: AppColors.error,
             onTap: () {
               Navigator.pop(context);
@@ -478,7 +482,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'No habits yet',
+            'No habits yet'.tr(context),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
@@ -486,7 +490,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the button below to start\nbuilding your first habit.',
+            'Tap the button below to start\nbuilding your first habit.'.tr(context),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,

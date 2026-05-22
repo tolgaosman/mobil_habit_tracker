@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -74,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -111,28 +112,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLogo() {
-    return Container(
-      height: 90,
-      width: 90,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          colors: [AppColors.teal, AppColors.violet],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    return Center(
+      child: Container(
+        height: 90,
+        width: 90,
+        decoration: BoxDecoration(
+          color: AppColors.teal,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: dividerColor,
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: dividerColor,
+              offset: const Offset(4, 4),
+              blurRadius: 0,
+            )
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.teal.withOpacity(0.3),
-            blurRadius: 20,
-            spreadRadius: 2,
-          )
-        ],
-      ),
-      child: const Icon(
-        Icons.check_circle_outline_rounded,
-        size: 50,
-        color: Colors.white,
+        child: const Icon(
+          Icons.sports_esports_rounded,
+          size: 50,
+          color: Colors.black,
+        ),
       ),
     )
         .animate()
@@ -144,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         Text(
-          _isSignUp ? 'Create Account' : 'Welcome Back',
+          _isSignUp ? 'Create Account'.tr(context) : 'Welcome Back'.tr(context),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.w800,
@@ -154,8 +158,8 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 8),
         Text(
           _isSignUp
-              ? 'Start tracking your daily goals today'
-              : 'Sign in to access your habit dashboard',
+              ? 'Start tracking your daily goals today'.tr(context)
+              : 'Sign in to access your habit dashboard'.tr(context),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
@@ -199,13 +203,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: _nameController,
       style: Theme.of(context).textTheme.bodyLarge,
-      decoration: const InputDecoration(
-        hintText: 'Full Name',
-        prefixIcon: Icon(Icons.person_outline_rounded, color: AppColors.textTertiary),
+      decoration: InputDecoration(
+        hintText: 'Full Name'.tr(context),
+        prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.textTertiary),
       ),
       validator: (val) {
         if (val == null || val.trim().isEmpty) {
-          return 'Please enter your name';
+          return 'Please enter your name'.tr(context);
         }
         return null;
       },
@@ -220,16 +224,16 @@ class _LoginScreenState extends State<LoginScreen> {
       controller: _emailController,
       style: Theme.of(context).textTheme.bodyLarge,
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(
-        hintText: 'Email Address',
-        prefixIcon: Icon(Icons.email_outlined, color: AppColors.textTertiary),
+      decoration: InputDecoration(
+        hintText: 'Email Address'.tr(context),
+        prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textTertiary),
       ),
       validator: (val) {
         if (val == null || val.trim().isEmpty) {
-          return 'Please enter your email';
+          return 'Please enter your email'.tr(context);
         }
         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(val.trim())) {
-          return 'Please enter a valid email address';
+          return 'Please enter a valid email address'.tr(context);
         }
         return null;
       },
@@ -242,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
       style: Theme.of(context).textTheme.bodyLarge,
       obscureText: _obscurePassword,
       decoration: InputDecoration(
-        hintText: 'Password',
+        hintText: 'Password'.tr(context),
         prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textTertiary),
         suffixIcon: IconButton(
           icon: Icon(
@@ -255,10 +259,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       validator: (val) {
         if (val == null || val.isEmpty) {
-          return 'Please enter your password';
+          return 'Please enter your password'.tr(context);
         }
         if (val.length < 6) {
-          return 'Password must be at least 6 characters';
+          return 'Password must be at least 6 characters'.tr(context);
         }
         return null;
       },
@@ -288,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               )
             : Text(
-                _isSignUp ? 'Sign Up' : 'Sign In',
+                _isSignUp ? 'Sign Up'.tr(context) : 'Sign In'.tr(context),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -309,11 +313,11 @@ class _LoginScreenState extends State<LoginScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            _isSignUp ? 'Already have an account? ' : 'Don\'t have an account? ',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            _isSignUp ? 'Already have an account? '.tr(context) : 'Don\'t have an account? '.tr(context),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           Text(
-            _isSignUp ? 'Sign In' : 'Sign Up',
+            _isSignUp ? 'Sign In'.tr(context) : 'Sign Up'.tr(context),
             style: const TextStyle(
               color: AppColors.teal,
               fontWeight: FontWeight.w700,

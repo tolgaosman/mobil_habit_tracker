@@ -126,6 +126,14 @@ class HabitProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> toggleCompletionForDate(HabitModel habit, DateTime date) async {
+    await habit.toggleCompletion(date);
+    if (_box != null) {
+      await _box!.put(habit.id, habit);
+    }
+    notifyListeners();
+  }
+
   Future<void> _scheduleNotification(HabitModel habit) async {
     final timeParts = habit.notificationTime.split(':');
     final hour = int.tryParse(timeParts[0]) ?? 9;

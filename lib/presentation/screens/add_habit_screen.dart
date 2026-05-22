@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
@@ -39,37 +40,43 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   bool _isLoading = false;
 
   final List<Map<String, dynamic>> _iconOptions = [
-    {'label': 'Run', 'codePoint': 'run', 'icon': Icons.directions_run_rounded},
-    {'label': 'Water', 'codePoint': 'water', 'icon': Icons.water_drop_rounded},
-    {'label': 'Book', 'codePoint': 'book', 'icon': Icons.menu_book_rounded},
-    {'label': 'Heart', 'codePoint': 'heart', 'icon': Icons.favorite_rounded},
-    {'label': 'Sleep', 'codePoint': 'sleep', 'icon': Icons.bedtime_rounded},
-    {'label': 'Gym', 'codePoint': 'gym', 'icon': Icons.fitness_center_rounded},
-    {'label': 'Food', 'codePoint': 'food', 'icon': Icons.restaurant_rounded},
-    {'label': 'Mind', 'codePoint': 'mind', 'icon': Icons.self_improvement_rounded},
-    {'label': 'Work', 'codePoint': 'work', 'icon': Icons.work_outline_rounded},
-    {'label': 'Music', 'codePoint': 'music', 'icon': Icons.music_note_rounded},
-    {'label': 'Code', 'codePoint': 'code', 'icon': Icons.code_rounded},
-    {'label': 'Star', 'codePoint': 'star', 'icon': Icons.star_rounded},
+    {'label': 'AGILITY (Run)', 'codePoint': 'run', 'icon': Icons.bolt_rounded},
+    {'label': 'MANA (Water)', 'codePoint': 'water', 'icon': Icons.science_rounded},
+    {'label': 'WISDOM (Book)', 'codePoint': 'book', 'icon': Icons.auto_stories_rounded},
+    {'label': 'HEALTH (Heart)', 'codePoint': 'heart', 'icon': Icons.favorite_rounded},
+    {'label': 'CAMP (Sleep)', 'codePoint': 'sleep', 'icon': Icons.nights_stay_rounded},
+    {'label': 'STRENGTH (Gym)', 'codePoint': 'gym', 'icon': Icons.fitness_center_rounded},
+    {'label': 'BUFF (Food)', 'codePoint': 'food', 'icon': Icons.restaurant_rounded},
+    {'label': 'ZEN (Mind)', 'codePoint': 'mind', 'icon': Icons.self_improvement_rounded},
+    {'label': 'GOLD (Work)', 'codePoint': 'work', 'icon': Icons.monetization_on_rounded},
+    {'label': 'BARD (Music)', 'codePoint': 'music', 'icon': Icons.music_note_rounded},
+    {'label': 'CRAFT (Code)', 'codePoint': 'code', 'icon': Icons.terminal_rounded},
+    {'label': 'GLORY (Trophy)', 'codePoint': 'star', 'icon': Icons.emoji_events_rounded},
   ];
 
-  final List<String> _colorOptions = [
-    'FF00E5C3', // teal
-    'FF9B6DFF', // violet
-    'FFFF6B6B', // coral
-    'FFFF9F43', // orange
-    'FF54A0FF', // blue
-    'FFFECA57', // yellow
-    'FFFF6CE4', // pink
-    'FF5EDF8A', // green
-  ];
+  static const Map<String, String> _categoryColors = {
+    'run': 'FFFF9F43',     // Orange
+    'water': 'FF54A0FF',   // Blue
+    'book': 'FF9B6DFF',    // Violet
+    'heart': 'FFFF6B6B',   // Coral
+    'sleep': 'FF5F27CD',   // Deep Purple
+    'gym': 'FF48DBFB',     // Cyan
+    'food': 'FFFF9FF3',     // Pink
+    'mind': 'FF1DD1A1',     // Mint
+    'work': 'FFFECA57',     // Yellow/Gold
+    'music': 'FF00D2D3',    // Teal
+    'code': 'FF341F97',     // Dark Indigo
+    'star': 'FFFFC01C',     // Trophy Gold
+  };
 
   @override
   void initState() {
     super.initState();
     _selectedIconCodePoint =
         widget.initialIconCodePoint ?? _iconOptions.first['codePoint'] as String;
-    _selectedColorHex = widget.initialColorHex ?? _colorOptions.first;
+    _selectedColorHex = widget.initialColorHex ??
+        _categoryColors[_selectedIconCodePoint] ??
+        _categoryColors.values.first;
     _selectedDays = widget.initialRepeatDays != null
         ? List<int>.from(widget.initialRepeatDays!)
         : [1, 2, 3, 4, 5, 6, 7];
@@ -95,11 +102,19 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final dividerColor = theme.dividerTheme.color ?? Colors.black;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        border: Border(
+          top: BorderSide(color: dividerColor, width: 3),
+          left: BorderSide(color: dividerColor, width: 3),
+          right: BorderSide(color: dividerColor, width: 3),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
       child: SingleChildScrollView(
@@ -114,8 +129,6 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
             _buildNameField(),
             const SizedBox(height: 24),
             _buildIconSection(),
-            const SizedBox(height: 24),
-            _buildColorSection(),
             const SizedBox(height: 24),
             _buildRepeatDaysSection(),
             const SizedBox(height: 24),
@@ -146,7 +159,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
-        widget.isEditing ? 'Edit Habit' : 'New Habit',
+        widget.isEditing ? 'Edit Habit'.tr(context) : 'New Habit'.tr(context),
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               letterSpacing: -0.3,
@@ -162,14 +175,14 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('Habit Name'),
+        _sectionLabel('Habit Name'.tr(context)),
         const SizedBox(height: 10),
         TextField(
           controller: _nameController,
           focusNode: _focusNode,
           style: Theme.of(context).textTheme.bodyLarge,
           decoration: InputDecoration(
-            hintText: 'e.g. Drink 2L of water',
+            hintText: 'e.g. Drink 2L of water'.tr(context),
             prefixIcon: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Row(
@@ -203,13 +216,16 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   }
 
   Widget _buildIconSection() {
+    final theme = Theme.of(context);
+    final dividerColor = theme.dividerTheme.color ?? Colors.black;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('Icon'),
+        _sectionLabel('QUEST TYPE (Category)'.tr(context)),
         const SizedBox(height: 12),
         SizedBox(
-          height: 56,
+          height: 64,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: _iconOptions.length,
@@ -220,83 +236,49 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                   _selectedIconCodePoint == option['codePoint'];
               final accentColor = _hexToColor(_selectedColorHex);
               return GestureDetector(
-                onTap: () => setState(
-                    () => _selectedIconCodePoint = option['codePoint'] as String),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    _selectedIconCodePoint = option['codePoint'] as String;
+                    _selectedColorHex = _categoryColors[_selectedIconCodePoint]!;
+                  });
+                },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
-                  width: 56,
-                  height: 56,
+                  width: 72,
+                  height: 64,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? accentColor.withOpacity(0.18)
-                        : AppColors.card,
-                    borderRadius: BorderRadius.circular(14),
+                        ? accentColor.withOpacity(0.2)
+                        : (theme.cardTheme.color ?? AppColors.card),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected
-                          ? accentColor
-                          : Colors.transparent,
-                      width: 1.5,
+                      color: isSelected ? accentColor : dividerColor.withOpacity(0.3),
+                      width: isSelected ? 2.5 : 1.5,
                     ),
                   ),
-                  child: Icon(
-                    option['icon'] as IconData,
-                    color: isSelected ? accentColor : AppColors.textSecondary,
-                    size: 26,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        option['icon'] as IconData,
+                        color: isSelected ? accentColor : context.textSecondaryColor,
+                        size: 22,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        ((option['label'] as String).split(' ').first).tr(context),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? accentColor : context.textTertiaryColor,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildColorSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionLabel('Color'),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 44,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _colorOptions.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final hex = _colorOptions[index];
-              final isSelected = _selectedColorHex == hex;
-              final color = _hexToColor(hex);
-              return GestureDetector(
-                onTap: () => setState(() => _selectedColorHex = hex),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? Colors.white : Colors.transparent,
-                      width: 2.5,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: color.withOpacity(0.5),
-                              blurRadius: 10,
-                              spreadRadius: 1,
-                            )
-                          ]
-                        : null,
-                  ),
-                  child: isSelected
-                      ? const Icon(Icons.check_rounded,
-                          color: Colors.white, size: 20)
-                      : null,
                 ),
               );
             },
@@ -312,7 +294,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
       children: [
         Row(
           children: [
-            _sectionLabel('Daily Reminder'),
+            _sectionLabel('Daily Reminder'.tr(context)),
             const Spacer(),
             Switch(
               value: _notificationsEnabled,
@@ -397,7 +379,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                     strokeWidth: 2.5, color: Colors.black),
               )
             : Text(
-                widget.isEditing ? 'Save Changes' : 'Add Habit',
+                widget.isEditing ? 'Save Changes'.tr(context) : 'Add Habit'.tr(context),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -472,7 +454,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('Repeat Days'),
+        _sectionLabel('Repeat Days'.tr(context)),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
