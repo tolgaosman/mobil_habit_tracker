@@ -40,40 +40,46 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   bool _isLoading = false;
 
   final List<Map<String, dynamic>> _iconOptions = [
-    {'label': 'AGILITY (Run)', 'codePoint': 'run', 'icon': Icons.bolt_rounded},
-    {'label': 'MANA (Water)', 'codePoint': 'water', 'icon': Icons.science_rounded},
-    {'label': 'WISDOM (Book)', 'codePoint': 'book', 'icon': Icons.auto_stories_rounded},
-    {'label': 'HEALTH (Heart)', 'codePoint': 'heart', 'icon': Icons.favorite_rounded},
-    {'label': 'CAMP (Sleep)', 'codePoint': 'sleep', 'icon': Icons.nights_stay_rounded},
-    {'label': 'STRENGTH (Gym)', 'codePoint': 'gym', 'icon': Icons.fitness_center_rounded},
-    {'label': 'BUFF (Food)', 'codePoint': 'food', 'icon': Icons.restaurant_rounded},
-    {'label': 'ZEN (Mind)', 'codePoint': 'mind', 'icon': Icons.self_improvement_rounded},
-    {'label': 'GOLD (Work)', 'codePoint': 'work', 'icon': Icons.monetization_on_rounded},
-    {'label': 'BARD (Music)', 'codePoint': 'music', 'icon': Icons.music_note_rounded},
-    {'label': 'CRAFT (Code)', 'codePoint': 'code', 'icon': Icons.terminal_rounded},
-    {'label': 'GLORY (Trophy)', 'codePoint': 'star', 'icon': Icons.emoji_events_rounded},
+    {'label': 'Nutrition', 'codePoint': 'nutrition', 'icon': Icons.restaurant_rounded},
+    {'label': 'Water', 'codePoint': 'water', 'icon': Icons.water_drop_rounded},
+    {'label': 'Exercise', 'codePoint': 'exercise', 'icon': Icons.fitness_center_rounded},
+    {'label': 'Technology', 'codePoint': 'technology', 'icon': Icons.computer_rounded},
+    {'label': 'Education', 'codePoint': 'education', 'icon': Icons.school_rounded},
+    {'label': 'Other', 'codePoint': 'other', 'icon': Icons.category_rounded},
   ];
 
   static const Map<String, String> _categoryColors = {
-    'run': 'FFFF9F43',     // Orange
-    'water': 'FF54A0FF',   // Blue
-    'book': 'FF9B6DFF',    // Violet
-    'heart': 'FFFF6B6B',   // Coral
-    'sleep': 'FF5F27CD',   // Deep Purple
-    'gym': 'FF48DBFB',     // Cyan
-    'food': 'FFFF9FF3',     // Pink
-    'mind': 'FF1DD1A1',     // Mint
-    'work': 'FFFECA57',     // Yellow/Gold
-    'music': 'FF00D2D3',    // Teal
-    'code': 'FF341F97',     // Dark Indigo
-    'star': 'FFFFC01C',     // Trophy Gold
+    'nutrition': 'FFFF6B6B',   // Coral/Red
+    'water': 'FF54A0FF',       // Blue
+    'exercise': 'FFFF9F43',    // Orange
+    'technology': 'FF341F97',  // Indigo
+    'education': 'FF9B6DFF',   // Violet
+    'other': 'FF00D2D3',       // Teal
   };
 
   @override
   void initState() {
     super.initState();
-    _selectedIconCodePoint =
-        widget.initialIconCodePoint ?? _iconOptions.first['codePoint'] as String;
+    final initialCode = widget.initialIconCodePoint;
+    String mappedCode = 'other';
+    if (initialCode != null) {
+      if (initialCode == 'run' || initialCode == 'gym' || initialCode == 'exercise') {
+        mappedCode = 'exercise';
+      } else if (initialCode == 'water') {
+        mappedCode = 'water';
+      } else if (initialCode == 'book' || initialCode == 'code' || initialCode == 'education') {
+        mappedCode = 'education';
+      } else if (initialCode == 'food' || initialCode == 'nutrition') {
+        mappedCode = 'nutrition';
+      } else if (initialCode == 'work' || initialCode == 'technology') {
+        mappedCode = 'technology';
+      } else {
+        mappedCode = 'other';
+      }
+    } else {
+      mappedCode = _iconOptions.first['codePoint'] as String;
+    }
+    _selectedIconCodePoint = mappedCode;
     _selectedColorHex = widget.initialColorHex ??
         _categoryColors[_selectedIconCodePoint] ??
         _categoryColors.values.first;
@@ -222,14 +228,14 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('QUEST TYPE (Category)'.tr(context)),
+        _sectionLabel('Category'.tr(context)),
         const SizedBox(height: 12),
         SizedBox(
-          height: 64,
+          height: 56,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: _iconOptions.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final option = _iconOptions[index];
               final isSelected =
@@ -246,38 +252,24 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
-                  width: 72,
-                  height: 64,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     color: isSelected
                         ? accentColor.withOpacity(0.2)
                         : (theme.cardTheme.color ?? AppColors.card),
-                    borderRadius: BorderRadius.circular(12),
+                    shape: BoxShape.circle,
                     border: Border.all(
                       color: isSelected ? accentColor : dividerColor.withOpacity(0.3),
                       width: isSelected ? 2.5 : 1.5,
                     ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        option['icon'] as IconData,
-                        color: isSelected ? accentColor : context.textSecondaryColor,
-                        size: 22,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        ((option['label'] as String).split(' ').first).tr(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? accentColor : context.textTertiaryColor,
-                        ),
-                      ),
-                    ],
+                  child: Center(
+                    child: Icon(
+                      option['icon'] as IconData,
+                      color: isSelected ? accentColor : context.textSecondaryColor,
+                      size: 24,
+                    ),
                   ),
                 ),
               );

@@ -128,18 +128,20 @@ class _HistoryTabState extends State<HistoryTab> {
     final todayRate = todayHabits.isEmpty ? 0.0 : todayCompleted / todayHabits.length;
     final todayPercentage = (todayRate * 100).toStringAsFixed(0);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTopBar(context),
-        _buildCompletionSummaryCard(context, overallRate, overallCompleted, overallTotal),
-        _buildCalendarSection(context, allHabits),
-        const SizedBox(height: 4),
-        _buildQuestsHeader(context, activeHabits.length, todayPercentage),
-        Expanded(
-          child: _buildHistoryQuestList(context, activeHabits),
-        ),
-      ],
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTopBar(context),
+          _buildCompletionSummaryCard(context, overallRate, overallCompleted, overallTotal),
+          _buildCalendarSection(context, allHabits),
+          const SizedBox(height: 4),
+          _buildQuestsHeader(context, activeHabits.length, todayPercentage),
+          _buildHistoryQuestList(context, activeHabits),
+          const SizedBox(height: 32), // Add bottom padding for better scroll feel
+        ],
+      ),
     );
   }
 
@@ -543,17 +545,20 @@ class _HistoryTabState extends State<HistoryTab> {
 
   Widget _buildHistoryQuestList(BuildContext context, List<HabitModel> habits) {
     if (habits.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.history_toggle_off_rounded, size: 40, color: context.textTertiaryColor),
-            const SizedBox(height: 8),
-            Text(
-              'No active quests on this date.'.tr(context),
-              style: TextStyle(color: context.textSecondaryColor, fontSize: 13, fontWeight: FontWeight.bold),
-            ),
-          ],
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.history_toggle_off_rounded, size: 40, color: context.textTertiaryColor),
+              const SizedBox(height: 8),
+              Text(
+                'No active quests on this date.'.tr(context),
+                style: TextStyle(color: context.textSecondaryColor, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
       )
           .animate()
@@ -563,6 +568,8 @@ class _HistoryTabState extends State<HistoryTab> {
     final canInteract = _canToggle(_selectedDate);
 
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       itemCount: habits.length,
       itemBuilder: (context, index) {

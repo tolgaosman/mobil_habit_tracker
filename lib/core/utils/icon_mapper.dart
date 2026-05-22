@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 
 class IconMapper {
   static const Map<String, IconData> habitIcons = {
+    // New Categories
+    'nutrition': Icons.restaurant_rounded,
+    'water': Icons.water_drop_rounded,
+    'exercise': Icons.fitness_center_rounded,
+    'technology': Icons.computer_rounded,
+    'education': Icons.school_rounded,
+    'other': Icons.category_rounded,
+
+    // Old fallbacks for backward compatibility
     'run': Icons.bolt_rounded,
-    'water': Icons.science_rounded,
     'book': Icons.auto_stories_rounded,
     'heart': Icons.favorite_rounded,
     'sleep': Icons.nights_stay_rounded,
@@ -14,8 +22,6 @@ class IconMapper {
     'music': Icons.music_note_rounded,
     'code': Icons.terminal_rounded,
     'star': Icons.emoji_events_rounded,
-
-    // Hex fallbacks for backward compatibility
     '0xe555': Icons.bolt_rounded,
     '0xe5aa': Icons.science_rounded,
     '0xe0bf': Icons.auto_stories_rounded,
