@@ -35,7 +35,7 @@ class NotificationService {
     );
 
     await _plugin.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
@@ -44,7 +44,7 @@ class NotificationService {
       await _plugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestPermission();
+          ?.requestNotificationsPermission();
     }
 
     _initialized = true;
@@ -101,21 +101,19 @@ class NotificationService {
     }
 
     await _plugin.zonedSchedule(
-      notificationId,
-      title,
-      body,
-      scheduledDate,
-      details,
+      id: notificationId,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
   /// Cancel a scheduled notification by habit id.
   Future<void> cancelNotification(String habitId) async {
-    await _plugin.cancel(habitId.hashCode.abs() % 100000);
+    await _plugin.cancel(id: habitId.hashCode.abs() % 100000);
   }
 
   /// Cancel ALL scheduled notifications.
