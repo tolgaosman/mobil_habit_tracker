@@ -38,33 +38,19 @@ class _HistoryTabState extends State<HistoryTab> {
   }
 
   bool _canToggle(DateTime date) {
-    final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day);
-    final targetMidnight = DateTime(date.year, date.month, date.day);
-    final difference = todayMidnight.difference(targetMidnight).inDays;
-    return difference == 0 || difference == 1;
+    return true;
   }
 
   List<HabitModel> _getHabitsForDate(DateTime date, List<HabitModel> allHabits) {
     final targetMidnight = DateTime(date.year, date.month, date.day);
-    final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day);
-    final yesterdayMidnight = todayMidnight.subtract(const Duration(days: 1));
+    final startingDate = _getStartingDate(allHabits);
+    if (targetMidnight.isBefore(startingDate)) {
+      return [];
+    }
 
     return allHabits.where((h) {
       try {
         if (h.isCompletedOn(date)) return true;
-
-        final created = DateTime.parse(h.createdAt);
-        final createdMidnight = DateTime(created.year, created.month, created.day);
-        
-        if (createdMidnight.isAfter(targetMidnight)) {
-          if (targetMidnight.isAtSameMomentAs(todayMidnight) || targetMidnight.isAtSameMomentAs(yesterdayMidnight)) {
-            // Allow today and yesterday
-          } else {
-            return false;
-          }
-        }
 
         // Check repeatDays (1 = Monday, ..., 7 = Sunday)
         if (h.repeatDays != null && h.repeatDays!.isNotEmpty) {
@@ -75,6 +61,20 @@ class _HistoryTabState extends State<HistoryTab> {
         return true;
       }
     }).toList();
+  }
+
+  DateTime _getStartingDate(List<HabitModel> allHabits) {
+    DateTime startingDate = DateTime(2026, 5, 20);
+    for (final habit in allHabits) {
+      try {
+        final created = DateTime.parse(habit.createdAt);
+        final createdDate = DateTime(created.year, created.month, created.day);
+        if (createdDate.isBefore(startingDate)) {
+          startingDate = createdDate;
+        }
+      } catch (_) {}
+    }
+    return startingDate;
   }
 
   double _getCompletionRate(DateTime date, List<HabitModel> allHabits) {
@@ -89,11 +89,14 @@ class _HistoryTabState extends State<HistoryTab> {
     int totalQuests = 0;
     int completedQuests = 0;
     
+    final startingDate = _getStartingDate(allHabits);
+
     for (int d = 1; d <= lastDay; d++) {
       final date = DateTime(_focusedMonth.year, _focusedMonth.month, d);
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       if (date.isAfter(today)) continue;
+      if (date.isBefore(startingDate)) continue;
       
       final habits = _getHabitsForDate(date, allHabits);
       totalQuests += habits.length;
@@ -603,21 +606,6 @@ class _HistoryTabState extends State<HistoryTab> {
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                if (!canInteract) {
-                  HapticFeedback.vibrate();
-                  ScaffoldMessenger.of(context).clearSnackBars();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Past history is archived! Only today and yesterday can be changed.'.tr(context),
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      backgroundColor: AppColors.textPrimary,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
                 HapticFeedback.lightImpact();
                 context.read<HabitProvider>().toggleCompletionForDate(habit, _selectedDate);
               },

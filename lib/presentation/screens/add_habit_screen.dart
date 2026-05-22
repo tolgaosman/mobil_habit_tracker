@@ -108,6 +108,8 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+    final safetyBottom = MediaQuery.of(context).padding.bottom;
+    final totalBottom = bottomPadding > 0 ? bottomPadding : (safetyBottom > 0 ? safetyBottom : 12.0);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final dividerColor = theme.dividerTheme.color ?? Colors.black;
@@ -122,7 +124,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
           right: BorderSide(color: dividerColor, width: 3),
         ),
       ),
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + totalBottom),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(

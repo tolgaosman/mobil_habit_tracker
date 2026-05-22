@@ -45,16 +45,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHabitsTab(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTopBar(context),
-        const ProgressHeader(),
-        const WeekCalendar(),
-        const SizedBox(height: 8),
-        _buildSectionHeader(context),
-        const Expanded(child: HabitList()),
-      ],
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTopBar(context),
+          const ProgressHeader(),
+          const WeekCalendar(),
+          const SizedBox(height: 8),
+          _buildSectionHeader(context),
+          const HabitList(),
+          const SizedBox(height: 120),
+        ],
+      ),
     );
   }
 
@@ -408,13 +412,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final hour = DateTime.now().hour;
     final displayName = name.isNotEmpty ? name : 'Player 1';
     if (hour >= 5 && hour < 12) {
-      return 'Good Morning, $displayName 🌅'.tr(context);
+      return 'Good Morning, $displayName'.tr(context);
     } else if (hour >= 12 && hour < 17) {
-      return 'Good Afternoon, $displayName ☀️'.tr(context);
+      return 'Good Afternoon, $displayName'.tr(context);
     } else if (hour >= 17 && hour < 22) {
-      return 'Good Evening, $displayName 🌆'.tr(context);
+      return 'Good Evening, $displayName'.tr(context);
     } else {
-      return 'Good Night, $displayName 🌌'.tr(context);
+      return 'Good Night, $displayName'.tr(context);
     }
   }
 }

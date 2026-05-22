@@ -24,7 +24,9 @@ class HabitList extends StatelessWidget {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(24, 4, 24, 120),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
           itemCount: habits.length,
           itemBuilder: (context, index) {
             return HabitCard(
@@ -87,29 +89,11 @@ class _HabitCardState extends State<HabitCard>
   Color _hexToColor(String hex) => Color(int.parse(hex, radix: 16));
 
   bool _canToggle(DateTime selectedDate) {
-    final now = DateTime.now();
-    final selectedMidnight = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-    final todayMidnight = DateTime(now.year, now.month, now.day);
-    final difference = todayMidnight.difference(selectedMidnight).inDays;
-    return difference == 0 || difference == 1;
+    return true;
   }
 
   void _toggle(BuildContext context) {
     final provider = context.read<HabitProvider>();
-    if (!_canToggle(provider.selectedDate)) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'You can only toggle completion for today and yesterday.'.tr(context),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          backgroundColor: AppColors.textPrimary,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
     HapticFeedback.lightImpact();
     _checkController.forward(from: 0);
     provider.toggleCompletion(widget.habit);
@@ -125,14 +109,7 @@ class _HabitCardState extends State<HabitCard>
     final streak = widget.habit.currentStreak;
     final canInteract = _canToggle(provider.selectedDate);
 
-    return Dismissible(
-      key: Key(widget.habit.id),
-      direction: DismissDirection.endToStart,
-      background: _buildDeleteBackground(context),
-      confirmDismiss: (_) => _confirmDelete(context),
-      onDismissed: (_) =>
-          context.read<HabitProvider>().deleteHabit(widget.habit.id),
-      child: GestureDetector(
+    return GestureDetector(
         onLongPress: () => _showOptions(context),
         child: Container(
           margin: const EdgeInsets.only(bottom: 16, right: 4), // extra margin for offset shadow
@@ -263,9 +240,8 @@ class _HabitCardState extends State<HabitCard>
             ),
           ),
         ),
-      ),
-    )
-        .animate()
+      )
+          .animate()
         .fadeIn(
           delay: Duration(milliseconds: widget.animationDelay),
           duration: 400.ms,
@@ -280,68 +256,7 @@ class _HabitCardState extends State<HabitCard>
         );
   }
 
-  Widget _buildDeleteBackground(BuildContext context) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16, right: 4),
-      decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: dividerColor,
-          width: 2.5,
-        ),
-      ),
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.delete_outline_rounded, color: AppColors.error),
-          const SizedBox(height: 4),
-          Text(
-            'DELETE'.tr(context),
-            style: TextStyle(
-              color: AppColors.error,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Future<bool?> _confirmDelete(BuildContext context) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text('Delete Habit'.tr(context)),
-        content: Text(
-          'Are you sure you want to delete this quest? This cannot be undone.'.tr(context),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'.tr(context),
-                style: const TextStyle(color: AppColors.textSecondary)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child:
-                Text('Delete'.tr(context), style: const TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showOptions(BuildContext context) {
     HapticFeedback.mediumImpact();

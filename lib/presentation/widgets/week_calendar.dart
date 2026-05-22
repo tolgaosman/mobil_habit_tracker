@@ -83,16 +83,20 @@ class _DayChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final startMidnight = context.read<HabitProvider>().getStartingDate();
+    final dayMidnight = DateTime(day.year, day.month, day.day);
+    final isBeforeStart = dayMidnight.isBefore(startMidnight);
+
     final dayLabel = DateFormat('E').format(day).tr(context).substring(0, 1);
     final dateLabel = day.day.toString();
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
     const double offsetVal = 3.0;
 
     // Both selected day and current day (isToday) look pressed down/depressed
-    final isPressed = isSelected || isToday;
+    final isPressed = (isSelected || isToday) && !isBeforeStart;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: isBeforeStart ? null : onTap,
       child: Container(
         margin: EdgeInsets.only(
           top: isPressed ? offsetVal : 0,
@@ -104,15 +108,19 @@ class _DayChip extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           height: 62,
           decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.teal
-                : (Theme.of(context).cardTheme.color ?? AppColors.card),
+            color: isBeforeStart
+                ? (Theme.of(context).brightness == Brightness.dark ? Colors.black26 : Colors.black.withOpacity(0.04))
+                : (isSelected
+                    ? AppColors.teal
+                    : (Theme.of(context).cardTheme.color ?? AppColors.card)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: (isToday && isSelected) ? dividerColor : (isToday ? AppColors.teal : dividerColor),
-              width: 2,
+              color: isBeforeStart
+                  ? (Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black12)
+                  : ((isToday && isSelected) ? dividerColor : (isToday ? AppColors.teal : dividerColor)),
+              width: isBeforeStart ? 1 : 2,
             ),
-            boxShadow: isPressed
+            boxShadow: isPressed || isBeforeStart
                 ? null
                 : [
                     BoxShadow(
@@ -130,9 +138,11 @@ class _DayChip extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Colors.black
-                      : (isToday ? AppColors.teal : null),
+                  color: isBeforeStart
+                      ? (Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26)
+                      : (isSelected
+                          ? Colors.black
+                          : (isToday ? AppColors.teal : null)),
                 ),
               ),
               const SizedBox(height: 4),
@@ -141,9 +151,11 @@ class _DayChip extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Colors.black
-                      : (isToday ? AppColors.teal : null),
+                  color: isBeforeStart
+                      ? (Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26)
+                      : (isSelected
+                          ? Colors.black
+                          : (isToday ? AppColors.teal : null)),
                 ),
               ),
             ],

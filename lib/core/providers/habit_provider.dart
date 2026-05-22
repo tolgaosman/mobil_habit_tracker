@@ -17,8 +17,30 @@ class HabitProvider extends ChangeNotifier {
 
   bool get isLoading => _currentUserId != null && _box == null;
 
+  DateTime getStartingDate() {
+    DateTime startingDate = DateTime(2026, 5, 20);
+    if (_box == null) return startingDate;
+    for (final habit in _box!.values) {
+      try {
+        final created = DateTime.parse(habit.createdAt);
+        final createdDate = DateTime(created.year, created.month, created.day);
+        if (createdDate.isBefore(startingDate)) {
+          startingDate = createdDate;
+        }
+      } catch (_) {}
+    }
+    return startingDate;
+  }
+
   List<HabitModel> get habits {
     if (_box == null) return [];
+
+    final selectedMidnight = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    final startMidnight = getStartingDate();
+    if (selectedMidnight.isBefore(startMidnight)) {
+      return [];
+    }
+
     final selectedWeekday = _selectedDate.weekday;
     return _box!.values.where((habit) {
       final days = habit.repeatDays;
