@@ -46,9 +46,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "quests_logo.png"
+  image_path: "taskLogo.jpeg"
   adaptive_icon_background: "#F9F5EB"
-  adaptive_icon_foreground: "quests_logo.png"
+  adaptive_icon_foreground: "taskLogo.jpeg"
 
 flutter:
   uses-material-design: true
