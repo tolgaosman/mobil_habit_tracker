@@ -381,6 +381,7 @@ class _OptionsSheet extends StatelessWidget {
                   initialName: habit.name,
                   initialIconCodePoint: habit.iconCodePoint,
                   initialColorHex: habit.colorHex,
+                  initialRepeatDays: habit.repeatDays,
                 ),
               );
             },

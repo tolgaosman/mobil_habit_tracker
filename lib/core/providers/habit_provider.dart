@@ -3,18 +3,36 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/habit_model.dart';
+import '../../data/models/user_model.dart';
 import '../services/notification_service.dart';
 
 class HabitProvider extends ChangeNotifier {
-  final Box<HabitModel> _box = Hive.box<HabitModel>('habits');
   final _uuid = const Uuid();
+  Box<HabitModel>? _box;
+  String? _currentUserId;
 
   DateTime _selectedDate = DateTime.now();
 
   DateTime get selectedDate => _selectedDate;
 
-  List<HabitModel> get habits => _box.values.toList()
-    ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  bool get isLoading => _currentUserId != null && _box == null;
+
+  List<HabitModel> get habits {
+    if (_box == null) return [];
+    final selectedWeekday = _selectedDate.weekday;
+    return _box!.values.where((habit) {
+      final days = habit.repeatDays;
+      if (days == null || days.isEmpty) return true;
+      return days.contains(selectedWeekday);
+    }).toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  }
+
+  List<HabitModel> get allHabits {
+    if (_box == null) return [];
+    return _box!.values.toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+  }
 
   List<HabitModel> get todayHabits => habits;
 
@@ -23,6 +41,25 @@ class HabitProvider extends ChangeNotifier {
 
   double get completionRate =>
       habits.isEmpty ? 0 : completedToday / habits.length;
+
+  Future<void> updateUser(UserModel? user) async {
+    if (user == null) {
+      _box = null;
+      _currentUserId = null;
+      notifyListeners();
+      return;
+    }
+
+    if (_currentUserId == user.id) return;
+
+    _currentUserId = user.id;
+    _box = null;
+    notifyListeners();
+
+    final boxName = 'habits_${user.id}';
+    _box = await Hive.openBox<HabitModel>(boxName);
+    notifyListeners();
+  }
 
   void selectDate(DateTime date) {
     _selectedDate = date;
@@ -35,7 +72,10 @@ class HabitProvider extends ChangeNotifier {
     required String colorHex,
     bool notificationsEnabled = false,
     String notificationTime = '09:00',
+    List<int>? repeatDays,
   }) async {
+    if (_box == null) return;
+    
     final habit = HabitModel(
       id: _uuid.v4(),
       name: name,
@@ -44,8 +84,9 @@ class HabitProvider extends ChangeNotifier {
       createdAt: DateTime.now().toIso8601String(),
       notificationsEnabled: notificationsEnabled,
       notificationTime: notificationTime,
+      repeatDays: repeatDays,
     );
-    await _box.put(habit.id, habit);
+    await _box!.put(habit.id, habit);
 
     if (notificationsEnabled) {
       await _scheduleNotification(habit);
@@ -55,6 +96,7 @@ class HabitProvider extends ChangeNotifier {
   }
 
   Future<void> updateHabit(HabitModel habit) async {
+    if (_box == null) return;
     await habit.save();
 
     if (habit.notificationsEnabled) {
@@ -67,8 +109,9 @@ class HabitProvider extends ChangeNotifier {
   }
 
   Future<void> deleteHabit(String habitId) async {
+    if (_box == null) return;
     await NotificationService.instance.cancelNotification(habitId);
-    await _box.delete(habitId);
+    await _box!.delete(habitId);
     notifyListeners();
   }
 

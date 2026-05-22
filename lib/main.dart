@@ -4,10 +4,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/providers/auth_provider.dart';
 import 'core/providers/habit_provider.dart';
 import 'core/services/notification_service.dart';
 import 'data/models/habit_model.dart';
+import 'data/models/user_model.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +19,10 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(HabitModelAdapter());
   Hive.registerAdapter(HabitCompletionAdapter());
-  await Hive.openBox<HabitModel>('habits');
+  Hive.registerAdapter(UserModelAdapter());
+  
+  await Hive.openBox<UserModel>('users');
+  await Hive.openBox<String>('auth_session');
 
   // Initialize Notifications
   await NotificationService.instance.initialize();
@@ -37,7 +43,12 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => HabitProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, HabitProvider>(
+          create: (_) => HabitProvider(),
+          update: (_, auth, habitProvider) =>
+              habitProvider!..updateUser(auth.currentUser),
+        ),
       ],
       child: const HabitTrackerApp(),
     ),
@@ -53,7 +64,14 @@ class HabitTrackerApp extends StatelessWidget {
       title: 'Habit Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const HomeScreen(),
+      home: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (auth.isAuthenticated) {
+            return const HomeScreen();
+          }
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }

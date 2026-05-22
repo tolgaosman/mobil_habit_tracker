@@ -22,16 +22,17 @@ class HabitModelAdapter extends TypeAdapter<HabitModel> {
       iconCodePoint: fields[2] as String,
       colorHex: fields[3] as String,
       createdAt: fields[5] as String,
-      completions: (fields[4] as List).cast<HabitCompletion>(),
+      completions: (fields[4] as List?)?.cast<HabitCompletion>(),
       notificationsEnabled: fields[6] as bool,
       notificationTime: fields[7] as String,
+      repeatDays: (fields[8] as List?)?.cast<int>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, HabitModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,8 +48,13 @@ class HabitModelAdapter extends TypeAdapter<HabitModel> {
       ..writeByte(6)
       ..write(obj.notificationsEnabled)
       ..writeByte(7)
-      ..write(obj.notificationTime);
+      ..write(obj.notificationTime)
+      ..writeByte(8)
+      ..write(obj.repeatDays);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -56,9 +62,6 @@ class HabitModelAdapter extends TypeAdapter<HabitModel> {
       other is HabitModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
-
-  @override
-  int get hashCode => typeId.hashCode;
 }
 
 class HabitCompletionAdapter extends TypeAdapter<HabitCompletion> {
@@ -85,12 +88,12 @@ class HabitCompletionAdapter extends TypeAdapter<HabitCompletion> {
   }
 
   @override
+  int get hashCode => typeId.hashCode;
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is HabitCompletionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
-
-  @override
-  int get hashCode => typeId.hashCode;
 }

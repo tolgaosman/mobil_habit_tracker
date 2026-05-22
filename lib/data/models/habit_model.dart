@@ -28,6 +28,9 @@ class HabitModel extends HiveObject {
   @HiveField(7)
   String notificationTime; // "HH:mm" format
 
+  @HiveField(8)
+  List<int>? repeatDays; // 1 = Monday, ..., 7 = Sunday
+
   HabitModel({
     required this.id,
     required this.name,
@@ -37,6 +40,7 @@ class HabitModel extends HiveObject {
     List<HabitCompletion>? completions,
     this.notificationsEnabled = false,
     this.notificationTime = '09:00',
+    this.repeatDays,
   }) : completions = completions ?? [];
 
   /// Check if this habit was completed on a given date
@@ -85,6 +89,7 @@ class HabitModel extends HiveObject {
     String? colorHex,
     bool? notificationsEnabled,
     String? notificationTime,
+    List<int>? repeatDays,
   }) {
     return HabitModel(
       id: id,
@@ -95,6 +100,7 @@ class HabitModel extends HiveObject {
       completions: completions,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       notificationTime: notificationTime ?? this.notificationTime,
+      repeatDays: repeatDays ?? this.repeatDays,
     );
   }
 }

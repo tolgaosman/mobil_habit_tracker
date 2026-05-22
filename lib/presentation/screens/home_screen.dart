@@ -1,13 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../core/providers/habit_provider.dart';
 import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/progress_header.dart';
 import 'add_habit_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -34,6 +37,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.currentUser;
+    final name = user?.name ?? '';
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 4),
       child: Row(
@@ -42,7 +49,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _greeting(),
+                _greeting(name),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -58,7 +65,7 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          _buildAvatarButton(context),
+          _buildAvatarButton(context, user),
         ],
       ),
     )
@@ -67,25 +74,49 @@ class HomeScreen extends StatelessWidget {
         .slideY(begin: -0.1, end: 0, duration: 500.ms, curve: Curves.easeOut);
   }
 
-  Widget _buildAvatarButton(BuildContext context) {
+  Widget _buildAvatarButton(BuildContext context, dynamic user) {
+    final hasImage = user?.profileImagePath != null && user!.profileImagePath!.isNotEmpty;
+
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+        );
+      },
       child: Container(
         width: 42,
         height: 42,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [AppColors.teal, AppColors.violet],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          border: Border.all(color: AppColors.teal, width: 1.5),
         ),
-        child: const Icon(
-          Icons.person_outline_rounded,
-          color: Colors.white,
-          size: 22,
+        child: ClipOval(
+          child: hasImage
+              ? Image.file(
+                  File(user.profileImagePath!),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+                )
+              : _buildDefaultAvatar(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.teal, AppColors.violet],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Icon(
+        Icons.person_rounded,
+        color: Colors.white,
+        size: 20,
       ),
     );
   }
@@ -160,10 +191,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  String _greeting() {
+  String _greeting(String name) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning 🌤';
-    if (hour < 17) return 'Good afternoon ☀️';
-    return 'Good evening 🌙';
+    final displayName = name.isNotEmpty ? ', $name' : '';
+    if (hour < 12) return 'Good morning$displayName 🌤';
+    if (hour < 17) return 'Good afternoon$displayName ☀️';
+    return 'Good evening$displayName 🌙';
   }
 }

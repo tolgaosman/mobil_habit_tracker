@@ -40,12 +40,17 @@ class WeekCalendar extends StatelessWidget {
                 children: days.asMap().entries.map((entry) {
                   final index = entry.key;
                   final day = entry.value;
-                  return _DayChip(
-                    day: day,
-                    isSelected: _isSameDay(day, provider.selectedDate),
-                    isToday: _isSameDay(day, now),
-                    animationDelay: index * 60,
-                    onTap: () => provider.selectDate(day),
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                      child: _DayChip(
+                        day: day,
+                        isSelected: _isSameDay(day, provider.selectedDate),
+                        isToday: _isSameDay(day, now),
+                        animationDelay: index * 60,
+                        onTap: () => provider.selectDate(day),
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
@@ -85,7 +90,6 @@ class _DayChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
-        width: 40,
         height: 68,
         decoration: BoxDecoration(
           color: isSelected

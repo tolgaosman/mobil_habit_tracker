@@ -11,6 +11,7 @@ class AddHabitSheet extends StatefulWidget {
   final String? initialName;
   final String? initialIconCodePoint;
   final String? initialColorHex;
+  final List<int>? initialRepeatDays;
 
   const AddHabitSheet({
     super.key,
@@ -19,6 +20,7 @@ class AddHabitSheet extends StatefulWidget {
     this.initialName,
     this.initialIconCodePoint,
     this.initialColorHex,
+    this.initialRepeatDays,
   });
 
   @override
@@ -30,6 +32,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   final _focusNode = FocusNode();
   late String _selectedIconCodePoint;
   late String _selectedColorHex;
+  late List<int> _selectedDays;
   bool _notificationsEnabled = false;
   TimeOfDay _notificationTime = const TimeOfDay(hour: 9, minute: 0);
   bool _isLoading = false;
@@ -66,6 +69,9 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     _selectedIconCodePoint =
         widget.initialIconCodePoint ?? _iconOptions.first['codePoint'] as String;
     _selectedColorHex = widget.initialColorHex ?? _colorOptions.first;
+    _selectedDays = widget.initialRepeatDays != null
+        ? List<int>.from(widget.initialRepeatDays!)
+        : [1, 2, 3, 4, 5, 6, 7];
     if (widget.initialName != null) {
       _nameController.text = widget.initialName!;
     }
@@ -95,23 +101,28 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          _buildTitle(),
-          const SizedBox(height: 24),
-          _buildNameField(),
-          const SizedBox(height: 24),
-          _buildIconSection(),
-          const SizedBox(height: 24),
-          _buildColorSection(),
-          const SizedBox(height: 24),
-          _buildNotificationSection(),
-          const SizedBox(height: 32),
-          _buildSubmitButton(),
-        ],
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHandle(),
+            _buildTitle(),
+            const SizedBox(height: 24),
+            _buildNameField(),
+            const SizedBox(height: 24),
+            _buildIconSection(),
+            const SizedBox(height: 24),
+            _buildColorSection(),
+            const SizedBox(height: 24),
+            _buildRepeatDaysSection(),
+            const SizedBox(height: 24),
+            _buildNotificationSection(),
+            const SizedBox(height: 32),
+            _buildSubmitButton(),
+          ],
+        ),
       ),
     );
   }
@@ -389,13 +400,14 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
 
     if (widget.isEditing && widget.habitId != null) {
       // Find the existing habit and update it
-      final existing = provider.habits.firstWhere((h) => h.id == widget.habitId!);
+      final existing = provider.allHabits.firstWhere((h) => h.id == widget.habitId!);
       final updated = existing.copyWith(
         name: name,
         iconCodePoint: _selectedIconCodePoint,
         colorHex: _selectedColorHex,
         notificationsEnabled: _notificationsEnabled,
         notificationTime: timeString,
+        repeatDays: _selectedDays,
       );
       await provider.updateHabit(updated);
     } else {
@@ -405,6 +417,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         colorHex: _selectedColorHex,
         notificationsEnabled: _notificationsEnabled,
         notificationTime: timeString,
+        repeatDays: _selectedDays,
       );
     }
 
@@ -418,6 +431,72 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
             color: AppColors.textSecondary,
             letterSpacing: 0.5,
           ),
+    );
+  }
+
+  Widget _buildRepeatDaysSection() {
+    final weekdays = [
+      {'val': 1, 'label': 'M'},
+      {'val': 2, 'label': 'T'},
+      {'val': 3, 'label': 'W'},
+      {'val': 4, 'label': 'T'},
+      {'val': 5, 'label': 'F'},
+      {'val': 6, 'label': 'S'},
+      {'val': 7, 'label': 'S'},
+    ];
+    final accentColor = _hexToColor(_selectedColorHex);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionLabel('Repeat Days'),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: weekdays.map((day) {
+            final val = day['val'] as int;
+            final label = day['label'] as String;
+            final isSelected = _selectedDays.contains(val);
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    if (_selectedDays.length > 1) {
+                      _selectedDays.remove(val);
+                    }
+                  } else {
+                    _selectedDays.add(val);
+                    _selectedDays.sort();
+                  }
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected ? accentColor : AppColors.card,
+                  border: Border.all(
+                    color: isSelected ? accentColor : AppColors.divider,
+                    width: 1.5,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isSelected ? Colors.black : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
