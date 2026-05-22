@@ -94,17 +94,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
   Widget _buildLanguageSelector(BuildContext context) {
     final langProvider = context.watch<LanguageProvider>();
     final currentLang = langProvider.currentLanguage;
 
-    final langFlags = {
-      'en': '🇺🇸',
-      'tr': '🇹🇷',
-      'de': '🇩🇪',
-      'fr': '🇫🇷',
-      'it': '🇮🇹',
+    final langNames = {
+      'en': 'English',
+      'tr': 'Turkish',
+      'de': 'German',
+      'fr': 'French',
+      'it': 'Italian',
     };
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
 
@@ -123,17 +122,24 @@ class _HomeScreenState extends State<HomeScreen> {
           side: BorderSide(color: dividerColor, width: 2),
         ),
         itemBuilder: (BuildContext context) {
-          return langFlags.entries.map((entry) {
+          return langNames.entries.map((entry) {
             final isSelected = entry.key == currentLang;
             return PopupMenuItem<String>(
               value: entry.key,
               child: Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(entry.value, style: const TextStyle(fontSize: 22)),
+                  Text(
+                    entry.value.tr(context),
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? AppColors.teal : null,
+                      fontSize: 14,
+                    ),
+                  ),
                   if (isSelected) ...[
                     const SizedBox(width: 8),
-                    const Icon(Icons.check_rounded, color: AppColors.teal, size: 18),
+                    const Icon(Icons.check_rounded, color: AppColors.teal, size: 16),
                   ],
                 ],
               ),
@@ -157,17 +163,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(langFlags[currentLang] ?? '🇺🇸', style: const TextStyle(fontSize: 18)),
-              const SizedBox(width: 4),
               Text(
-                currentLang.toUpperCase(),
+                langNames[currentLang]!.tr(context),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  letterSpacing: 0.5,
+                  fontSize: 13,
                 ),
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 4),
               Icon(Icons.arrow_drop_down_rounded, size: 18, color: dividerColor),
             ],
           ),
