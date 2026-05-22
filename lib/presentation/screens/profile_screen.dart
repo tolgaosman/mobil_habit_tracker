@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/language_provider.dart';
+import '../../core/providers/habit_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -86,6 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildUserInfoCard(user),
               const SizedBox(height: 40),
               _buildLogoutButton(context),
+              const SizedBox(height: 16),
+              _buildClearDataButton(context),
             ],
           ),
         ),
@@ -316,5 +320,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
     )
         .animate()
         .fadeIn(delay: 400.ms, duration: 400.ms);
+  }
+
+  Widget _buildClearDataButton(BuildContext context) {
+    return SizedBox(
+      height: 54,
+      child: OutlinedButton(
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: AppColors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: const BorderSide(color: AppColors.divider, width: 2.5),
+              ),
+              title: Text('Clear All Data'.tr(context), style: const TextStyle(fontWeight: FontWeight.bold)),
+              content: Text('Are you sure you want to delete all habits and history? This cannot be undone.'.tr(context)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text('No'.tr(context), style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text('Yes'.tr(context), style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true && mounted) {
+            HapticFeedback.heavyImpact();
+            await context.read<HabitProvider>().clearAllData();
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('All data cleared successfully!'.tr(context)),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.textSecondary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.delete_sweep_rounded, color: AppColors.textSecondary, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              'Clear All Data'.tr(context),
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(delay: 500.ms, duration: 400.ms);
   }
 }

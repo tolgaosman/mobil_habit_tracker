@@ -147,4 +147,13 @@ class HabitProvider extends ChangeNotifier {
       minute: minute,
     );
   }
+
+  Future<void> clearAllData() async {
+    if (_box == null) return;
+    for (final habit in _box!.values) {
+      await NotificationService.instance.cancelNotification(habit.id);
+    }
+    await _box!.clear();
+    notifyListeners();
+  }
 }
