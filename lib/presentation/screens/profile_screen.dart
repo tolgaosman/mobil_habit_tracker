@@ -33,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile picture updated successfully!'),
-            backgroundColor: AppColors.teal,
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -214,9 +214,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 400.ms)
-        .slideY(begin: 0.05, end: 0, delay: 200.ms, duration: 400.ms);
+      .animate()
+      .fadeIn(delay: 200.ms, duration: 400.ms)
+      .slideY(begin: 0.05, end: 0, delay: 200.ms, duration: 400.ms);
   }
 
   Widget _buildInfoRow({
@@ -229,10 +229,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.teal.withOpacity(0.1),
+            color: AppColors.teal.withOpacity(0.15),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: AppColors.teal, size: 20),
+          child: Icon(icon, color: AppColors.tealDim, size: 20),
         ),
         const SizedBox(width: 16),
         Column(

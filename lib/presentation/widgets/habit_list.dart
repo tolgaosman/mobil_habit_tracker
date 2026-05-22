@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
+import '../../core/utils/icon_mapper.dart';
 import '../../data/models/habit_model.dart';
 import '../screens/add_habit_screen.dart';
 
@@ -84,18 +85,33 @@ class _HabitCardState extends State<HabitCard>
 
   Color _hexToColor(String hex) => Color(int.parse(hex, radix: 16));
 
-  IconData _codePointToIcon(String codePoint) {
-    // int.parse handles '0x...' hex prefix automatically
-    final cp = int.tryParse(codePoint) ??
-        int.tryParse(codePoint.replaceFirst('0x', ''), radix: 16) ??
-        0xe555;
-    return IconData(cp, fontFamily: 'MaterialIcons');
+  bool _canToggle(DateTime selectedDate) {
+    final now = DateTime.now();
+    final selectedMidnight = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    final todayMidnight = DateTime(now.year, now.month, now.day);
+    final difference = todayMidnight.difference(selectedMidnight).inDays;
+    return difference == 0 || difference == 1;
   }
 
   void _toggle(BuildContext context) {
+    final provider = context.read<HabitProvider>();
+    if (!_canToggle(provider.selectedDate)) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Sadece bugün ve dün için işaretleme yapabilirsiniz.',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: AppColors.textPrimary,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     HapticFeedback.lightImpact();
     _checkController.forward(from: 0);
-    context.read<HabitProvider>().toggleCompletion(widget.habit);
+    provider.toggleCompletion(widget.habit);
   }
 
   @override
@@ -104,8 +120,9 @@ class _HabitCardState extends State<HabitCard>
     final isCompleted =
         widget.habit.isCompletedOn(provider.selectedDate);
     final accentColor = _hexToColor(widget.habit.colorHex);
-    final iconData = _codePointToIcon(widget.habit.iconCodePoint);
+    final iconData = IconMapper.getIcon(widget.habit.iconCodePoint);
     final streak = widget.habit.currentStreak;
+    final canInteract = _canToggle(provider.selectedDate);
 
     return Dismissible(
       key: Key(widget.habit.id),
@@ -117,25 +134,30 @@ class _HabitCardState extends State<HabitCard>
       child: GestureDetector(
         onLongPress: () => _showOptions(context),
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 16, right: 4), // extra margin for offset shadow
           decoration: BoxDecoration(
             color: isCompleted
-                ? accentColor.withOpacity(0.08)
-                : AppColors.card,
-            borderRadius: BorderRadius.circular(20),
+                ? accentColor.withOpacity(0.12)
+                : Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isCompleted
-                  ? accentColor.withOpacity(0.3)
-                  : AppColors.divider,
-              width: 1,
+              color: Theme.of(context).dividerTheme.color ?? Colors.black,
+              width: 2.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                offset: const Offset(4, 4),
+                blurRadius: 0,
+              ),
+            ],
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {},
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => _toggle(context), // allow tapping anywhere on card to toggle is standard retro convenience!
               splashColor: accentColor.withOpacity(0.08),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -146,8 +168,12 @@ class _HabitCardState extends State<HabitCard>
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(14),
+                        color: accentColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                          width: 2,
+                        ),
                       ),
                       child: Icon(iconData, color: accentColor, size: 26),
                     ),
@@ -165,7 +191,7 @@ class _HabitCardState extends State<HabitCard>
                                 ?.copyWith(
                                   color: isCompleted
                                       ? AppColors.textSecondary
-                                      : AppColors.textPrimary,
+                                      : null,
                                   decoration: isCompleted
                                       ? TextDecoration.lineThrough
                                       : null,
@@ -183,13 +209,13 @@ class _HabitCardState extends State<HabitCard>
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  '$streak day streak',
+                                  'COMBO: $streak',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
                                         color: const Color(0xFFFF9F43),
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                 ),
                               ],
@@ -210,30 +236,20 @@ class _HabitCardState extends State<HabitCard>
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(6),
                             color: isCompleted
-                                ? accentColor
+                                ? (canInteract ? accentColor : accentColor.withOpacity(0.4))
                                 : Colors.transparent,
                             border: Border.all(
-                              color: isCompleted
-                                  ? accentColor
-                                  : AppColors.textTertiary,
-                              width: 2,
+                              color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                              width: 2.5,
                             ),
-                            boxShadow: isCompleted
-                                ? [
-                                    BoxShadow(
-                                      color: accentColor.withOpacity(0.4),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
-                                    )
-                                  ]
-                                : null,
                           ),
                           child: isCompleted
-                              ? const Icon(
-                                  Icons.check_rounded,
-                                  color: Colors.black,
+                              ? Icon(
+                                  Icons.star_rounded,
+                                  color: canInteract ? Colors.black : Colors.black54,
                                   size: 18,
                                 )
                               : null,

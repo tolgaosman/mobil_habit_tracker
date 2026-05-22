@@ -84,61 +84,70 @@ class _DayChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final dayLabel = DateFormat('E').format(day).substring(0, 1);
     final dateLabel = day.day.toString();
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    const double offsetVal = 3.0;
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        height: 68,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.teal
-              : isToday
-                  ? AppColors.teal.withOpacity(0.1)
-                  : AppColors.card,
-          borderRadius: BorderRadius.circular(20),
-          border: isToday && !isSelected
-              ? Border.all(color: AppColors.teal.withOpacity(0.5), width: 1)
-              : null,
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.teal.withOpacity(0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
+      child: Container(
+        margin: EdgeInsets.only(
+          top: isSelected ? offsetVal : 0,
+          left: isSelected ? offsetVal : 0,
+          bottom: isSelected ? 0 : offsetVal,
+          right: isSelected ? 0 : offsetVal,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              dayLabel,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-                color: isSelected
-                    ? AppColors.background
-                    : AppColors.textTertiary,
-              ),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          height: 62,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.teal
+                : isToday
+                    ? AppColors.teal.withOpacity(0.12)
+                    : Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: dividerColor,
+              width: 2,
             ),
-            const SizedBox(height: 6),
-            Text(
-              dateLabel,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: isSelected
-                    ? AppColors.background
-                    : isToday
-                        ? AppColors.teal
-                        : AppColors.textPrimary,
+            boxShadow: isSelected
+                ? null
+                : [
+                    BoxShadow(
+                      color: dividerColor,
+                      offset: const Offset(offsetVal, offsetVal),
+                      blurRadius: 0,
+                    )
+                  ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                dayLabel,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? Colors.black
+                      : null,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                dateLabel,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? Colors.black
+                      : isToday
+                          ? AppColors.violet
+                          : null,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     )

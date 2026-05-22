@@ -17,12 +17,22 @@ class ProgressHeader extends StatelessWidget {
         final rate = provider.completionRate;
 
         return Container(
-          margin: const EdgeInsets.fromLTRB(24, 4, 24, 0),
+          margin: const EdgeInsets.fromLTRB(24, 4, 28, 8), // right: 28 to leave room for offset shadow
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.divider, width: 1),
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Theme.of(context).dividerTheme.color ?? Colors.black,
+              width: 2.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                offset: const Offset(4, 4),
+                blurRadius: 0,
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -31,9 +41,9 @@ class ProgressHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$completed / $total completed',
+                      'QUEST: $completed / $total DONE',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 10),
@@ -41,15 +51,15 @@ class ProgressHeader extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       total == 0
-                          ? 'Add your first habit!'
+                          ? 'Press NEW QUEST below!'
                           : rate == 1.0
-                              ? '🎉 All done for today!'
-                              : '${(rate * 100).toStringAsFixed(0)}% complete',
+                              ? '🏆 QUEST COMPLETED!'
+                              : 'LEVEL PROGRESS: ${(rate * 100).toStringAsFixed(0)}%',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: rate == 1.0
-                                ? AppColors.teal
-                                : AppColors.textTertiary,
-                            fontWeight: FontWeight.w600,
+                                ? AppColors.success
+                                : AppColors.textSecondary,
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                   ],
@@ -74,21 +84,30 @@ class _AnimatedProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: rate),
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOut,
-        builder: (_, value, __) {
-          return LinearProgressIndicator(
-            value: value,
-            minHeight: 6,
-            backgroundColor: AppColors.divider,
-            valueColor:
-                const AlwaysStoppedAnimation<Color>(AppColors.teal),
-          );
-        },
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).dividerTheme.color ?? Colors.black,
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: rate),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOut,
+          builder: (_, value, __) {
+            return LinearProgressIndicator(
+              value: value,
+              minHeight: 8,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.teal),
+            );
+          },
+        ),
       ),
     );
   }
@@ -113,16 +132,15 @@ class _CircularProgress extends StatelessWidget {
             children: [
               CircularProgressIndicator(
                 value: value,
-                strokeWidth: 5,
-                backgroundColor: AppColors.divider,
+                strokeWidth: 6,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.teal),
               ),
               Text(
                 '${(value * 100).toInt()}%',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
               ),
             ],

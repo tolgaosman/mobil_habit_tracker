@@ -44,9 +44,11 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> updateUser(UserModel? user) async {
     if (user == null) {
-      _box = null;
-      _currentUserId = null;
-      notifyListeners();
+      if (_currentUserId != null || _box != null) {
+        _box = null;
+        _currentUserId = null;
+        Future.microtask(() => notifyListeners());
+      }
       return;
     }
 
@@ -54,11 +56,12 @@ class HabitProvider extends ChangeNotifier {
 
     _currentUserId = user.id;
     _box = null;
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
 
     final boxName = 'habits_${user.id}';
-    _box = await Hive.openBox<HabitModel>(boxName);
-    notifyListeners();
+    final openedBox = await Hive.openBox<HabitModel>(boxName);
+    _box = openedBox;
+    Future.microtask(() => notifyListeners());
   }
 
   void selectDate(DateTime date) {
@@ -97,7 +100,7 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> updateHabit(HabitModel habit) async {
     if (_box == null) return;
-    await habit.save();
+    await _box!.put(habit.id, habit);
 
     if (habit.notificationsEnabled) {
       await _scheduleNotification(habit);
@@ -117,6 +120,9 @@ class HabitProvider extends ChangeNotifier {
 
   Future<void> toggleCompletion(HabitModel habit) async {
     await habit.toggleCompletion(_selectedDate);
+    if (_box != null) {
+      await _box!.put(habit.id, habit);
+    }
     notifyListeners();
   }
 

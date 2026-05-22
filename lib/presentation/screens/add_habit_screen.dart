@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
+import '../../core/utils/icon_mapper.dart';
 
 class AddHabitSheet extends StatefulWidget {
   final bool isEditing;
@@ -38,18 +39,18 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   bool _isLoading = false;
 
   final List<Map<String, dynamic>> _iconOptions = [
-    {'label': 'Run', 'codePoint': '0xe555', 'icon': Icons.directions_run_rounded},
-    {'label': 'Water', 'codePoint': '0xe5aa', 'icon': Icons.water_drop_rounded},
-    {'label': 'Book', 'codePoint': '0xe0bf', 'icon': Icons.menu_book_rounded},
-    {'label': 'Heart', 'codePoint': '0xe25a', 'icon': Icons.favorite_rounded},
-    {'label': 'Sleep', 'codePoint': '0xe418', 'icon': Icons.bedtime_rounded},
-    {'label': 'Gym', 'codePoint': '0xe3ae', 'icon': Icons.fitness_center_rounded},
-    {'label': 'Food', 'codePoint': '0xe533', 'icon': Icons.restaurant_rounded},
-    {'label': 'Mind', 'codePoint': '0xe336', 'icon': Icons.self_improvement_rounded},
-    {'label': 'Work', 'codePoint': '0xe8f9', 'icon': Icons.work_outline_rounded},
-    {'label': 'Music', 'codePoint': '0xe405', 'icon': Icons.music_note_rounded},
-    {'label': 'Code', 'codePoint': '0xe86f', 'icon': Icons.code_rounded},
-    {'label': 'Star', 'codePoint': '0xe838', 'icon': Icons.star_rounded},
+    {'label': 'Run', 'codePoint': 'run', 'icon': Icons.directions_run_rounded},
+    {'label': 'Water', 'codePoint': 'water', 'icon': Icons.water_drop_rounded},
+    {'label': 'Book', 'codePoint': 'book', 'icon': Icons.menu_book_rounded},
+    {'label': 'Heart', 'codePoint': 'heart', 'icon': Icons.favorite_rounded},
+    {'label': 'Sleep', 'codePoint': 'sleep', 'icon': Icons.bedtime_rounded},
+    {'label': 'Gym', 'codePoint': 'gym', 'icon': Icons.fitness_center_rounded},
+    {'label': 'Food', 'codePoint': 'food', 'icon': Icons.restaurant_rounded},
+    {'label': 'Mind', 'codePoint': 'mind', 'icon': Icons.self_improvement_rounded},
+    {'label': 'Work', 'codePoint': 'work', 'icon': Icons.work_outline_rounded},
+    {'label': 'Music', 'codePoint': 'music', 'icon': Icons.music_note_rounded},
+    {'label': 'Code', 'codePoint': 'code', 'icon': Icons.code_rounded},
+    {'label': 'Star', 'codePoint': 'star', 'icon': Icons.star_rounded},
   ];
 
   final List<String> _colorOptions = [
@@ -155,6 +156,9 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   }
 
   Widget _buildNameField() {
+    final selectedIcon = IconMapper.getIcon(_selectedIconCodePoint);
+    final selectedColor = _hexToColor(_selectedColorHex);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -164,12 +168,31 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
           controller: _nameController,
           focusNode: _focusNode,
           style: Theme.of(context).textTheme.bodyLarge,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'e.g. Drink 2L of water',
-            prefixIcon: Icon(
-              Icons.edit_outlined,
-              color: AppColors.textTertiary,
-              size: 20,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: selectedColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      selectedIcon,
+                      color: selectedColor,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+              ),
             ),
           ),
           textCapitalization: TextCapitalization.sentences,
@@ -311,7 +334,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
               child: Row(
                 children: [
                   const Icon(Icons.schedule_rounded,
-                      color: AppColors.teal, size: 20),
+                      color: AppColors.tealDim, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     _notificationTime.format(context),

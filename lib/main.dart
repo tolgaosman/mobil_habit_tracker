@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/habit_provider.dart';
+import 'core/providers/routine_provider.dart';
+import 'core/providers/theme_provider.dart';
 import 'core/services/notification_service.dart';
 import 'data/models/habit_model.dart';
 import 'data/models/user_model.dart';
@@ -36,18 +38,24 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ),
   );
 
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, HabitProvider>(
           create: (_) => HabitProvider(),
           update: (_, auth, habitProvider) =>
               habitProvider!..updateUser(auth.currentUser),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, RoutineProvider>(
+          create: (_) => RoutineProvider(),
+          update: (_, auth, routineProvider) =>
+              routineProvider!..updateUser(auth.currentUser),
         ),
       ],
       child: const HabitTrackerApp(),
@@ -60,10 +68,13 @@ class HabitTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
-      title: 'Habit Tracker',
+      title: 'Habits+',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (auth.isAuthenticated) {
