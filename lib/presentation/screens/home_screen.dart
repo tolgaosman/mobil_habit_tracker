@@ -106,15 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
       'fr': '🇫🇷',
       'it': '🇮🇹',
     };
-
-    final langNames = {
-      'en': 'English',
-      'tr': 'Türkçe',
-      'de': 'Deutsch',
-      'fr': 'Français',
-      'it': 'Italiano',
-    };
-
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
 
     return Theme(
@@ -131,25 +122,17 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: dividerColor, width: 2),
         ),
-        elevation: 4,
         itemBuilder: (BuildContext context) {
-          return langNames.entries.map((entry) {
+          return langFlags.entries.map((entry) {
             final isSelected = entry.key == currentLang;
             return PopupMenuItem<String>(
               value: entry.key,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(langFlags[entry.key] ?? '', style: const TextStyle(fontSize: 20)),
-                  const SizedBox(width: 10),
-                  Text(
-                    entry.value,
-                    style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? AppColors.teal : null,
-                    ),
-                  ),
+                  Text(entry.value, style: const TextStyle(fontSize: 22)),
                   if (isSelected) ...[
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     const Icon(Icons.check_rounded, color: AppColors.teal, size: 18),
                   ],
                 ],

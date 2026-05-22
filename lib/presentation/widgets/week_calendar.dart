@@ -109,7 +109,7 @@ class _DayChip extends StatelessWidget {
                 : (Theme.of(context).cardTheme.color ?? AppColors.card),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isToday ? AppColors.teal : dividerColor,
+              color: (isToday && isSelected) ? dividerColor : (isToday ? AppColors.teal : dividerColor),
               width: 2,
             ),
             boxShadow: isPressed

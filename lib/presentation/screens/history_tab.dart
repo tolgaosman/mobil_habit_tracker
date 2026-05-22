@@ -47,11 +47,24 @@ class _HistoryTabState extends State<HistoryTab> {
 
   List<HabitModel> _getHabitsForDate(DateTime date, List<HabitModel> allHabits) {
     final targetMidnight = DateTime(date.year, date.month, date.day);
+    final now = DateTime.now();
+    final todayMidnight = DateTime(now.year, now.month, now.day);
+    final yesterdayMidnight = todayMidnight.subtract(const Duration(days: 1));
+
     return allHabits.where((h) {
       try {
+        if (h.isCompletedOn(date)) return true;
+
         final created = DateTime.parse(h.createdAt);
         final createdMidnight = DateTime(created.year, created.month, created.day);
-        if (createdMidnight.isAfter(targetMidnight)) return false;
+        
+        if (createdMidnight.isAfter(targetMidnight)) {
+          if (targetMidnight.isAtSameMomentAs(todayMidnight) || targetMidnight.isAtSameMomentAs(yesterdayMidnight)) {
+            // Allow today and yesterday
+          } else {
+            return false;
+          }
+        }
 
         // Check repeatDays (1 = Monday, ..., 7 = Sunday)
         if (h.repeatDays != null && h.repeatDays!.isNotEmpty) {
@@ -71,21 +84,58 @@ class _HistoryTabState extends State<HistoryTab> {
     return completed / habits.length;
   }
 
+  Map<String, dynamic> _getMonthCompletionMetrics(List<HabitModel> allHabits) {
+    final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
+    int totalQuests = 0;
+    int completedQuests = 0;
+    
+    for (int d = 1; d <= lastDay; d++) {
+      final date = DateTime(_focusedMonth.year, _focusedMonth.month, d);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (date.isAfter(today)) continue;
+      
+      final habits = _getHabitsForDate(date, allHabits);
+      totalQuests += habits.length;
+      completedQuests += habits.where((h) => h.isCompletedOn(date)).length;
+    }
+    
+    final rate = totalQuests == 0 ? 0.0 : completedQuests / totalQuests;
+    return {
+      'rate': rate,
+      'total': totalQuests,
+      'completed': completedQuests,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HabitProvider>();
     final allHabits = provider.allHabits;
     final activeHabits = _getHabitsForDate(_selectedDate, allHabits);
-    final completionRate = _getCompletionRate(_selectedDate, allHabits);
+    
+    // Calculate overall metrics for the top card (focused month)
+    final overallMetrics = _getMonthCompletionMetrics(allHabits);
+    final overallRate = overallMetrics['rate'] as double;
+    final overallTotal = overallMetrics['total'] as int;
+    final overallCompleted = overallMetrics['completed'] as int;
+
+    // Calculate today's rate
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayHabits = _getHabitsForDate(today, allHabits);
+    final todayCompleted = todayHabits.where((h) => h.isCompletedOn(today)).length;
+    final todayRate = todayHabits.isEmpty ? 0.0 : todayCompleted / todayHabits.length;
+    final todayPercentage = (todayRate * 100).toStringAsFixed(0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTopBar(context),
-        _buildCompletionSummaryCard(context, completionRate, activeHabits),
+        _buildCompletionSummaryCard(context, overallRate, overallCompleted, overallTotal),
         _buildCalendarSection(context, allHabits),
         const SizedBox(height: 4),
-        _buildQuestsHeader(context, activeHabits.length),
+        _buildQuestsHeader(context, activeHabits.length, todayPercentage),
         Expanded(
           child: _buildHistoryQuestList(context, activeHabits),
         ),
@@ -123,10 +173,8 @@ class _HistoryTabState extends State<HistoryTab> {
   }
 
   Widget _buildCompletionSummaryCard(
-      BuildContext context, double rate, List<HabitModel> activeHabits) {
+      BuildContext context, double rate, int completed, int total) {
     final percentage = (rate * 100).toStringAsFixed(0);
-    final total = activeHabits.length;
-    final completed = activeHabits.where((h) => h.isCompletedOn(_selectedDate)).length;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(24, 6, 28, 6),
@@ -170,7 +218,7 @@ class _HistoryTabState extends State<HistoryTab> {
                 const SizedBox(height: 8),
                 Text(
                   total == 0
-                      ? 'No quests active on this day.'.tr(context)
+                      ? 'No quests active in this month.'.tr(context)
                       : '$completed of $total quests completed.'.tr(context),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -452,7 +500,7 @@ class _HistoryTabState extends State<HistoryTab> {
     );
   }
 
-  Widget _buildQuestsHeader(BuildContext context, int count) {
+  Widget _buildQuestsHeader(BuildContext context, int count, String todayPercentage) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
@@ -480,11 +528,17 @@ class _HistoryTabState extends State<HistoryTab> {
               ),
             ),
           ),
+          const Spacer(),
+          Text(
+            'TODAY: '.tr(context) + '$todayPercentage%',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: todayPercentage == '100' ? AppColors.success : AppColors.teal,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(delay: 250.ms, duration: 400.ms);
+    );
   }
 
   Widget _buildHistoryQuestList(BuildContext context, List<HabitModel> habits) {
