@@ -31,8 +31,18 @@ class _HistoryTabState extends State<HistoryTab> {
 
   String _getMonthName(int month, BuildContext context) {
     const names = [
-      'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-      'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'
+      'JANUARY',
+      'FEBRUARY',
+      'MARCH',
+      'APRIL',
+      'MAY',
+      'JUNE',
+      'JULY',
+      'AUGUST',
+      'SEPTEMBER',
+      'OCTOBER',
+      'NOVEMBER',
+      'DECEMBER'
     ];
     return names[month - 1].tr(context);
   }
@@ -41,7 +51,8 @@ class _HistoryTabState extends State<HistoryTab> {
     return true;
   }
 
-  List<HabitModel> _getHabitsForDate(DateTime date, List<HabitModel> allHabits) {
+  List<HabitModel> _getHabitsForDate(
+      DateTime date, List<HabitModel> allHabits) {
     final targetMidnight = DateTime(date.year, date.month, date.day);
     final startingDate = _getStartingDate(allHabits);
     if (targetMidnight.isBefore(startingDate)) {
@@ -77,18 +88,12 @@ class _HistoryTabState extends State<HistoryTab> {
     return startingDate;
   }
 
-  double _getCompletionRate(DateTime date, List<HabitModel> allHabits) {
-    final habits = _getHabitsForDate(date, allHabits);
-    if (habits.isEmpty) return 0.0;
-    final completed = habits.where((h) => h.isCompletedOn(date)).length;
-    return completed / habits.length;
-  }
-
   Map<String, dynamic> _getMonthCompletionMetrics(List<HabitModel> allHabits) {
-    final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
+    final lastDay =
+        DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
     int totalQuests = 0;
     int completedQuests = 0;
-    
+
     final startingDate = _getStartingDate(allHabits);
 
     for (int d = 1; d <= lastDay; d++) {
@@ -97,12 +102,12 @@ class _HistoryTabState extends State<HistoryTab> {
       final today = DateTime(now.year, now.month, now.day);
       if (date.isAfter(today)) continue;
       if (date.isBefore(startingDate)) continue;
-      
+
       final habits = _getHabitsForDate(date, allHabits);
       totalQuests += habits.length;
       completedQuests += habits.where((h) => h.isCompletedOn(date)).length;
     }
-    
+
     final rate = totalQuests == 0 ? 0.0 : completedQuests / totalQuests;
     return {
       'rate': rate,
@@ -116,7 +121,7 @@ class _HistoryTabState extends State<HistoryTab> {
     final provider = context.watch<HabitProvider>();
     final allHabits = provider.allHabits;
     final activeHabits = _getHabitsForDate(_selectedDate, allHabits);
-    
+
     // Calculate overall metrics for the top card (focused month)
     final overallMetrics = _getMonthCompletionMetrics(allHabits);
     final overallRate = overallMetrics['rate'] as double;
@@ -127,8 +132,10 @@ class _HistoryTabState extends State<HistoryTab> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final todayHabits = _getHabitsForDate(today, allHabits);
-    final todayCompleted = todayHabits.where((h) => h.isCompletedOn(today)).length;
-    final todayRate = todayHabits.isEmpty ? 0.0 : todayCompleted / todayHabits.length;
+    final todayCompleted =
+        todayHabits.where((h) => h.isCompletedOn(today)).length;
+    final todayRate =
+        todayHabits.isEmpty ? 0.0 : todayCompleted / todayHabits.length;
     final todayPercentage = (todayRate * 100).toStringAsFixed(0);
 
     return SingleChildScrollView(
@@ -137,12 +144,14 @@ class _HistoryTabState extends State<HistoryTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTopBar(context),
-          _buildCompletionSummaryCard(context, overallRate, overallCompleted, overallTotal),
+          _buildCompletionSummaryCard(
+              context, overallRate, overallCompleted, overallTotal),
           _buildCalendarSection(context, allHabits),
           const SizedBox(height: 4),
           _buildQuestsHeader(context, activeHabits.length, todayPercentage),
           _buildHistoryQuestList(context, activeHabits),
-          const SizedBox(height: 32), // Add bottom padding for better scroll feel
+          const SizedBox(
+              height: 32), // Add bottom padding for better scroll feel
         ],
       ),
     );
@@ -236,7 +245,8 @@ class _HistoryTabState extends State<HistoryTab> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: (rate == 1.0 ? AppColors.success : AppColors.teal).withOpacity(0.12),
+              color: (rate == 1.0 ? AppColors.success : AppColors.teal)
+                  .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: Theme.of(context).dividerTheme.color ?? Colors.black,
@@ -245,7 +255,9 @@ class _HistoryTabState extends State<HistoryTab> {
             ),
             child: Center(
               child: Icon(
-                rate == 1.0 ? Icons.emoji_events_rounded : Icons.calendar_month_rounded,
+                rate == 1.0
+                    ? Icons.emoji_events_rounded
+                    : Icons.calendar_month_rounded,
                 color: rate == 1.0 ? AppColors.success : AppColors.teal,
                 size: 28,
               ),
@@ -259,13 +271,16 @@ class _HistoryTabState extends State<HistoryTab> {
         .slideY(begin: 0.05, end: 0, delay: 100.ms, duration: 400.ms);
   }
 
-  Widget _buildCalendarSection(BuildContext context, List<HabitModel> allHabits) {
+  Widget _buildCalendarSection(
+      BuildContext context, List<HabitModel> allHabits) {
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
 
     // Calculate dates
-    final firstDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
-    final lastDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
-    
+    final firstDayOfMonth =
+        DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final lastDayOfMonth =
+        DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
+
     // weekday starts at 1 (Monday) to 7 (Sunday)
     // We want Pzt (Mon) as first column. So shift is firstDayOfMonth.weekday - 1
     final emptyPrefixCells = firstDayOfMonth.weekday - 1;
@@ -298,7 +313,8 @@ class _HistoryTabState extends State<HistoryTab> {
                 onTap: () {
                   HapticFeedback.lightImpact();
                   setState(() {
-                    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1, 1);
+                    _focusedMonth = DateTime(
+                        _focusedMonth.year, _focusedMonth.month - 1, 1);
                   });
                 },
               ),
@@ -314,7 +330,8 @@ class _HistoryTabState extends State<HistoryTab> {
                 onTap: () {
                   HapticFeedback.lightImpact();
                   setState(() {
-                    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 1);
+                    _focusedMonth = DateTime(
+                        _focusedMonth.year, _focusedMonth.month + 1, 1);
                   });
                 },
               ),
@@ -352,13 +369,15 @@ class _HistoryTabState extends State<HistoryTab> {
               }
 
               final dayNum = index - emptyPrefixCells + 1;
-              final cellDate = DateTime(_focusedMonth.year, _focusedMonth.month, dayNum);
+              final cellDate =
+                  DateTime(_focusedMonth.year, _focusedMonth.month, dayNum);
               final isToday = _isSameDay(cellDate, DateTime.now());
               final isSelected = _isSameDay(cellDate, _selectedDate);
-              
+
               final dayHabits = _getHabitsForDate(cellDate, allHabits);
               final totalCount = dayHabits.length;
-              final completedCount = dayHabits.where((h) => h.isCompletedOn(cellDate)).length;
+              final completedCount =
+                  dayHabits.where((h) => h.isCompletedOn(cellDate)).length;
               final isFuture = cellDate.isAfter(DateTime.now());
 
               return _buildCalendarCell(
@@ -375,12 +394,11 @@ class _HistoryTabState extends State<HistoryTab> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 200.ms, duration: 400.ms);
   }
 
-  Widget _buildRetroNavButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildRetroNavButton(
+      {required IconData icon, required VoidCallback onTap}) {
     final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
     return GestureDetector(
       onTap: onTap,
@@ -398,7 +416,8 @@ class _HistoryTabState extends State<HistoryTab> {
             )
           ],
         ),
-        child: Icon(icon, size: 20, color: Theme.of(context).textTheme.titleMedium?.color),
+        child: Icon(icon,
+            size: 20, color: Theme.of(context).textTheme.titleMedium?.color),
       ),
     );
   }
@@ -420,24 +439,28 @@ class _HistoryTabState extends State<HistoryTab> {
     Color cellBg = isDark ? AppColors.darkCard : AppColors.card;
     Color borderCol = isToday
         ? dividerColor
-        : (isDark ? Colors.white10 : Colors.black.withOpacity(0.08));
+        : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.08));
     double borderWidth = isToday ? 2.0 : 1.0;
 
     final hasQuests = totalCount > 0;
     final allDone = hasQuests && completedCount == totalCount;
 
     if (isSelected) {
-      cellBg = AppColors.teal.withOpacity(0.25);
+      cellBg = AppColors.teal.withValues(alpha: 0.25);
       borderCol = dividerColor;
       borderWidth = 2.0;
     } else if (allDone && !isFuture) {
       // Completed all quests on this day
-      cellBg = isDark ? const Color(0xFF1E3A24) : const Color(0xFFE8F5E9); // green-ish
-      borderCol = AppColors.success.withOpacity(0.5);
+      cellBg = isDark
+          ? const Color(0xFF1E3A24)
+          : const Color(0xFFE8F5E9); // green-ish
+      borderCol = AppColors.success.withValues(alpha: 0.5);
     } else if (completedCount > 0 && !isFuture) {
       // Partially completed
-      cellBg = isDark ? const Color(0xFF332A1E) : const Color(0xFFFFFDE7); // yellow-ish
-      borderCol = Colors.orange.withOpacity(0.3);
+      cellBg = isDark
+          ? const Color(0xFF332A1E)
+          : const Color(0xFFFFFDE7); // yellow-ish
+      borderCol = Colors.orange.withValues(alpha: 0.3);
     }
 
     return GestureDetector(
@@ -465,10 +488,12 @@ class _HistoryTabState extends State<HistoryTab> {
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: isFuture
-                    ? context.textTertiaryColor.withOpacity(0.4)
+                    ? context.textTertiaryColor.withValues(alpha: 0.4)
                     : (isSelected
                         ? AppColors.teal
-                        : (isToday ? Theme.of(context).colorScheme.primary : null)),
+                        : (isToday
+                            ? Theme.of(context).colorScheme.primary
+                            : null)),
               ),
             ),
             if (hasQuests && !isFuture) ...[
@@ -505,7 +530,8 @@ class _HistoryTabState extends State<HistoryTab> {
     );
   }
 
-  Widget _buildQuestsHeader(BuildContext context, int count, String todayPercentage) {
+  Widget _buildQuestsHeader(
+      BuildContext context, int count, String todayPercentage) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
@@ -535,9 +561,11 @@ class _HistoryTabState extends State<HistoryTab> {
           ),
           const Spacer(),
           Text(
-            'TODAY: '.tr(context) + '$todayPercentage%',
+            '${'TODAY: '.tr(context)}$todayPercentage%',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: todayPercentage == '100' ? AppColors.success : AppColors.teal,
+                  color: todayPercentage == '100'
+                      ? AppColors.success
+                      : AppColors.teal,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -554,18 +582,20 @@ class _HistoryTabState extends State<HistoryTab> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history_toggle_off_rounded, size: 40, color: context.textTertiaryColor),
+              Icon(Icons.history_toggle_off_rounded,
+                  size: 40, color: context.textTertiaryColor),
               const SizedBox(height: 8),
               Text(
                 'No active quests on this date.'.tr(context),
-                style: TextStyle(color: context.textSecondaryColor, fontSize: 13, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: context.textSecondaryColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
-      )
-          .animate()
-          .fadeIn(duration: 400.ms);
+      ).animate().fadeIn(duration: 400.ms);
     }
 
     final canInteract = _canToggle(_selectedDate);
@@ -585,7 +615,7 @@ class _HistoryTabState extends State<HistoryTab> {
           margin: const EdgeInsets.only(bottom: 12, right: 4),
           decoration: BoxDecoration(
             color: isCompleted
-                ? accentColor.withOpacity(0.08)
+                ? accentColor.withValues(alpha: 0.08)
                 : Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
@@ -607,7 +637,9 @@ class _HistoryTabState extends State<HistoryTab> {
               borderRadius: BorderRadius.circular(12),
               onTap: () {
                 HapticFeedback.lightImpact();
-                context.read<HabitProvider>().toggleCompletionForDate(habit, _selectedDate);
+                context
+                    .read<HabitProvider>()
+                    .toggleCompletionForDate(habit, _selectedDate);
               },
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -618,10 +650,11 @@ class _HistoryTabState extends State<HistoryTab> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
+                        color: accentColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                          color: Theme.of(context).dividerTheme.color ??
+                              Colors.black,
                           width: 1.5,
                         ),
                       ),
@@ -632,11 +665,16 @@ class _HistoryTabState extends State<HistoryTab> {
                     Expanded(
                       child: Text(
                         habit.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: isCompleted ? TextDecoration.lineThrough : null,
-                              color: isCompleted ? context.textSecondaryColor : null,
-                              decorationColor: context.textTertiaryColor,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  decoration: isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: isCompleted
+                                      ? context.textSecondaryColor
+                                      : null,
+                                  decorationColor: context.textTertiaryColor,
+                                ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -648,14 +686,17 @@ class _HistoryTabState extends State<HistoryTab> {
                         color: isCompleted ? accentColor : Colors.transparent,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: Theme.of(context).dividerTheme.color ?? Colors.black,
+                          color: Theme.of(context).dividerTheme.color ??
+                              Colors.black,
                           width: 2,
                         ),
                       ),
                       child: isCompleted
-                          ? const Icon(Icons.star_rounded, color: Colors.black, size: 16)
+                          ? const Icon(Icons.star_rounded,
+                              color: Colors.black, size: 16)
                           : (!canInteract
-                              ? const Icon(Icons.close_rounded, color: AppColors.error, size: 16)
+                              ? const Icon(Icons.close_rounded,
+                                  color: AppColors.error, size: 16)
                               : null),
                     ),
                   ],
