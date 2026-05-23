@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _emailOrPhoneController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   
@@ -25,8 +25,19 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    _emailOrPhoneController.addListener(_onEmailOrPhoneChanged);
+  }
+
+  void _onEmailOrPhoneChanged() {
+    setState(() {});
+  }
+
+  @override
   void dispose() {
-    _emailController.dispose();
+    _emailOrPhoneController.removeListener(_onEmailOrPhoneChanged);
+    _emailOrPhoneController.dispose();
     _nameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -52,14 +63,18 @@ class _LoginScreenState extends State<LoginScreen> {
     String? error;
 
     if (_isSignUp) {
+      final input = _emailOrPhoneController.text.trim();
+      final isEmail = input.contains('@');
+      
       error = await auth.signUp(
-        email: _emailController.text,
+        email: isEmail ? input : null,
+        phoneNumber: isEmail ? null : input,
         name: _nameController.text,
         password: _passwordController.text,
       );
     } else {
       error = await auth.signIn(
-        email: _emailController.text,
+        emailOrPhone: _emailOrPhoneController.text,
         password: _passwordController.text,
       );
     }
@@ -95,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     _buildNameField(),
                     const SizedBox(height: 16),
                   ],
-                  _buildEmailField(),
+                  _buildEmailOrPhoneField(),
                   const SizedBox(height: 16),
                   _buildPasswordField(),
                   const SizedBox(height: 32),
@@ -219,21 +234,36 @@ class _LoginScreenState extends State<LoginScreen> {
         .slideY(begin: 0.1, end: 0, duration: 300.ms);
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailOrPhoneField() {
     return TextFormField(
-      controller: _emailController,
+      controller: _emailOrPhoneController,
       style: Theme.of(context).textTheme.bodyLarge,
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        hintText: 'Email Address'.tr(context),
-        prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textTertiary),
+        hintText: 'Email or Phone Number'.tr(context),
+        prefixIcon: Icon(
+          _emailOrPhoneController.text.trim().isNotEmpty &&
+                  !_emailOrPhoneController.text.contains('@') &&
+                  RegExp(r'^\+?[0-9\s\-()]*$').hasMatch(_emailOrPhoneController.text.trim())
+              ? Icons.phone_iphone_rounded
+              : Icons.email_outlined,
+          color: AppColors.textTertiary,
+        ),
       ),
       validator: (val) {
         if (val == null || val.trim().isEmpty) {
-          return 'Please enter your email'.tr(context);
+          return 'Please enter your email or phone number'.tr(context);
         }
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(val.trim())) {
-          return 'Please enter a valid email address'.tr(context);
+        final trimmed = val.trim();
+        if (trimmed.contains('@')) {
+          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmed)) {
+            return 'Please enter a valid email address'.tr(context);
+          }
+        } else {
+          final phoneRegex = RegExp(r'^\+?[0-9\s\-()]{7,15}$');
+          if (!phoneRegex.hasMatch(trimmed)) {
+            return 'Please enter a valid phone number'.tr(context);
+          }
         }
         return null;
       },

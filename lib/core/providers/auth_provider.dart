@@ -32,22 +32,40 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<String?> signUp({
-    required String email,
+    String? email,
+    String? phoneNumber,
     required String name,
     required String password,
   }) async {
-    final normalizedEmail = email.trim().toLowerCase();
-    
-    // Check if user already exists
-    final emailExists = _usersBox.values.any((u) => u.email == normalizedEmail);
-    if (emailExists) {
-      return 'An account with this email already exists.';
+    if ((email == null || email.trim().isEmpty) && (phoneNumber == null || phoneNumber.trim().isEmpty)) {
+      return 'Please enter an email or phone number.';
+    }
+
+    String? normalizedEmail;
+    if (email != null && email.trim().isNotEmpty) {
+      normalizedEmail = email.trim().toLowerCase();
+      // Check if user already exists
+      final emailExists = _usersBox.values.any((u) => u.email == normalizedEmail);
+      if (emailExists) {
+        return 'An account with this email already exists.';
+      }
+    }
+
+    String? cleanPhone;
+    if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
+      cleanPhone = phoneNumber.trim();
+      // Check if user already exists
+      final phoneExists = _usersBox.values.any((u) => u.phoneNumber == cleanPhone);
+      if (phoneExists) {
+        return 'An account with this phone number already exists.';
+      }
     }
 
     final userId = const Uuid().v4();
     final user = UserModel(
       id: userId,
       email: normalizedEmail,
+      phoneNumber: cleanPhone,
       name: name.trim(),
       passwordHash: _hashPassword(password),
     );
@@ -60,21 +78,28 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<String?> signIn({
-    required String email,
+    required String emailOrPhone,
     required String password,
   }) async {
-    final normalizedEmail = email.trim().toLowerCase();
+    final input = emailOrPhone.trim();
     final hash = _hashPassword(password);
 
     try {
       final user = _usersBox.values.firstWhere(
-        (u) => u.email == normalizedEmail && u.passwordHash == hash,
+        (u) {
+          final matchesPassword = u.passwordHash == hash;
+          if (!matchesPassword) return false;
+
+          final matchesEmail = u.email != null && u.email!.toLowerCase() == input.toLowerCase();
+          final matchesPhone = u.phoneNumber != null && u.phoneNumber == input;
+          return matchesEmail || matchesPhone;
+        },
       );
       
       await _setSession(user);
       return null; // Success
     } catch (_) {
-      return 'Invalid email or password.';
+      return 'Invalid email/phone number or password.';
     }
   }
 

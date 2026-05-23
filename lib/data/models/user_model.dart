@@ -8,7 +8,7 @@ class UserModel extends HiveObject {
   final String id;
 
   @HiveField(1)
-  final String email;
+  final String? email;
 
   @HiveField(2)
   final String name;
@@ -19,12 +19,16 @@ class UserModel extends HiveObject {
   @HiveField(4)
   String? profileImagePath;
 
+  @HiveField(5)
+  final String? phoneNumber;
+
   UserModel({
     required this.id,
-    required this.email,
+    this.email,
     required this.name,
     required this.passwordHash,
     this.profileImagePath,
+    this.phoneNumber,
   });
 
   UserModel copyWith({
@@ -32,6 +36,7 @@ class UserModel extends HiveObject {
     String? name,
     String? passwordHash,
     String? profileImagePath,
+    String? phoneNumber,
   }) {
     return UserModel(
       id: id,
@@ -39,6 +44,7 @@ class UserModel extends HiveObject {
       name: name ?? this.name,
       passwordHash: passwordHash ?? this.passwordHash,
       profileImagePath: profileImagePath ?? this.profileImagePath,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
     );
   }
 }

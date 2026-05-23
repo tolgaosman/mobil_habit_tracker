@@ -169,7 +169,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          user.email,
+          (user.email != null && user.email!.isNotEmpty)
+              ? user.email!
+              : (user.phoneNumber ?? ""),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -196,6 +198,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildUserInfoCard(dynamic user) {
+    final List<Widget> items = [];
+    
+    items.add(_buildInfoRow(
+      icon: Icons.person_outline_rounded,
+      label: 'Name',
+      value: user.name,
+    ));
+
+    if (user.email != null && user.email!.isNotEmpty) {
+      items.add(_buildInfoRow(
+        icon: Icons.email_outlined,
+        label: 'Email',
+        value: user.email!,
+      ));
+    }
+
+    if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+      items.add(_buildInfoRow(
+        icon: Icons.phone_iphone_rounded,
+        label: 'Phone Number',
+        value: user.phoneNumber!,
+      ));
+    }
+
+    final List<Widget> children = [];
+    for (int i = 0; i < items.length; i++) {
+      children.add(items[i]);
+      if (i < items.length - 1) {
+        children.add(const Divider(height: 28, thickness: 1, color: AppColors.divider));
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -204,19 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         border: Border.all(color: AppColors.divider, width: 1),
       ),
       child: Column(
-        children: [
-          _buildInfoRow(
-            icon: Icons.person_outline_rounded,
-            label: 'Name',
-            value: user.name,
-          ),
-          const Divider(height: 28, thickness: 1, color: AppColors.divider),
-          _buildInfoRow(
-            icon: Icons.email_outlined,
-            label: 'Email',
-            value: user.email,
-          ),
-        ],
+        children: children,
       ),
     )
       .animate()
