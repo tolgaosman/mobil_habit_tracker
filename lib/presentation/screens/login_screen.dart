@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailOrPhoneController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isSignUp = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_isSignUp) {
       final input = _emailOrPhoneController.text.trim();
       final isEmail = input.contains('@');
-      
+
       error = await auth.signUp(
         email: isEmail ? input : null,
         phoneNumber: isEmail ? null : input,
@@ -127,36 +127,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLogo() {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
     return Center(
       child: Container(
         height: 90,
         width: 90,
         decoration: BoxDecoration(
           color: AppColors.teal,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: dividerColor,
-            width: 3,
-          ),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: dividerColor,
-              offset: const Offset(4, 4),
-              blurRadius: 0,
+              color: AppColors.teal.withValues(alpha: 0.35),
+              offset: const Offset(0, 8),
+              blurRadius: 20,
             )
           ],
         ),
         child: const Icon(
-          Icons.sports_esports_rounded,
-          size: 50,
-          color: Colors.black,
+          Icons.check_circle_outline_rounded,
+          size: 48,
+          color: Colors.white,
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 600.ms)
-        .scale(begin: const Offset(0.8, 0.8), duration: 600.ms, curve: Curves.elasticOut);
+    ).animate().fadeIn(duration: 600.ms).scale(
+        begin: const Offset(0.8, 0.8),
+        duration: 600.ms,
+        curve: Curves.elasticOut);
   }
 
   Widget _buildHeader() {
@@ -166,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _isSignUp ? 'Create Account'.tr(context) : 'Welcome Back'.tr(context),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
               ),
         ),
@@ -192,13 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.1),
+        color: AppColors.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -220,7 +216,8 @@ class _LoginScreenState extends State<LoginScreen> {
       style: Theme.of(context).textTheme.bodyLarge,
       decoration: InputDecoration(
         hintText: 'Full Name'.tr(context),
-        prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.textTertiary),
+        prefixIcon: const Icon(Icons.person_outline_rounded,
+            color: AppColors.textTertiary),
       ),
       validator: (val) {
         if (val == null || val.trim().isEmpty) {
@@ -244,7 +241,8 @@ class _LoginScreenState extends State<LoginScreen> {
         prefixIcon: Icon(
           _emailOrPhoneController.text.trim().isNotEmpty &&
                   !_emailOrPhoneController.text.contains('@') &&
-                  RegExp(r'^\+?[0-9\s\-()]*$').hasMatch(_emailOrPhoneController.text.trim())
+                  RegExp(r'^\+?[0-9\s\-()]*$')
+                      .hasMatch(_emailOrPhoneController.text.trim())
               ? Icons.phone_iphone_rounded
               : Icons.email_outlined,
           color: AppColors.textTertiary,
@@ -277,10 +275,13 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: _obscurePassword,
       decoration: InputDecoration(
         hintText: 'Password'.tr(context),
-        prefixIcon: const Icon(Icons.lock_outlined, color: AppColors.textTertiary),
+        prefixIcon:
+            const Icon(Icons.lock_outlined, color: AppColors.textTertiary),
         suffixIcon: IconButton(
           icon: Icon(
-            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            _obscurePassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
             color: AppColors.textTertiary,
             size: 20,
           ),
@@ -306,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.teal,
-          foregroundColor: Colors.black,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -318,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               )
             : Text(
@@ -343,8 +344,11 @@ class _LoginScreenState extends State<LoginScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            _isSignUp ? 'Already have an account? '.tr(context) : 'Don\'t have an account? '.tr(context),
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            _isSignUp
+                ? 'Already have an account? '.tr(context)
+                : 'Don\'t have an account? '.tr(context),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           Text(
             _isSignUp ? 'Sign In'.tr(context) : 'Sign Up'.tr(context),
@@ -356,8 +360,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(delay: 400.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
   }
 }

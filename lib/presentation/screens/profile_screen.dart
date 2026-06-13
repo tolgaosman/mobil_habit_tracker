@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         maxHeight: 512,
         imageQuality: 85,
       );
-      
+
       if (image != null && mounted) {
         await context.read<AuthProvider>().updateProfileImage(image.path);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile picture: '.tr(context) + '$e'),
+            content:
+                Text('${'Failed to update profile picture: '.tr(context)}$e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -98,8 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAvatarSection(dynamic user) {
-    final hasImage = user.profileImagePath != null && user.profileImagePath!.isNotEmpty;
-    
+    final hasImage =
+        user.profileImagePath != null && user.profileImagePath!.isNotEmpty;
+
     return Column(
       children: [
         Stack(
@@ -113,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: Border.all(color: AppColors.teal, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.teal.withOpacity(0.15),
+                    color: AppColors.teal.withValues(alpha: 0.15),
                     blurRadius: 20,
                     spreadRadius: 2,
                   )
@@ -149,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: const Icon(
                     Icons.camera_alt_rounded,
-                    color: Colors.black,
+                    color: Colors.white,
                     size: 20,
                   ),
                 ),
@@ -199,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildUserInfoCard(dynamic user) {
     final List<Widget> items = [];
-    
+
     items.add(_buildInfoRow(
       icon: Icons.person_outline_rounded,
       label: 'Name',
@@ -226,24 +228,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     for (int i = 0; i < items.length; i++) {
       children.add(items[i]);
       if (i < items.length - 1) {
-        children.add(const Divider(height: 28, thickness: 1, color: AppColors.divider));
+        children.add(Divider(
+            height: 28,
+            thickness: 1,
+            color: Theme.of(context).dividerTheme.color));
       }
     }
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.divider, width: 1),
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+          width: 1,
+        ),
+        boxShadow: context.softShadow,
       ),
       child: Column(
         children: children,
       ),
     )
-      .animate()
-      .fadeIn(delay: 200.ms, duration: 400.ms)
-      .slideY(begin: 0.05, end: 0, delay: 200.ms, duration: 400.ms);
+        .animate()
+        .fadeIn(delay: 200.ms, duration: 400.ms)
+        .slideY(begin: 0.05, end: 0, delay: 200.ms, duration: 400.ms);
   }
 
   Widget _buildInfoRow({
@@ -256,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.teal.withOpacity(0.15),
+            color: AppColors.teal.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: AppColors.tealDim, size: 20),
@@ -293,20 +302,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              backgroundColor: AppColors.surface,
+              backgroundColor: Theme.of(context).cardTheme.color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               title: Text('Log Out'.tr(context)),
-              content: Text('Are you sure you want to log out of your account?'.tr(context)),
+              content: Text('Are you sure you want to log out of your account?'
+                  .tr(context)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text('Cancel'.tr(context), style: const TextStyle(color: AppColors.textSecondary)),
+                  child: Text('Cancel'.tr(context),
+                      style: const TextStyle(color: AppColors.textSecondary)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text('Log Out'.tr(context), style: const TextStyle(color: AppColors.error)),
+                  child: Text('Log Out'.tr(context),
+                      style: const TextStyle(color: AppColors.error)),
                 ),
               ],
             ),
@@ -339,9 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 400.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
   }
 
   Widget _buildClearDataButton(BuildContext context) {
@@ -352,21 +362,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              backgroundColor: AppColors.surface,
+              backgroundColor: Theme.of(context).cardTheme.color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: AppColors.divider, width: 2.5),
               ),
-              title: Text('Clear All Data'.tr(context), style: const TextStyle(fontWeight: FontWeight.bold)),
-              content: Text('Are you sure you want to delete all habits and history? This cannot be undone.'.tr(context)),
+              title: Text('Clear All Data'.tr(context),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              content: Text(
+                  'Are you sure you want to delete all habits and history? This cannot be undone.'
+                      .tr(context)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text('No'.tr(context), style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                  child: Text('No'.tr(context),
+                      style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.bold)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text('Yes'.tr(context), style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+                  child: Text('Yes'.tr(context),
+                      style: const TextStyle(
+                          color: AppColors.error, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -393,7 +410,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.delete_sweep_rounded, color: AppColors.textSecondary, size: 20),
+            const Icon(Icons.delete_sweep_rounded,
+                color: AppColors.textSecondary, size: 20),
             const SizedBox(width: 10),
             Text(
               'Clear All Data'.tr(context),
@@ -406,8 +424,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 500.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 500.ms, duration: 400.ms);
   }
 }

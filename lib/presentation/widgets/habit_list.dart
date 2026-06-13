@@ -102,146 +102,140 @@ class _HabitCardState extends State<HabitCard>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HabitProvider>();
-    final isCompleted =
-        widget.habit.isCompletedOn(provider.selectedDate);
+    final isCompleted = widget.habit.isCompletedOn(provider.selectedDate);
     final accentColor = _hexToColor(widget.habit.colorHex);
     final iconData = IconMapper.getIcon(widget.habit.iconCodePoint);
     final streak = widget.habit.currentStreak;
     final canInteract = _canToggle(provider.selectedDate);
 
     return GestureDetector(
-        onLongPress: () => _showOptions(context),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 16, right: 4), // extra margin for offset shadow
-          decoration: BoxDecoration(
+      onLongPress: () => _showOptions(context),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: isCompleted
+              ? accentColor.withValues(alpha: 0.10)
+              : Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: isCompleted
-                ? accentColor.withOpacity(0.12)
-                : Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Theme.of(context).dividerTheme.color ?? Colors.black,
-              width: 2.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                offset: const Offset(4, 4),
-                blurRadius: 0,
-              ),
-            ],
+                ? accentColor.withValues(alpha: 0.4)
+                : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
+            width: 1,
           ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => _toggle(context), // allow tapping anywhere on card to toggle is standard retro convenience!
-              splashColor: accentColor.withOpacity(0.08),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Icon container
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(iconData, color: accentColor, size: 26),
+          boxShadow: isCompleted ? null : context.softShadow,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => _toggle(context),
+            splashColor: accentColor.withValues(alpha: 0.08),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  // Icon container
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(width: 14),
-                    // Name + streak
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.habit.name.tr(context),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: isCompleted
-                                      ? context.textSecondaryColor
-                                      : null,
-                                  decoration: isCompleted
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                  decorationColor: context.textTertiaryColor,
-                                ),
+                    child: Icon(iconData, color: accentColor, size: 26),
+                  ),
+                  const SizedBox(width: 14),
+                  // Name + streak
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.habit.name.tr(context),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: isCompleted
+                                        ? context.textSecondaryColor
+                                        : null,
+                                    decoration: isCompleted
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                    decorationColor: context.textTertiaryColor,
+                                  ),
+                        ),
+                        if (streak > 0) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.local_fire_department_rounded,
+                                color: Color(0xFFF59E0B),
+                                size: 14,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '$streak ${'day streak'.tr(context)}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: const Color(0xFFF59E0B),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
                           ),
-                          if (streak > 0) ...[
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.local_fire_department_rounded,
-                                  color: Color(0xFFFF9F43),
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 3),
-                                Text(
-                                  'COMBO: '.tr(context) + '$streak',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: const Color(0xFFFF9F43),
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
                         ],
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    // Completion toggle
-                    ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: GestureDetector(
-                        onTap: () => _toggle(context),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeOut,
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(6),
+                  ),
+                  const SizedBox(width: 12),
+                  // Completion toggle
+                  ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: GestureDetector(
+                      onTap: () => _toggle(context),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(9),
+                          color: isCompleted
+                              ? (canInteract
+                                  ? accentColor
+                                  : accentColor.withValues(alpha: 0.4))
+                              : Colors.transparent,
+                          border: Border.all(
                             color: isCompleted
-                                ? (canInteract ? accentColor : accentColor.withOpacity(0.4))
-                                : Colors.transparent,
-                            border: Border.all(
-                              color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                              width: 2.5,
-                            ),
+                                ? accentColor
+                                : (Theme.of(context).dividerTheme.color ??
+                                    Colors.grey),
+                            width: 2,
                           ),
-                          child: isCompleted
-                              ? Icon(
-                                  Icons.star_rounded,
-                                  color: canInteract ? Colors.black : Colors.black54,
-                                  size: 18,
-                                )
-                              : null,
                         ),
+                        child: isCompleted
+                            ? const Icon(
+                                Icons.check_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              )
+                            : null,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      )
-          .animate()
+      ),
+    )
+        .animate()
         .fadeIn(
           delay: Duration(milliseconds: widget.animationDelay),
           duration: 400.ms,
@@ -255,8 +249,6 @@ class _HabitCardState extends State<HabitCard>
           curve: Curves.easeOut,
         );
   }
-
-
 
   void _showOptions(BuildContext context) {
     HapticFeedback.mediumImpact();
@@ -275,9 +267,9 @@ class _OptionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
       child: Column(
@@ -288,7 +280,7 @@ class _OptionsSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textTertiary.withOpacity(0.5),
+                color: AppColors.textTertiary.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -351,7 +343,7 @@ class _OptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.textPrimary;
+    final c = color ?? Theme.of(context).textTheme.titleSmall?.color ?? AppColors.textPrimary;
     return ListTile(
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -359,7 +351,7 @@ class _OptionTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: c.withOpacity(0.1),
+          color: c.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: c, size: 20),
@@ -386,7 +378,7 @@ class _EmptyState extends StatelessWidget {
             width: 90,
             height: 90,
             decoration: BoxDecoration(
-              color: AppColors.teal.withOpacity(0.1),
+              color: AppColors.teal.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -399,16 +391,16 @@ class _EmptyState extends StatelessWidget {
           Text(
             'No habits yet'.tr(context),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap the button below to start\nbuilding your first habit.'.tr(context),
+            'Tap the button below to start\nbuilding your first habit.'
+                .tr(context),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondaryColor,
                   height: 1.6,
                 ),
           ),

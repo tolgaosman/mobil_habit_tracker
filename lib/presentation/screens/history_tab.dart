@@ -31,18 +31,18 @@ class _HistoryTabState extends State<HistoryTab> {
 
   String _getMonthName(int month, BuildContext context) {
     const names = [
-      'JANUARY',
-      'FEBRUARY',
-      'MARCH',
-      'APRIL',
-      'MAY',
-      'JUNE',
-      'JULY',
-      'AUGUST',
-      'SEPTEMBER',
-      'OCTOBER',
-      'NOVEMBER',
-      'DECEMBER'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return names[month - 1].tr(context);
   }
@@ -164,10 +164,10 @@ class _HistoryTabState extends State<HistoryTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TASK HISTORY'.tr(context),
+            'History'.tr(context),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: context.textSecondaryColor,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
           const SizedBox(height: 2),
@@ -191,22 +191,16 @@ class _HistoryTabState extends State<HistoryTab> {
     final percentage = (rate * 100).toStringAsFixed(0);
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 6, 28, 6),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.black,
-          width: 2.5,
+          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).dividerTheme.color ?? Colors.black,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
+        boxShadow: context.softShadow,
       ),
       child: Row(
         children: [
@@ -215,27 +209,27 @@ class _HistoryTabState extends State<HistoryTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'COMPLETION RATE'.tr(context),
+                  'Completion Rate'.tr(context),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: context.textSecondaryColor,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '$percentage%',
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w800,
                         color: rate == 1.0 ? AppColors.success : AppColors.teal,
                       ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   total == 0
-                      ? 'No quests active in this month.'.tr(context)
-                      : '$completed of $total quests completed.'.tr(context),
+                      ? 'No habits active this month.'.tr(context)
+                      : '$completed of $total habits completed.'.tr(context),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                 ),
               ],
@@ -247,11 +241,7 @@ class _HistoryTabState extends State<HistoryTab> {
             decoration: BoxDecoration(
               color: (rate == 1.0 ? AppColors.success : AppColors.teal)
                   .withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                width: 2,
-              ),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
               child: Icon(
@@ -292,15 +282,9 @@ class _HistoryTabState extends State<HistoryTab> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: dividerColor, width: 2.5),
-        boxShadow: [
-          BoxShadow(
-            color: dividerColor,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          )
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: dividerColor, width: 1),
+        boxShadow: context.softShadow,
       ),
       child: Column(
         children: [
@@ -321,8 +305,7 @@ class _HistoryTabState extends State<HistoryTab> {
               Text(
                 '${_getMonthName(_focusedMonth.month, context)} ${_focusedMonth.year}',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
               _buildRetroNavButton(
@@ -342,13 +325,13 @@ class _HistoryTabState extends State<HistoryTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: const [
-              _WeekdayLabel('MON'),
-              _WeekdayLabel('TUE'),
-              _WeekdayLabel('WED'),
-              _WeekdayLabel('THU'),
-              _WeekdayLabel('FRI'),
-              _WeekdayLabel('SAT'),
-              _WeekdayLabel('SUN'),
+              _WeekdayLabel('Mon'),
+              _WeekdayLabel('Tue'),
+              _WeekdayLabel('Wed'),
+              _WeekdayLabel('Thu'),
+              _WeekdayLabel('Fri'),
+              _WeekdayLabel('Sat'),
+              _WeekdayLabel('Sun'),
             ],
           ),
           const SizedBox(height: 8),
@@ -399,22 +382,15 @@ class _HistoryTabState extends State<HistoryTab> {
 
   Widget _buildRetroNavButton(
       {required IconData icon, required VoidCallback onTap}) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Theme.of(context).bottomSheetTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: dividerColor, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: dividerColor,
-              offset: const Offset(2, 2),
-              blurRadius: 0,
-            )
-          ],
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: dividerColor, width: 1),
         ),
         child: Icon(icon,
             size: 20, color: Theme.of(context).textTheme.titleMedium?.color),
@@ -432,23 +408,21 @@ class _HistoryTabState extends State<HistoryTab> {
     required int completedCount,
     required int totalCount,
   }) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Decide background and border colors
-    Color cellBg = isDark ? AppColors.darkCard : AppColors.card;
-    Color borderCol = isToday
-        ? dividerColor
-        : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.08));
-    double borderWidth = isToday ? 2.0 : 1.0;
+    Color cellBg = Theme.of(context).scaffoldBackgroundColor;
+    Color borderCol = isToday ? AppColors.teal : dividerColor;
+    double borderWidth = isToday ? 1.5 : 1.0;
 
     final hasQuests = totalCount > 0;
     final allDone = hasQuests && completedCount == totalCount;
 
     if (isSelected) {
-      cellBg = AppColors.teal.withValues(alpha: 0.25);
-      borderCol = dividerColor;
-      borderWidth = 2.0;
+      cellBg = AppColors.teal;
+      borderCol = AppColors.teal;
+      borderWidth = 1.0;
     } else if (allDone && !isFuture) {
       // Completed all quests on this day
       cellBg = isDark
@@ -486,11 +460,11 @@ class _HistoryTabState extends State<HistoryTab> {
               '$dayNum',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 color: isFuture
                     ? context.textTertiaryColor.withValues(alpha: 0.4)
                     : (isSelected
-                        ? AppColors.teal
+                        ? Colors.white
                         : (isToday
                             ? Theme.of(context).colorScheme.primary
                             : null)),
@@ -505,20 +479,22 @@ class _HistoryTabState extends State<HistoryTab> {
                     '$completedCount/$totalCount',
                     style: TextStyle(
                       fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: allDone
-                          ? AppColors.success
-                          : (completedCount > 0
-                              ? Colors.orange
-                              : context.textTertiaryColor),
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? Colors.white
+                          : (allDone
+                              ? AppColors.success
+                              : (completedCount > 0
+                                  ? Colors.orange
+                                  : context.textTertiaryColor)),
                     ),
                   ),
                   if (allDone) ...[
-                    const SizedBox(width: 1),
-                    const Icon(
-                      Icons.star_rounded,
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.check_circle_rounded,
                       size: 9,
-                      color: Colors.orangeAccent,
+                      color: isSelected ? Colors.white : AppColors.success,
                     ),
                   ],
                 ],
@@ -537,10 +513,10 @@ class _HistoryTabState extends State<HistoryTab> {
       child: Row(
         children: [
           Text(
-            'TASK LOG'.tr(context),
+            'Habits'.tr(context),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: context.textSecondaryColor,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
           const SizedBox(width: 8),
@@ -553,7 +529,7 @@ class _HistoryTabState extends State<HistoryTab> {
             child: Text(
               '$count',
               style: const TextStyle(
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
@@ -561,7 +537,7 @@ class _HistoryTabState extends State<HistoryTab> {
           ),
           const Spacer(),
           Text(
-            '${'TODAY: '.tr(context)}$todayPercentage%',
+            '${'Today: '.tr(context)}$todayPercentage%',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: todayPercentage == '100'
                       ? AppColors.success
@@ -586,11 +562,11 @@ class _HistoryTabState extends State<HistoryTab> {
                   size: 40, color: context.textTertiaryColor),
               const SizedBox(height: 8),
               Text(
-                'No active quests on this date.'.tr(context),
+                'No habits on this date.'.tr(context),
                 style: TextStyle(
                     color: context.textSecondaryColor,
                     fontSize: 13,
-                    fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -612,29 +588,25 @@ class _HistoryTabState extends State<HistoryTab> {
         final iconData = IconMapper.getIcon(habit.iconCodePoint);
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 12, right: 4),
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             color: isCompleted
                 ? accentColor.withValues(alpha: 0.08)
                 : Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).dividerTheme.color ?? Colors.black,
-              width: 2,
+              color: isCompleted
+                  ? accentColor.withValues(alpha: 0.4)
+                  : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
+              width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                offset: const Offset(3, 3),
-                blurRadius: 0,
-              ),
-            ],
+            boxShadow: isCompleted ? null : context.softShadow,
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               onTap: () {
                 HapticFeedback.lightImpact();
                 context
@@ -651,12 +623,7 @@ class _HistoryTabState extends State<HistoryTab> {
                       height: 42,
                       decoration: BoxDecoration(
                         color: accentColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).dividerTheme.color ??
-                              Colors.black,
-                          width: 1.5,
-                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(iconData, color: accentColor, size: 22),
                     ),
@@ -684,16 +651,18 @@ class _HistoryTabState extends State<HistoryTab> {
                       height: 28,
                       decoration: BoxDecoration(
                         color: isCompleted ? accentColor : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Theme.of(context).dividerTheme.color ??
-                              Colors.black,
+                          color: isCompleted
+                              ? accentColor
+                              : (Theme.of(context).dividerTheme.color ??
+                                  Colors.grey),
                           width: 2,
                         ),
                       ),
                       child: isCompleted
-                          ? const Icon(Icons.star_rounded,
-                              color: Colors.black, size: 16)
+                          ? const Icon(Icons.check_rounded,
+                              color: Colors.white, size: 16)
                           : (!canInteract
                               ? const Icon(Icons.close_rounded,
                                   color: AppColors.error, size: 16)

@@ -88,7 +88,8 @@ class RoutineTab extends StatelessWidget {
       },
       icon: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+        transitionBuilder: (child, anim) =>
+            ScaleTransition(scale: anim, child: child),
         child: Icon(
           isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
           key: ValueKey(isDark),
@@ -100,7 +101,8 @@ class RoutineTab extends StatelessWidget {
   }
 
   Widget _buildAvatarButton(BuildContext context, dynamic user) {
-    final hasImage = user?.profileImagePath != null && user!.profileImagePath!.isNotEmpty;
+    final hasImage =
+        user?.profileImagePath != null && user!.profileImagePath!.isNotEmpty;
 
     return GestureDetector(
       onTap: () {
@@ -121,7 +123,8 @@ class RoutineTab extends StatelessWidget {
               ? Image.file(
                   File(user.profileImagePath!),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildDefaultAvatar(),
                 )
               : _buildDefaultAvatar(),
         ),
@@ -149,22 +152,16 @@ class RoutineTab extends StatelessWidget {
   Widget _buildProgressCard(
       BuildContext context, int completed, int total, double progress) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 12, 28, 12),
+      margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.black,
-          width: 2.5,
+          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).dividerTheme.color ?? Colors.black,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
+        boxShadow: context.softShadow,
       ),
       child: Column(
         children: [
@@ -175,14 +172,14 @@ class RoutineTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$completed / $total COMPLETED',
+                      '$completed of $total done',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${(progress * 100).toInt()}% COMPLETE',
+                      '${(progress * 100).toInt()}% complete',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: context.textSecondaryColor,
                           ),
@@ -197,7 +194,7 @@ class RoutineTab extends StatelessWidget {
                     context.read<RoutineProvider>().resetAllCompletions();
                   },
                   icon: const Icon(Icons.refresh_rounded, size: 16),
-                  label: const Text('RESET'),
+                  label: const Text('Reset'),
                   style: TextButton.styleFrom(
                     foregroundColor: context.textSecondaryColor,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -206,22 +203,13 @@ class RoutineTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 8,
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.teal),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: Theme.of(context).dividerTheme.color,
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.teal),
             ),
           ),
         ],
@@ -254,7 +242,7 @@ class RoutineTab extends StatelessWidget {
             child: Text(
               '$count',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
             ),
@@ -274,13 +262,13 @@ class RoutineTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.teal.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.calendar_today_rounded,
                 size: 40,
-                color: AppColors.textTertiary,
+                color: AppColors.teal,
               ),
             ),
             const SizedBox(height: 20),
@@ -303,9 +291,7 @@ class RoutineTab extends StatelessWidget {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 200.ms, duration: 400.ms);
   }
 
   Widget _buildRoutineList(BuildContext context, List<RoutineTask> routines) {
@@ -381,16 +367,17 @@ class _RoutineCardState extends State<_RoutineCard>
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit_rounded, color: AppColors.textSecondary),
+              leading: const Icon(Icons.edit_rounded,
+                  color: AppColors.textSecondary),
               title: const Text('Edit Task'),
               onTap: () {
                 Navigator.pop(context);
@@ -407,7 +394,8 @@ class _RoutineCardState extends State<_RoutineCard>
             ),
             ListTile(
               leading: const Icon(Icons.delete_rounded, color: AppColors.error),
-              title: const Text('Delete Task', style: TextStyle(color: AppColors.error)),
+              title: const Text('Delete Task',
+                  style: TextStyle(color: AppColors.error)),
               onTap: () {
                 Navigator.pop(context);
                 context.read<RoutineProvider>().deleteRoutine(widget.task.id);
@@ -428,23 +416,19 @@ class _RoutineCardState extends State<_RoutineCard>
       onTap: () => _toggle(context),
       onLongPress: () => _showOptions(context),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16, right: 4),
+        margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: isCompleted
-              ? accentColor.withOpacity(0.12)
+              ? accentColor.withValues(alpha: 0.10)
               : Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Theme.of(context).dividerTheme.color ?? Colors.black,
-            width: 2.5,
+            color: isCompleted
+                ? accentColor.withValues(alpha: 0.4)
+                : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
+            width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).dividerTheme.color ?? Colors.black,
-              offset: const Offset(4, 4),
-              blurRadius: 0,
-            ),
-          ],
+          boxShadow: isCompleted ? null : context.softShadow,
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -455,12 +439,9 @@ class _RoutineCardState extends State<_RoutineCard>
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: (isCompleted ? accentColor : AppColors.violet).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                    width: 2,
-                  ),
+                  color: (isCompleted ? accentColor : AppColors.violet)
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.alarm_rounded,
@@ -480,9 +461,7 @@ class _RoutineCardState extends State<_RoutineCard>
                             fontWeight: FontWeight.bold,
                             decoration:
                                 isCompleted ? TextDecoration.lineThrough : null,
-                            color: isCompleted
-                                ? AppColors.textSecondary
-                                : null,
+                            color: isCompleted ? AppColors.textSecondary : null,
                           ),
                     ),
                     const SizedBox(height: 4),
@@ -496,10 +475,11 @@ class _RoutineCardState extends State<_RoutineCard>
                         const SizedBox(width: 4),
                         Text(
                           widget.task.time,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ],
                     ),
@@ -522,18 +502,21 @@ class _RoutineCardState extends State<_RoutineCard>
                     height: 28,
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Theme.of(context).dividerTheme.color ?? Colors.black,
-                        width: 2.5,
+                        color: isCompleted
+                            ? accentColor
+                            : (Theme.of(context).dividerTheme.color ??
+                                Colors.grey),
+                        width: 2,
                       ),
                       color: isCompleted ? accentColor : Colors.transparent,
                     ),
                     child: isCompleted
                         ? const Icon(
-                            Icons.star_rounded,
+                            Icons.check_rounded,
                             size: 18,
-                            color: Colors.black,
+                            color: Colors.white,
                           )
                         : null,
                   ),
@@ -596,11 +579,10 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.teal,
-              onPrimary: Colors.black,
-              onSurface: AppColors.textPrimary,
-            ),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: AppColors.teal,
+                  onPrimary: Colors.white,
+                ),
           ),
           child: child!,
         );
@@ -645,9 +627,9 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
       child: SingleChildScrollView(
@@ -677,7 +659,7 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
         width: 40,
         height: 4,
         decoration: BoxDecoration(
-          color: AppColors.textTertiary.withOpacity(0.5),
+          color: AppColors.textTertiary.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(2),
         ),
       ),
@@ -724,7 +706,7 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: AppColors.violet.withOpacity(0.12),
+                      color: AppColors.violet.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -764,14 +746,18 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.card,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+                width: 1,
+              ),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.access_time_rounded,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondaryColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -808,9 +794,9 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
         onPressed: isEnabled ? _submit : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.teal,
-          foregroundColor: Colors.black,
-          disabledBackgroundColor: AppColors.card,
-          disabledForegroundColor: AppColors.textTertiary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Theme.of(context).dividerTheme.color,
+          disabledForegroundColor: context.textTertiaryColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -822,7 +808,7 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : Text(

@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/habit_provider.dart';
-import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
@@ -98,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget _buildLanguageSelector(BuildContext context) {
     final langProvider = context.watch<LanguageProvider>();
     final currentLang = langProvider.currentLanguage;
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
         offset: const Offset(0, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: dividerColor, width: 2),
+          side: BorderSide(color: dividerColor, width: 1),
         ),
         itemBuilder: (BuildContext context) {
           return langNames.entries.map((entry) {
@@ -136,14 +136,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     entry.value.tr(context),
                     style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                       color: isSelected ? AppColors.teal : null,
                       fontSize: 14,
                     ),
                   ),
                   if (isSelected) ...[
                     const SizedBox(width: 8),
-                    const Icon(Icons.check_rounded, color: AppColors.teal, size: 16),
+                    const Icon(Icons.check_rounded,
+                        color: AppColors.teal, size: 16),
                   ],
                 ],
               ),
@@ -151,18 +153,12 @@ class _HomeScreenState extends State<HomeScreen> {
           }).toList();
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: dividerColor, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: dividerColor,
-                offset: const Offset(2, 2),
-                blurRadius: 0,
-              ),
-            ],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: dividerColor, width: 1),
+            boxShadow: context.softShadow,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -170,12 +166,13 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 langNames[currentLang]!.tr(context),
                 style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.arrow_drop_down_rounded, size: 18, color: dividerColor),
+              Icon(Icons.arrow_drop_down_rounded,
+                  size: 18, color: dividerColor),
             ],
           ),
         ),
@@ -184,7 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAvatarButton(BuildContext context, dynamic user) {
-    final hasImage = user?.profileImagePath != null && user!.profileImagePath!.isNotEmpty;
+    final hasImage =
+        user?.profileImagePath != null && user!.profileImagePath!.isNotEmpty;
 
     return GestureDetector(
       onTap: () {
@@ -205,7 +203,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ? Image.file(
                   File(user.profileImagePath!),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildDefaultAvatar(),
                 )
               : _buildDefaultAvatar(),
         ),
@@ -258,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(
                   '$count',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight: FontWeight.w700,
                       ),
                 ),
@@ -272,9 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget? _buildFAB(BuildContext context) {
     if (_currentIndex == 1) return null;
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-    const label = 'NEW QUEST';
-    const icon = Icons.add_box_rounded;
+    const label = 'New Habit';
+    const icon = Icons.add_rounded;
 
     return GestureDetector(
       onTap: () {
@@ -283,48 +281,47 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 8, right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.teal,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: dividerColor, width: 2.5),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: dividerColor,
-              offset: const Offset(4, 4),
-              blurRadius: 0,
+              color: AppColors.teal.withValues(alpha: 0.35),
+              offset: const Offset(0, 6),
+              blurRadius: 16,
             ),
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.black, size: 22),
+            Icon(icon, color: Colors.white, size: 22),
             const SizedBox(width: 8),
             Text(
               label.tr(context),
               style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
             ),
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), curve: Curves.easeOutBack);
+    ).animate().fadeIn(duration: 300.ms).scale(
+        begin: const Offset(0.8, 0.8),
+        end: const Offset(1.0, 1.0),
+        curve: Curves.easeOutBack);
   }
 
   Widget _buildBottomNavBar() {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).bottomSheetTheme.backgroundColor,
+        color: Theme.of(context).cardTheme.color,
         border: Border(
-          top: BorderSide(color: dividerColor, width: 3),
+          top: BorderSide(color: dividerColor, width: 1),
         ),
       ),
       child: SafeArea(
@@ -333,8 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.track_changes_rounded, 'TASKS'),
-              _buildNavItem(1, Icons.calendar_month_rounded, 'HISTORY'),
+              _buildNavItem(0, Icons.track_changes_rounded, 'Habits'),
+              _buildNavItem(1, Icons.calendar_month_rounded, 'History'),
             ],
           ),
         ),
@@ -344,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
+    final inactiveColor = context.textSecondaryColor;
 
     return GestureDetector(
       onTap: () {
@@ -357,38 +354,28 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.teal : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(color: dividerColor, width: 2)
-              : Border.all(color: Colors.transparent, width: 2),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: dividerColor,
-                    offset: const Offset(2, 2),
-                    blurRadius: 0,
-                  )
-                ]
-              : null,
+          color: isSelected
+              ? AppColors.teal.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.black : (Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextTertiary : AppColors.textSecondary),
+              color: isSelected ? AppColors.teal : inactiveColor,
               size: 22,
             ),
             const SizedBox(width: 8),
             Text(
               label.tr(context),
               style: TextStyle(
-                color: isSelected ? Colors.black : (Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextTertiary : AppColors.textSecondary),
-                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.teal : inactiveColor,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
             ),
@@ -407,10 +394,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   String _greeting(String name, BuildContext context) {
     final hour = DateTime.now().hour;
-    final displayName = name.isNotEmpty ? name : 'Player 1';
+    final displayName = name.isNotEmpty ? name : 'there';
     if (hour >= 5 && hour < 12) {
       return 'Good Morning, $displayName'.tr(context);
     } else if (hour >= 12 && hour < 17) {

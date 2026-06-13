@@ -89,46 +89,33 @@ class _DayChip extends StatelessWidget {
 
     final dayLabel = DateFormat('E').format(day).tr(context).substring(0, 1);
     final dateLabel = day.day.toString();
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-    const double offsetVal = 3.0;
-
-    // Both selected day and current day (isToday) look pressed down/depressed
-    final isPressed = (isSelected || isToday) && !isBeforeStart;
+    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
 
     return GestureDetector(
       onTap: isBeforeStart ? null : onTap,
-      child: Container(
-        margin: EdgeInsets.only(
-          top: isPressed ? offsetVal : 0,
-          left: isPressed ? offsetVal : 0,
-          bottom: isPressed ? 0 : offsetVal,
-          right: isPressed ? 0 : offsetVal,
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           height: 62,
           decoration: BoxDecoration(
             color: isBeforeStart
-                ? (Theme.of(context).brightness == Brightness.dark ? Colors.black26 : Colors.black.withOpacity(0.04))
+                ? Colors.transparent
                 : (isSelected
                     ? AppColors.teal
                     : (Theme.of(context).cardTheme.color ?? AppColors.card)),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isBeforeStart
-                  ? (Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black12)
-                  : ((isToday && isSelected) ? dividerColor : (isToday ? AppColors.teal : dividerColor)),
-              width: isBeforeStart ? 1 : 2,
+                  ? Colors.transparent
+                  : (isSelected
+                      ? AppColors.teal
+                      : (isToday ? AppColors.teal : dividerColor)),
+              width: isToday && !isSelected ? 1.5 : 1,
             ),
-            boxShadow: isPressed || isBeforeStart
+            boxShadow: (isSelected || isBeforeStart)
                 ? null
-                : [
-                    BoxShadow(
-                      color: dividerColor,
-                      offset: const Offset(offsetVal, offsetVal),
-                      blurRadius: 0,
-                    )
-                  ],
+                : context.softShadow,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -137,12 +124,12 @@ class _DayChip extends StatelessWidget {
                 dayLabel,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: isBeforeStart
-                      ? (Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26)
+                      ? context.textTertiaryColor.withValues(alpha: 0.5)
                       : (isSelected
-                          ? Colors.black
-                          : (isToday ? AppColors.teal : null)),
+                          ? Colors.white
+                          : (isToday ? AppColors.teal : context.textSecondaryColor)),
                 ),
               ),
               const SizedBox(height: 4),
@@ -150,11 +137,11 @@ class _DayChip extends StatelessWidget {
                 dateLabel,
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: isBeforeStart
-                      ? (Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26)
+                      ? context.textTertiaryColor.withValues(alpha: 0.5)
                       : (isSelected
-                          ? Colors.black
+                          ? Colors.white
                           : (isToday ? AppColors.teal : null)),
                 ),
               ),
