@@ -129,23 +129,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLogo() {
     return Center(
       child: Container(
-        height: 90,
-        width: 90,
+        height: 120,
+        width: 120,
         decoration: BoxDecoration(
-          color: AppColors.teal,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: AppColors.teal.withValues(alpha: 0.35),
-              offset: const Offset(0, 8),
-              blurRadius: 20,
+              color: AppColors.teal.withValues(alpha: 0.2),
+              offset: const Offset(0, 10),
+              blurRadius: 24,
             )
           ],
         ),
-        child: const Icon(
-          Icons.check_circle_outline_rounded,
-          size: 48,
-          color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Image.asset(
+            'assets/images/app_logo.png',
+            fit: BoxFit.contain,
+          ),
         ),
       ),
     ).animate().fadeIn(duration: 600.ms).scale(
