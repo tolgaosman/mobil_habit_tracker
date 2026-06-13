@@ -161,44 +161,29 @@ class _HabitCardState extends State<HabitCard>
             child: GestureDetector(
               onTap: () => _toggle(context),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                width: 34,
-                height: 34,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: isCompleted
-                      ? LinearGradient(
-                          colors: canInteract
-                              ? [accentColor, accentColor.withValues(alpha: 0.75)]
-                              : [
-                                  accentColor.withValues(alpha: 0.4),
-                                  accentColor.withValues(alpha: 0.3),
-                                ],
-                        )
-                      : null,
-                  color: isCompleted ? null : Colors.transparent,
+                  shape: BoxShape.circle,
+                  color: isCompleted
+                      ? (canInteract
+                          ? accentColor
+                          : accentColor.withValues(alpha: 0.4))
+                      : Colors.transparent,
                   border: Border.all(
                     color: isCompleted
                         ? accentColor
                         : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 2,
+                    width: 1.5,
                   ),
-                  boxShadow: isCompleted
-                      ? [
-                          BoxShadow(
-                            color: accentColor.withValues(alpha: 0.5),
-                            blurRadius: 10,
-                            spreadRadius: -2,
-                          ),
-                        ]
-                      : null,
                 ),
                 child: isCompleted
                     ? const Icon(
                         Icons.check_rounded,
                         color: Colors.white,
-                        size: 20,
+                        size: 18,
                       )
                     : null,
               ),
@@ -347,28 +332,16 @@ class _EmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 96,
-            height: 96,
+            width: 88,
+            height: 88,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.tealGlow.withValues(alpha: 0.22),
-                  AppColors.teal.withValues(alpha: 0.10),
-                ],
-              ),
+              color: AppColors.teal.withValues(alpha: 0.10),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.teal.withValues(alpha: 0.30),
-                width: 1,
-              ),
-              boxShadow: context.glowShadow(AppColors.tealGlow, strength: 0.7),
             ),
             child: const Icon(
               Icons.add_task_rounded,
               color: AppColors.teal,
-              size: 42,
+              size: 38,
             ),
           ),
           const SizedBox(height: 20),

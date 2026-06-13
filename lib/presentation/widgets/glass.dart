@@ -1,24 +1,25 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../data/models/habit_model.dart';
 
-/// Frosted-glass card: backdrop blur + translucent fill + light rim + layered
-/// shadow. The single reusable surface for the redesigned UI.
+/// Editorial surface card: clean opaque fill + hairline border + subtle lift.
+/// (Class name kept as `GlassCard` so existing imports/usages don't break,
+/// but there is no blur/glass anymore — this is the airy editorial card.)
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
   final double radius;
-  final double blur;
+  final double blur; // ignored; kept for API compat
 
   /// Optional accent tint (e.g. category / completion color).
   final Color? tint;
 
-  /// Whether to add a colored neon glow around the card.
-  final bool glow;
-  final Color? glowColor;
+  /// Whether to lift the card with a subtle shadow.
+  final bool glow; // maps to "elevated" in editorial
+  final Color? glowColor; // ignored; kept for API compat
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -27,8 +28,8 @@ class GlassCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(18),
     this.margin,
-    this.radius = 20,
-    this.blur = 10,
+    this.radius = 18,
+    this.blur = 0,
     this.tint,
     this.glow = false,
     this.glowColor,
@@ -42,7 +43,6 @@ class GlassCard extends StatelessWidget {
       tint: tint,
       radius: radius,
       glow: glow,
-      glowColor: glowColor,
     );
 
     Widget content = Padding(padding: padding, child: child);
@@ -55,8 +55,8 @@ class GlassCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(radius),
           onTap: onTap,
           onLongPress: onLongPress,
-          splashColor: (tint ?? AppColors.teal).withValues(alpha: 0.08),
-          highlightColor: (tint ?? AppColors.teal).withValues(alpha: 0.04),
+          splashColor: (tint ?? AppColors.teal).withValues(alpha: 0.06),
+          highlightColor: (tint ?? AppColors.teal).withValues(alpha: 0.03),
           child: content,
         ),
       );
@@ -65,18 +65,14 @@ class GlassCard extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: decoration,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: content,
-        ),
-      ),
+      clipBehavior: Clip.antiAlias,
+      child: content,
     );
   }
 }
 
-/// Text painted with the emerald accent gradient via [ShaderMask].
+/// Emphasis heading. In editorial it's just clean, tight, weighted text — the
+/// gradient is opt-in (defaults to a flat accent color, not a gradient).
 class GradientText extends StatelessWidget {
   final String text;
   final TextStyle? style;
@@ -97,9 +93,19 @@ class GradientText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final g = gradient ?? context.accentGradient;
+    final baseStyle = (style ?? const TextStyle());
+    if (gradient == null) {
+      // Editorial default: flat accent-colored emphasis text.
+      return Text(
+        text,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: overflow,
+        style: baseStyle.copyWith(color: AppColors.teal),
+      );
+    }
     return ShaderMask(
-      shaderCallback: (bounds) => g.createShader(
+      shaderCallback: (bounds) => gradient!.createShader(
         Rect.fromLTWH(0, 0, bounds.width, bounds.height),
       ),
       blendMode: BlendMode.srcIn,
@@ -108,13 +114,13 @@ class GradientText extends StatelessWidget {
         textAlign: textAlign,
         maxLines: maxLines,
         overflow: overflow,
-        style: (style ?? const TextStyle()).copyWith(color: Colors.white),
+        style: baseStyle.copyWith(color: Colors.white),
       ),
     );
   }
 }
 
-/// Circular progress ring with a soft neon glow and centered percentage.
+/// Clean circular progress ring with centered percentage (no glow).
 class GlowProgressRing extends StatelessWidget {
   final double rate; // 0..1
   final double size;
@@ -127,7 +133,7 @@ class GlowProgressRing extends StatelessWidget {
     super.key,
     required this.rate,
     this.size = 64,
-    this.stroke = 7,
+    this.stroke = 6,
     this.color,
     this.labelStyle,
     this.showLabel = true,
@@ -137,12 +143,12 @@ class GlowProgressRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = color ?? AppColors.teal;
     final track = context.isDarkMode
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.06);
+        ? Colors.white.withValues(alpha: 0.07)
+        : Colors.black.withValues(alpha: 0.05);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: rate.clamp(0.0, 1.0)),
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 750),
       curve: Curves.easeOutCubic,
       builder: (_, value, __) {
         return SizedBox(
@@ -154,7 +160,6 @@ class GlowProgressRing extends StatelessWidget {
               stroke: stroke,
               color: c,
               track: track,
-              glow: context.isDarkMode ? 0.55 : 0.35,
             ),
             child: showLabel
                 ? Center(
@@ -162,7 +167,7 @@ class GlowProgressRing extends StatelessWidget {
                       '${(value * 100).round()}%',
                       style: labelStyle ??
                           Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                     ),
                   )
@@ -179,14 +184,12 @@ class _RingPainter extends CustomPainter {
   final double stroke;
   final Color color;
   final Color track;
-  final double glow;
 
   _RingPainter({
     required this.value,
     required this.stroke,
     required this.color,
     required this.track,
-    required this.glow,
   });
 
   @override
@@ -195,7 +198,6 @@ class _RingPainter extends CustomPainter {
     final radius = (size.width - stroke) / 2;
     final rect = Rect.fromCircle(center: center, radius: radius);
     const start = -math.pi / 2;
-    final sweep = 2 * math.pi * value;
 
     final trackPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -206,27 +208,12 @@ class _RingPainter extends CustomPainter {
 
     if (value <= 0) return;
 
-    // Glow underlay.
-    final glowPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round
-      ..color = color.withValues(alpha: glow)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    canvas.drawArc(rect, start, sweep, false, glowPaint);
-
-    // Gradient progress arc.
     final arcPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: 2 * math.pi,
-        transform: const GradientRotation(-math.pi / 2),
-        colors: [color.withValues(alpha: 0.7), color],
-      ).createShader(rect);
-    canvas.drawArc(rect, start, sweep, false, arcPaint);
+      ..color = color;
+    canvas.drawArc(rect, start, 2 * math.pi * value, false, arcPaint);
   }
 
   @override
@@ -234,7 +221,7 @@ class _RingPainter extends CustomPainter {
       old.value != value || old.color != color || old.stroke != stroke;
 }
 
-/// Linear progress bar with gradient fill and a faint glow.
+/// Clean linear progress bar (rounded, flat fill — no glow).
 class GlowProgressBar extends StatelessWidget {
   final double rate; // 0..1
   final double height;
@@ -243,7 +230,7 @@ class GlowProgressBar extends StatelessWidget {
   const GlowProgressBar({
     super.key,
     required this.rate,
-    this.height = 8,
+    this.height = 6,
     this.color,
   });
 
@@ -251,8 +238,8 @@ class GlowProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = color ?? AppColors.teal;
     final track = context.isDarkMode
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.06);
+        ? Colors.white.withValues(alpha: 0.07)
+        : Colors.black.withValues(alpha: 0.05);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(height),
@@ -261,7 +248,7 @@ class GlowProgressBar extends StatelessWidget {
           Container(height: height, color: track),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0, end: rate.clamp(0.0, 1.0)),
-            duration: const Duration(milliseconds: 700),
+            duration: const Duration(milliseconds: 650),
             curve: Curves.easeOutCubic,
             builder: (context, value, _) {
               return FractionallySizedBox(
@@ -269,17 +256,8 @@ class GlowProgressBar extends StatelessWidget {
                 child: Container(
                   height: height,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [c.withValues(alpha: 0.85), c],
-                    ),
+                    color: c,
                     borderRadius: BorderRadius.circular(height),
-                    boxShadow: [
-                      BoxShadow(
-                        color: c.withValues(alpha: 0.5),
-                        blurRadius: 8,
-                        spreadRadius: -1,
-                      ),
-                    ],
                   ),
                 ),
               );
@@ -291,7 +269,7 @@ class GlowProgressBar extends StatelessWidget {
   }
 }
 
-/// Small frosted pill used for counters and difficulty / streak badges.
+/// Small calm pill for counters and difficulty / streak badges.
 class GlassPillBadge extends StatelessWidget {
   final String label;
   final IconData? icon;
@@ -307,24 +285,24 @@ class GlassPillBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: icon != null ? 10 : 12, vertical: 5),
+      padding:
+          EdgeInsets.symmetric(horizontal: icon != null ? 9 : 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: context.isDarkMode ? 0.18 : 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
+        color: color.withValues(alpha: context.isDarkMode ? 0.16 : 0.10),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 13, color: color),
+            Icon(icon, size: 12.5, color: color),
             const SizedBox(width: 4),
           ],
           Text(
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: color,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ],
@@ -333,20 +311,20 @@ class GlassPillBadge extends StatelessWidget {
   }
 }
 
-/// Soft gradient-bordered badge that holds a category/icon glyph.
+/// Soft pastel tonal badge holding a category/icon glyph (no gradient/glow).
 class IconBadge extends StatelessWidget {
   final IconData icon;
   final Color color;
   final double size;
   final double radius;
-  final bool glow;
+  final bool glow; // ignored; kept for API compat
 
   const IconBadge({
     super.key,
     required this.icon,
     required this.color,
-    this.size = 50,
-    this.radius = 15,
+    this.size = 48,
+    this.radius = 14,
     this.glow = false,
   });
 
@@ -356,27 +334,134 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: context.isDarkMode ? 0.28 : 0.18),
-            color.withValues(alpha: context.isDarkMode ? 0.14 : 0.08),
-          ],
-        ),
+        color: color.withValues(alpha: context.isDarkMode ? 0.20 : 0.13),
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: color.withValues(alpha: 0.30), width: 1),
-        boxShadow: glow
-            ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.35),
-                  blurRadius: 14,
-                  spreadRadius: -3,
-                ),
-              ]
-            : null,
       ),
-      child: Icon(icon, color: color, size: size * 0.5),
+      child: Icon(icon, color: color, size: size * 0.46),
+    );
+  }
+}
+
+/// GitHub-style weekly contribution grid for habit completion.
+/// Computes a per-day completion ratio from [habits] and paints each day cell
+/// with a stepped sage tone. Pure presentation — reads existing model data.
+class CompletionHeatmap extends StatelessWidget {
+  final List<HabitModel> habits;
+  final DateTime startingDate;
+
+  /// Number of weeks (columns) to show.
+  final int weeks;
+
+  const CompletionHeatmap({
+    super.key,
+    required this.habits,
+    required this.startingDate,
+    this.weeks = 12,
+  });
+
+  /// Completion ratio for a given day: completed / scheduled (0..1, -1 = none).
+  double _ratioFor(DateTime date) {
+    final dayMidnight = DateTime(date.year, date.month, date.day);
+    final startMidnight =
+        DateTime(startingDate.year, startingDate.month, startingDate.day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (dayMidnight.isBefore(startMidnight) || dayMidnight.isAfter(today)) {
+      return -1;
+    }
+
+    int scheduled = 0;
+    int completed = 0;
+    for (final h in habits) {
+      bool isScheduled;
+      if (h.repeatDays != null && h.repeatDays!.isNotEmpty) {
+        isScheduled = h.repeatDays!.contains(date.weekday);
+      } else {
+        isScheduled = true;
+      }
+      final done = h.isCompletedOn(date);
+      if (isScheduled || done) {
+        scheduled++;
+        if (done) completed++;
+      }
+    }
+    if (scheduled == 0) return -1;
+    return completed / scheduled;
+  }
+
+  Color _toneFor(BuildContext context, double ratio) {
+    final isDark = context.isDarkMode;
+    if (ratio < 0) {
+      // No scheduled habits / out of range: empty cell.
+      return isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : Colors.black.withValues(alpha: 0.045);
+    }
+    if (ratio == 0) {
+      return isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.07);
+    }
+    // Stepped sage tone by completion ratio.
+    final double alpha;
+    if (ratio < 0.34) {
+      alpha = 0.28;
+    } else if (ratio < 0.67) {
+      alpha = 0.5;
+    } else if (ratio < 1.0) {
+      alpha = 0.72;
+    } else {
+      alpha = 1.0;
+    }
+    return AppColors.teal.withValues(alpha: alpha);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    // End at the Sunday of the current week so columns align to weeks (Mon-Sun).
+    final endOfWeek = today.add(Duration(days: 7 - today.weekday));
+    final totalDays = weeks * 7;
+    final firstDay = endOfWeek.subtract(Duration(days: totalDays - 1));
+
+    // Build columns (weeks); each column is 7 rows (Mon..Sun).
+    final columns = <Widget>[];
+    for (int w = 0; w < weeks; w++) {
+      final cells = <Widget>[];
+      for (int d = 0; d < 7; d++) {
+        final date = firstDay.add(Duration(days: w * 7 + d));
+        final ratio = _ratioFor(date);
+        cells.add(
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(1.5),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _toneFor(context, ratio),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      columns.add(
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: cells,
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: columns,
     );
   }
 }

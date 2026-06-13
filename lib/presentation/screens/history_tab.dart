@@ -389,32 +389,40 @@ class _HistoryTabState extends State<HistoryTab> {
   }) {
     final dividerColor =
         Theme.of(context).dividerTheme.color ?? Colors.transparent;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Decide background and border colors
-    Color cellBg = Theme.of(context).scaffoldBackgroundColor;
+    Color cellBg = Colors.transparent;
     Color borderCol = isToday ? AppColors.teal : dividerColor;
     double borderWidth = isToday ? 1.5 : 1.0;
 
     final hasQuests = totalCount > 0;
     final allDone = hasQuests && completedCount == totalCount;
 
+    // Stepped sage tone by completion ratio (matches the heatmap scale).
+    if (hasQuests && !isFuture) {
+      final ratio = completedCount / totalCount;
+      final double a;
+      if (ratio == 0) {
+        a = context.isDarkMode ? 0.08 : 0.06;
+        cellBg = context.isDarkMode
+            ? Colors.white.withValues(alpha: a)
+            : Colors.black.withValues(alpha: a);
+      } else {
+        if (ratio < 0.34) {
+          a = 0.22;
+        } else if (ratio < 0.67) {
+          a = 0.42;
+        } else if (ratio < 1.0) {
+          a = 0.64;
+        } else {
+          a = 0.92;
+        }
+        cellBg = AppColors.teal.withValues(alpha: a);
+      }
+    }
     if (isSelected) {
-      cellBg = AppColors.teal;
       borderCol = AppColors.teal;
-      borderWidth = 1.0;
-    } else if (allDone && !isFuture) {
-      // Completed all quests on this day
-      cellBg = isDark
-          ? const Color(0xFF1E3A24)
-          : const Color(0xFFE8F5E9); // green-ish
-      borderCol = AppColors.success.withValues(alpha: 0.5);
-    } else if (completedCount > 0 && !isFuture) {
-      // Partially completed
-      cellBg = isDark
-          ? const Color(0xFF332A1E)
-          : const Color(0xFFFFFDE7); // yellow-ish
-      borderCol = Colors.orange.withValues(alpha: 0.3);
+      borderWidth = 1.5;
     }
 
     return GestureDetector(
@@ -429,21 +437,9 @@ class _HistoryTabState extends State<HistoryTab> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          gradient: isSelected ? context.accentGradient : null,
-          color: isSelected ? null : cellBg,
+          color: cellBg,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: borderCol, width: borderWidth),
-          boxShadow: isSelected
-              ? context.glowShadow(AppColors.tealGlow, strength: 0.6)
-              : (allDone && !isFuture
-                  ? [
-                      BoxShadow(
-                        color: AppColors.success.withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        spreadRadius: -3,
-                      ),
-                    ]
-                  : null),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -455,7 +451,7 @@ class _HistoryTabState extends State<HistoryTab> {
                 fontWeight: FontWeight.w700,
                 color: isFuture
                     ? context.textTertiaryColor.withValues(alpha: 0.4)
-                    : (isSelected
+                    : (allDone
                         ? Colors.white
                         : (isToday
                             ? Theme.of(context).colorScheme.primary
@@ -464,32 +460,15 @@ class _HistoryTabState extends State<HistoryTab> {
             ),
             if (hasQuests && !isFuture) ...[
               const SizedBox(height: 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '$completedCount/$totalCount',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected
-                          ? Colors.white
-                          : (allDone
-                              ? AppColors.success
-                              : (completedCount > 0
-                                  ? Colors.orange
-                                  : context.textTertiaryColor)),
-                    ),
-                  ),
-                  if (allDone) ...[
-                    const SizedBox(width: 2),
-                    Icon(
-                      Icons.check_circle_rounded,
-                      size: 9,
-                      color: isSelected ? Colors.white : AppColors.success,
-                    ),
-                  ],
-                ],
+              Text(
+                '$completedCount/$totalCount',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: allDone
+                      ? Colors.white.withValues(alpha: 0.9)
+                      : context.textTertiaryColor,
+                ),
               ),
             ],
           ],
@@ -606,31 +585,14 @@ class _HistoryTabState extends State<HistoryTab> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  gradient: isCompleted
-                      ? LinearGradient(
-                          colors: [
-                            accentColor,
-                            accentColor.withValues(alpha: 0.75)
-                          ],
-                        )
-                      : null,
-                  color: isCompleted ? null : Colors.transparent,
-                  borderRadius: BorderRadius.circular(9),
+                  color: isCompleted ? accentColor : Colors.transparent,
+                  shape: BoxShape.circle,
                   border: Border.all(
                     color: isCompleted
                         ? accentColor
                         : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 2,
+                    width: 1.5,
                   ),
-                  boxShadow: isCompleted
-                      ? [
-                          BoxShadow(
-                            color: accentColor.withValues(alpha: 0.5),
-                            blurRadius: 10,
-                            spreadRadius: -2,
-                          ),
-                        ]
-                      : null,
                 ),
                 child: isCompleted
                     ? const Icon(Icons.check_rounded,

@@ -142,11 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.tealGlow.withValues(alpha: 0.7),
-                  width: 2,
-                ),
-                boxShadow: context.glowShadow(AppColors.tealGlow, strength: 1.1),
+                border: Border.all(color: context.glassBorder, width: 1),
               ),
               child: ClipOval(
                 child: _isUpdatingPhoto
@@ -173,13 +169,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
-                    gradient: context.accentGradient,
+                    color: AppColors.teal,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      width: 2,
+                      width: 2.5,
                     ),
-                    boxShadow: context.glowShadow(AppColors.teal, strength: 0.6),
                   ),
                   child: const Icon(
                     Icons.camera_alt_rounded,
@@ -216,17 +211,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildDefaultAvatar() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.teal, AppColors.violet],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: AppColors.teal.withValues(alpha: 0.14),
       child: const Icon(
         Icons.person_rounded,
-        color: Colors.white,
-        size: 54,
+        color: AppColors.teal,
+        size: 52,
       ),
     );
   }

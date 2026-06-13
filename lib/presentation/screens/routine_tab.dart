@@ -113,11 +113,11 @@ class RoutineTab extends StatelessWidget {
         );
       },
       child: Container(
-        width: 42,
-        height: 42,
+        width: 46,
+        height: 46,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.teal, width: 1.5),
+          border: Border.all(color: context.glassBorder, width: 1),
         ),
         child: ClipOval(
           child: hasImage
@@ -135,16 +135,10 @@ class RoutineTab extends StatelessWidget {
 
   Widget _buildDefaultAvatar() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.teal, AppColors.violet],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: AppColors.teal.withValues(alpha: 0.14),
       child: const Icon(
         Icons.person_rounded,
-        color: Colors.white,
+        color: AppColors.teal,
         size: 20,
       ),
     );
@@ -236,26 +230,14 @@ class RoutineTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.tealGlow.withValues(alpha: 0.22),
-                    AppColors.teal.withValues(alpha: 0.10),
-                  ],
-                ),
+                color: AppColors.teal.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.teal.withValues(alpha: 0.30),
-                  width: 1,
-                ),
-                boxShadow: context.glowShadow(AppColors.tealGlow, strength: 0.7),
               ),
               child: const Icon(
                 Icons.calendar_today_rounded,
-                size: 40,
+                size: 38,
                 color: AppColors.teal,
               ),
             ),
@@ -470,36 +452,19 @@ class _RoutineCardState extends State<_RoutineCard>
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(9),
+                  shape: BoxShape.circle,
                   border: Border.all(
                     color: isCompleted
                         ? accentColor
                         : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 2,
+                    width: 1.5,
                   ),
-                  gradient: isCompleted
-                      ? LinearGradient(
-                          colors: [
-                            accentColor,
-                            accentColor.withValues(alpha: 0.75)
-                          ],
-                        )
-                      : null,
-                  color: isCompleted ? null : Colors.transparent,
-                  boxShadow: isCompleted
-                      ? [
-                          BoxShadow(
-                            color: accentColor.withValues(alpha: 0.5),
-                            blurRadius: 10,
-                            spreadRadius: -2,
-                          ),
-                        ]
-                      : null,
+                  color: isCompleted ? accentColor : Colors.transparent,
                 ),
                 child: isCompleted
                     ? const Icon(
                         Icons.check_rounded,
-                        size: 18,
+                        size: 17,
                         color: Colors.white,
                       )
                     : null,
@@ -769,27 +734,20 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
     final title = _titleController.text.trim();
     final isEnabled = title.isNotEmpty && !_isLoading;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 56,
-      decoration: isEnabled
-          ? BoxDecoration(
-              gradient: context.accentGradient,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: context.glowShadow(AppColors.teal, strength: 0.7),
-            )
-          : null,
+      height: 54,
       child: ElevatedButton(
         onPressed: isEnabled ? _submit : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.teal,
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           disabledBackgroundColor: Theme.of(context).dividerTheme.color,
           disabledForegroundColor: context.textTertiaryColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: _isLoading

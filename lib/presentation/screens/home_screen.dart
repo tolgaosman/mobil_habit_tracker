@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -12,7 +13,6 @@ import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/progress_header.dart';
 import '../widgets/glass.dart';
-import 'dart:ui';
 import 'add_habit_screen.dart';
 import 'profile_screen.dart';
 import 'history_tab.dart';
@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
+        bottom: false,
         child: IndexedStack(
           index: _currentIndex,
           children: [
@@ -56,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildTopBar(context),
           const ProgressHeader(),
           const WeekCalendar(),
+          _buildHeatmap(context),
           const SizedBox(height: 8),
           _buildSectionHeader(context),
           const HabitList(),
@@ -69,71 +71,43 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.watch<AuthProvider>();
     final user = auth.currentUser;
     final name = user?.name ?? '';
+    final dateLabel = DateFormat('EEEE, d MMMM').format(DateTime.now());
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-      decoration: BoxDecoration(
-        gradient: context.heroGradient,
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: context.glowShadow(AppColors.teal, strength: 0.8),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25),
-                width: 1,
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                'assets/images/app_logo.png',
-                width: 42,
-                height: 42,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _greeting(name, context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w600,
+                  dateLabel.tr(context).toUpperCase(),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: context.textTertiaryColor,
+                        letterSpacing: 1.0,
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 6),
                 Text(
-                  'Your Habits'.tr(context),
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.8,
-                      ),
+                  _greeting(name, context),
+                  style: Theme.of(context).textTheme.displayMedium,
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           _buildAvatarButton(context, user),
         ],
       ),
     )
         .animate()
-        .fadeIn(duration: 500.ms)
-        .slideY(begin: -0.1, end: 0, duration: 500.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 450.ms)
+        .slideY(begin: -0.08, end: 0, duration: 450.ms, curve: Curves.easeOutCubic);
   }
 
   Widget _buildAvatarButton(BuildContext context, dynamic user) {
@@ -148,20 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Container(
-        width: 52,
-        height: 52,
+        width: 46,
+        height: 46,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.6),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 8,
-            ),
-          ],
+          border: Border.all(color: context.glassBorder, width: 1),
         ),
         child: ClipOval(
           child: hasImage
@@ -179,24 +144,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDefaultAvatar() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.teal, AppColors.violet],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: AppColors.teal.withValues(alpha: 0.14),
       child: const Icon(
         Icons.person_rounded,
-        color: Colors.white,
-        size: 24,
+        color: AppColors.teal,
+        size: 22,
       ),
+    );
+  }
+
+  Widget _buildHeatmap(BuildContext context) {
+    return Consumer<HabitProvider>(
+      builder: (context, provider, _) {
+        if (provider.allHabits.isEmpty) return const SizedBox.shrink();
+        return Container(
+          margin: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+          decoration: context.glassDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Last 12 weeks'.tr(context),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: context.textSecondaryColor,
+                    ),
+              ),
+              const SizedBox(height: 14),
+              CompletionHeatmap(
+                habits: provider.allHabits,
+                startingDate: provider.getStartingDate(),
+              ),
+            ],
+          ),
+        )
+            .animate()
+            .fadeIn(delay: 250.ms, duration: 500.ms)
+            .slideY(begin: 0.08, end: 0, delay: 250.ms, duration: 500.ms);
+      },
     );
   }
 
   Widget _buildSectionHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
       child: Consumer<HabitProvider>(
         builder: (context, provider, _) {
           final count = provider.habits.length;
@@ -204,10 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 'Today'.tr(context),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: context.textSecondaryColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(width: 8),
               GlassPillBadge(label: '$count'),
@@ -220,82 +208,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget? _buildFAB(BuildContext context) {
     if (_currentIndex == 1 || _currentIndex == 2) return null;
-    const label = 'New Habit';
-    const icon = Icons.add_rounded;
 
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _showAddHabit(context);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8, right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-        decoration: BoxDecoration(
-          gradient: context.accentGradient,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.teal.withValues(alpha: 0.45),
-              offset: const Offset(0, 8),
-              blurRadius: 22,
-              spreadRadius: -2,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(width: 8),
-            Text(
-              label.tr(context),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, right: 4),
+      child: FloatingActionButton.extended(
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          _showAddHabit(context);
+        },
+        backgroundColor: AppColors.teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: const Icon(Icons.add_rounded, size: 22),
+        label: Text(
+          'New Habit'.tr(context),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
       ),
-    ).animate().fadeIn(duration: 300.ms).scale(
-        begin: const Offset(0.8, 0.8),
-        end: const Offset(1.0, 1.0),
-        curve: Curves.easeOutBack);
+    ).animate().fadeIn(delay: 300.ms, duration: 350.ms).slideY(
+        begin: 0.4, end: 0, delay: 300.ms, curve: Curves.easeOutCubic);
   }
 
   Widget _buildBottomNavBar() {
-    final isDark = context.isDarkMode;
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            color: (isDark ? AppColors.darkSurface : Colors.white)
-                .withValues(alpha: isDark ? 0.65 : 0.80),
-            border: Border(
-              top: BorderSide(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.05),
-                width: 1,
-              ),
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(0, Icons.track_changes_rounded, 'Habits'),
-                  _buildNavItem(1, Icons.calendar_month_rounded, 'History'),
-                  _buildNavItem(2, Icons.bolt_rounded, 'Side Quests'),
-                ],
-              ),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(
+          top: BorderSide(color: context.glassBorder, width: 1),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.check_circle_outline_rounded, 'Habits'),
+              _buildNavItem(1, Icons.calendar_today_rounded, 'History'),
+              _buildNavItem(2, Icons.auto_awesome_outlined, 'Side Quests'),
+            ],
           ),
         ),
       ),
@@ -304,58 +258,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
-    final inactiveColor = context.textSecondaryColor;
+    final color = isSelected ? AppColors.teal : context.textTertiaryColor;
 
-    return GestureDetector(
-      onTap: () {
-        if (_currentIndex != index) {
-          HapticFeedback.selectionClick();
-          setState(() {
-            _currentIndex = index;
-          });
-        }
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.teal.withValues(alpha: 0.14)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-          border: isSelected
-              ? Border.all(
-                  color: AppColors.teal.withValues(alpha: 0.30),
-                  width: 1,
-                )
-              : null,
-          boxShadow:
-              isSelected ? context.glowShadow(AppColors.teal, strength: 0.5) : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.teal : inactiveColor,
-              size: 22,
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (_currentIndex != index) {
+            HapticFeedback.selectionClick();
+            setState(() => _currentIndex = index);
+          }
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 23),
+              const SizedBox(height: 5),
               Text(
                 label.tr(context),
-                style: const TextStyle(
-                  color: AppColors.teal,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: color,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

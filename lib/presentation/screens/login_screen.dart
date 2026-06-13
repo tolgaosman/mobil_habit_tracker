@@ -5,7 +5,6 @@ import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
-import '../widgets/glass.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -92,28 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          // Decorative emerald glow blobs in the background
-          Positioned(
-            top: -120,
-            right: -100,
-            child: _GlowBlob(
-              color: AppColors.tealGlow,
-              size: 320,
-              opacity: context.isDarkMode ? 0.30 : 0.18,
-            ),
-          ),
-          Positioned(
-            bottom: -140,
-            left: -120,
-            child: _GlowBlob(
-              color: AppColors.violet,
-              size: 300,
-              opacity: context.isDarkMode ? 0.22 : 0.12,
-            ),
-          ),
-          SafeArea(
+      body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -126,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   _buildLogo(),
                   const SizedBox(height: 32),
                   _buildHeader(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   if (_errorMessage != null) _buildErrorCard(),
                   if (_isSignUp) ...[
                     _buildNameField(),
@@ -144,8 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-          ),
-        ],
       ),
     );
   }
@@ -176,22 +152,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildHeader() {
     return Column(
       children: [
-        GradientText(
+        Text(
           _isSignUp ? 'Create Account'.tr(context) : 'Welcome Back'.tr(context),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
+          style: Theme.of(context).textTheme.displayMedium,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           _isSignUp
               ? 'Start tracking your daily goals today'.tr(context)
               : 'Sign in to access your habit dashboard'.tr(context),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: context.textSecondaryColor,
               ),
         ),
       ],
@@ -320,21 +293,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: context.accentGradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: context.glowShadow(AppColors.teal, strength: 0.9),
-      ),
+    return SizedBox(
+      height: 54,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.teal,
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
           elevation: 0,
         ),
@@ -386,32 +354,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
-  }
-}
-
-/// Soft blurred color blob used as decorative background lighting.
-class _GlowBlob extends StatelessWidget {
-  final Color color;
-  final double size;
-  final double opacity;
-
-  const _GlowBlob({
-    required this.color,
-    required this.size,
-    required this.opacity,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color.withValues(alpha: opacity), color.withValues(alpha: 0)],
-        ),
-      ),
-    );
   }
 }

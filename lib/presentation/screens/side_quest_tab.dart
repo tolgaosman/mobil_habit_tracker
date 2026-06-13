@@ -177,28 +177,22 @@ class SideQuestTab extends StatelessWidget {
         },
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           decoration: BoxDecoration(
-            gradient: context.accentGradient,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.teal.withValues(alpha: 0.40),
-                offset: const Offset(0, 8),
-                blurRadius: 22,
-                spreadRadius: -2,
-              ),
-            ],
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: context.glassBorder, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.history_rounded, color: Colors.white, size: 22),
+              Icon(Icons.history_rounded,
+                  color: context.textSecondaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Past Side Quests'.tr(context),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.textSecondaryColor,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -222,10 +216,17 @@ class _SideQuestCard extends StatelessWidget {
     required this.onTap,
   });
 
+  static const Map<String, Color> _difficultyTones = {
+    'easy': AppColors.pastelSage,
+    'medium': AppColors.pastelAmber,
+    'hard': AppColors.pastelTerracotta,
+  };
+
   @override
   Widget build(BuildContext context) {
     final isCompleted = quest.isCompleted;
     final accentColor = AppColors.teal;
+    final iconTone = _difficultyTones[quest.difficulty] ?? AppColors.teal;
     final iconData = IconMapper.getIcon(quest.icon);
     final dividerColor =
         Theme.of(context).dividerTheme.color ?? Colors.transparent;
@@ -242,7 +243,7 @@ class _SideQuestCard extends StatelessWidget {
         children: [
           IconBadge(
             icon: iconData,
-            color: accentColor,
+            color: iconTone,
             size: 50,
             glow: isCompleted,
           ),
@@ -267,34 +268,20 @@ class _SideQuestCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 220),
             curve: Curves.easeOut,
-            width: 34,
-            height: 34,
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              gradient: isCompleted
-                  ? LinearGradient(
-                      colors: [accentColor, accentColor.withValues(alpha: 0.75)],
-                    )
-                  : null,
-              color: isCompleted ? null : Colors.transparent,
+              shape: BoxShape.circle,
+              color: isCompleted ? accentColor : Colors.transparent,
               border: Border.all(
                 color: isCompleted ? accentColor : dividerColor,
-                width: 2,
+                width: 1.5,
               ),
-              boxShadow: isCompleted
-                  ? [
-                      BoxShadow(
-                        color: accentColor.withValues(alpha: 0.5),
-                        blurRadius: 10,
-                        spreadRadius: -2,
-                      ),
-                    ]
-                  : null,
             ),
             child: isCompleted
-                ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
                 : null,
           ),
         ],
@@ -322,9 +309,9 @@ class _DifficultyBadge extends StatelessWidget {
   const _DifficultyBadge({required this.difficulty});
 
   static const Map<String, Color> _colors = {
-    'easy': Color(0xFF10B981), // success green
-    'medium': Color(0xFFF59E0B), // amber
-    'hard': Color(0xFFEF4444), // error red
+    'easy': AppColors.pastelSage,
+    'medium': AppColors.pastelAmber,
+    'hard': AppColors.pastelTerracotta,
   };
 
   @override

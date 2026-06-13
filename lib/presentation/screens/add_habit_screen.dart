@@ -65,13 +65,14 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     {'label': 'Other', 'codePoint': 'other', 'icon': Icons.category_rounded},
   ];
 
+  // Soft pastel category palette (muted, editorial — no raw colors).
   static const Map<String, String> _categoryColors = {
-    'nutrition': 'FFFF6B6B', // Coral/Red
-    'water': 'FF54A0FF', // Blue
-    'exercise': 'FFFF9F43', // Orange
-    'technology': 'FF341F97', // Indigo
-    'education': 'FF9B6DFF', // Violet
-    'other': 'FF00D2D3', // Teal
+    'nutrition': 'FFD08C7A', // soft terracotta
+    'water': 'FF8AA9C2', // dusty blue
+    'exercise': 'FFD7A86E', // soft amber
+    'technology': 'FF9B8AAE', // muted plum
+    'education': 'FFAE9BC4', // soft lavender
+    'other': 'FF7FA38B', // soft sage
   };
 
   @override
@@ -135,25 +136,13 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         : (safetyBottom > 0 ? safetyBottom : 12.0);
     final theme = Theme.of(context);
 
-    final accent = _hexToColor(_selectedColorHex);
     return Container(
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
         border: Border(
-          top: BorderSide(
-            color: accent.withValues(alpha: 0.5),
-            width: 2,
-          ),
+          top: BorderSide(color: context.glassBorder, width: 1),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: accent.withValues(alpha: 0.18),
-            blurRadius: 30,
-            spreadRadius: -4,
-            offset: const Offset(0, -4),
-          ),
-        ],
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + totalBottom),
       child: SingleChildScrollView(
@@ -256,7 +245,6 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
 
   Widget _buildIconSection() {
     final theme = Theme.of(context);
-    final dividerColor = theme.dividerTheme.color ?? Colors.black;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,29 +276,15 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              accentColor.withValues(alpha: 0.30),
-                              accentColor.withValues(alpha: 0.15),
-                            ],
-                          )
-                        : null,
                     color: isSelected
-                        ? null
+                        ? accentColor.withValues(
+                            alpha: context.isDarkMode ? 0.22 : 0.14)
                         : (theme.cardTheme.color ?? AppColors.card),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected
-                          ? accentColor
-                          : dividerColor.withValues(alpha: 0.3),
-                      width: isSelected ? 2.5 : 1.5,
+                      color: isSelected ? accentColor : context.glassBorder,
+                      width: isSelected ? 1.5 : 1,
                     ),
-                    boxShadow: isSelected
-                        ? context.glowShadow(accentColor, strength: 0.7)
-                        : null,
                   ),
                   child: Center(
                     child: Icon(
@@ -441,27 +415,18 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
 
   Widget _buildSubmitButton() {
     final accentColor = _hexToColor(_selectedColorHex);
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [accentColor, accentColor.withValues(alpha: 0.78)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: context.glowShadow(accentColor, strength: 0.8),
-      ),
+      height: 54,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: accentColor,
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: _isLoading
@@ -578,29 +543,16 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                 height: 42,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: isSelected
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            accentColor,
-                            accentColor.withValues(alpha: 0.78),
-                          ],
-                        )
-                      : null,
                   color: isSelected
-                      ? null
+                      ? accentColor
                       : Theme.of(context).scaffoldBackgroundColor,
                   border: Border.all(
                     color: isSelected
                         ? accentColor
                         : (Theme.of(context).dividerTheme.color ??
                             Colors.transparent),
-                    width: 1.5,
+                    width: 1,
                   ),
-                  boxShadow: isSelected
-                      ? context.glowShadow(accentColor, strength: 0.5)
-                      : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
