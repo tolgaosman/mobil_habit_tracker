@@ -14,6 +14,7 @@ import '../widgets/progress_header.dart';
 import 'add_habit_screen.dart';
 import 'profile_screen.dart';
 import 'history_tab.dart';
+import 'side_quest_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildHabitsTab(context),
             const HistoryTab(),
+            const SideQuestTab(),
           ],
         ),
       ),
@@ -199,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget? _buildFAB(BuildContext context) {
-    if (_currentIndex == 1) return null;
+    if (_currentIndex == 1 || _currentIndex == 2) return null;
     const label = 'New Habit';
     const icon = Icons.add_rounded;
 
@@ -261,6 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildNavItem(0, Icons.track_changes_rounded, 'Habits'),
               _buildNavItem(1, Icons.calendar_month_rounded, 'History'),
+              _buildNavItem(2, Icons.bolt_rounded, 'Side Quests'),
             ],
           ),
         ),
@@ -284,7 +287,10 @@ class _HomeScreenState extends State<HomeScreen> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 16 : 12,
+          vertical: 10,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.teal.withValues(alpha: 0.12)
@@ -299,15 +305,17 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isSelected ? AppColors.teal : inactiveColor,
               size: 22,
             ),
-            const SizedBox(width: 8),
-            Text(
-              label.tr(context),
-              style: TextStyle(
-                color: isSelected ? AppColors.teal : inactiveColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label.tr(context),
+                style: const TextStyle(
+                  color: AppColors.teal,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

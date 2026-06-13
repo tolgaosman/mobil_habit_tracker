@@ -8,6 +8,7 @@ import 'core/services/notification_service.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/habit_provider.dart';
 import 'core/providers/routine_provider.dart';
+import 'core/providers/side_quest_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/language_provider.dart';
 
@@ -63,6 +64,7 @@ void main() async {
           update: (_, auth, routineProvider) =>
               routineProvider!..updateUser(auth.currentUser),
         ),
+        ChangeNotifierProvider(create: (_) => SideQuestProvider()..init()),
       ],
       child: const HabitTrackerApp(),
     ),
