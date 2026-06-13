@@ -382,7 +382,8 @@ class _HistoryTabState extends State<HistoryTab> {
 
   Widget _buildRetroNavButton(
       {required IconData icon, required VoidCallback onTap}) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
+    final dividerColor =
+        Theme.of(context).dividerTheme.color ?? Colors.transparent;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -408,7 +409,8 @@ class _HistoryTabState extends State<HistoryTab> {
     required int completedCount,
     required int totalCount,
   }) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
+    final dividerColor =
+        Theme.of(context).dividerTheme.color ?? Colors.transparent;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Decide background and border colors
@@ -597,7 +599,8 @@ class _HistoryTabState extends State<HistoryTab> {
             border: Border.all(
               color: isCompleted
                   ? accentColor.withValues(alpha: 0.4)
-                  : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
+                  : (Theme.of(context).dividerTheme.color ??
+                      Colors.transparent),
               width: 1,
             ),
             boxShadow: isCompleted ? null : context.softShadow,
