@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/providers/habit_provider.dart';
+import '../../core/providers/theme_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -42,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: 'Crop Photo'.tr(context),
-              toolbarColor: AppColors.cardBackground,
+              toolbarColor: AppColors.teal,
               toolbarWidgetColor: Colors.white,
               initAspectRatio: CropAspectRatioPreset.square,
               lockAspectRatio: true,
@@ -117,6 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildLogoutButton(context),
               const SizedBox(height: 16),
               _buildClearDataButton(context),
+              const SizedBox(height: 32),
+              _buildPreferencesSection(context),
             ],
           ),
         ),
@@ -451,5 +454,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     ).animate().fadeIn(delay: 500.ms, duration: 400.ms);
+  }
+
+  Widget _buildPreferencesSection(BuildContext context) {
+    final langProvider = context.watch<LanguageProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
+    final currentLang = langProvider.currentLanguage;
+    final isDark = themeProvider.isDarkMode;
+
+    const flags = {
+      'en': '🇬🇧',
+      'tr': '🇹🇷',
+      'de': '🇩🇪',
+      'fr': '🇫🇷',
+      'it': '🇮🇹',
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+          width: 1,
+        ),
+        boxShadow: context.softShadow,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Language flags
+          Expanded(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: flags.entries.map((entry) {
+                final isSelected = entry.key == currentLang;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    langProvider.changeLanguage(entry.key);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.teal.withValues(alpha: 0.15)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.teal
+                            : (Theme.of(context).dividerTheme.color ??
+                                Colors.transparent),
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Opacity(
+                      opacity: isSelected ? 1.0 : 0.5,
+                      child: Text(
+                        entry.value,
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Theme toggle
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              context.read<ThemeProvider>().toggleTheme();
+            },
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.teal.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                color: AppColors.tealDim,
+                size: 22,
+              ),
+            ),
+          ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(delay: 600.ms, duration: 400.ms)
+        .slideY(begin: 0.05, end: 0, delay: 600.ms, duration: 400.ms);
   }
 }

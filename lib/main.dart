@@ -78,7 +78,8 @@ class HabitTrackerApp extends StatelessWidget {
       title: 'Quests+',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      themeMode: ThemeMode.light,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: context.watch<ThemeProvider>().themeMode,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (auth.isAuthenticated) {

@@ -79,112 +79,32 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _greeting(name, context),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: context.textSecondaryColor,
-                    ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Your Habits'.tr(context),
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.8,
-                    ),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _greeting(name, context),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.textSecondaryColor,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Your Habits'.tr(context),
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.8,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
-          _buildLanguageSelector(context),
           const SizedBox(width: 8),
           _buildAvatarButton(context, user),
         ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageSelector(BuildContext context) {
-    final langProvider = context.watch<LanguageProvider>();
-    final currentLang = langProvider.currentLanguage;
-
-    final langNames = {
-      'en': 'English',
-      'tr': 'Turkish',
-      'de': 'German',
-      'fr': 'French',
-      'it': 'Italian',
-    };
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-
-    return Theme(
-      data: Theme.of(context).copyWith(
-        cardColor: Theme.of(context).cardTheme.color,
-      ),
-      child: PopupMenuButton<String>(
-        onSelected: (String langCode) {
-          HapticFeedback.mediumImpact();
-          langProvider.changeLanguage(langCode);
-        },
-        offset: const Offset(0, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: dividerColor, width: 1),
-        ),
-        itemBuilder: (BuildContext context) {
-          return langNames.entries.map((entry) {
-            final isSelected = entry.key == currentLang;
-            return PopupMenuItem<String>(
-              value: entry.key,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    entry.value.tr(context),
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? AppColors.teal : null,
-                      fontSize: 14,
-                    ),
-                  ),
-                  if (isSelected) ...[
-                    const SizedBox(width: 8),
-                    const Icon(Icons.check_rounded,
-                        color: AppColors.teal, size: 16),
-                  ],
-                ],
-              ),
-            );
-          }).toList();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: dividerColor, width: 1),
-            boxShadow: context.softShadow,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                langNames[currentLang]!.tr(context),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(Icons.arrow_drop_down_rounded,
-                  size: 18, color: dividerColor),
-            ],
-          ),
-        ),
       ),
     );
   }
