@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Flutter habit + routine tracker (display name "Quests+"). Offline-first: all data lives in local Hive boxes; there is no backend except an on-the-fly Google Translate call for UI localization. Android-targeted (iOS launcher icons disabled in `pubspec.yaml`). App is locked to portrait and hardcoded to light theme.
+Flutter habit + routine tracker (display name "Quests+"). Offline-first: all data lives in local Hive boxes; there is no backend except an on-the-fly Google Translate call for UI localization. Android-targeted (iOS launcher icons disabled in `pubspec.yaml`). App is locked to portrait. Visual language is **"Premium Neon Glass"** (frosted glassmorphism, emerald accent, neon glow) and works in both **light and dark themes** via `ThemeProvider`.
 
 ## Commands
 
@@ -51,5 +51,35 @@ Opened once in `main()` before `runApp`: `users` (`Box<UserModel>`), `auth_sessi
 ### Localization
 There is **no .arb / intl localization**. Instead every UI string is wrapped `'text'.tr(context)` — a `String` extension in `language_provider.dart`. `LanguageProvider.translate` returns the original string immediately and, for non-`en` languages, fires an async Google Translate request (`translate.googleapis.com/translate_a/single`), caches the result in the `language_settings` box, and calls `notifyListeners()` to repaint with the translation. So translated text appears on a second frame. New user-facing strings should be wrapped in `.tr(context)`.
 
-### Theme
-`AppTheme.lightTheme` in `core/theme/app_theme.dart` is the single source for colors/typography (uses `google_fonts`). `ThemeProvider` is currently a stub that always returns light mode.
+### Theme & design system
+`AppTheme` in `core/theme/app_theme.dart` exposes both `lightTheme` and `darkTheme` (single source for colors/typography, uses `google_fonts`). `ThemeProvider` toggles between them (toggle lives in the profile screen and the routine tab top bar).
+
+The **"Premium Neon Glass"** look is implemented centrally, not per-screen — reuse it, don't re-invent it:
+- `AppColors` holds the palette: emerald brand (`teal`/`tealGlow`/`emeraldDeep`), neutral light (white bg) / dark (`#0A0C0E` bg) surfaces, glass edges, and `glowTeal`.
+- The `AppThemeContext` extension on `BuildContext` is the toolbox: `glassDecoration()`, `glassFill()`, `glassBorder`, `glowShadow(color)`, `softShadow`, `heroGradient`, `accentGradient`.
+- `presentation/widgets/glass.dart` is the reusable component family every screen builds on: `GlassCard` (blur + translucent fill + light rim + layered shadow), `GradientText`, `GlowProgressRing`, `GlowProgressBar`, `GlassPillBadge`, `IconBadge`.
+
+When adding/redesigning UI: prefer `GlassCard` over a hand-rolled `Container`+`BoxDecoration`, use `GradientText` for emphasis headings, glow components for progress, and pull colors/shadows/gradients from the `AppThemeContext` extension. Keep `BackdropFilter` blur modest (≈8–12 sigma) for scroll performance.
+
+## 🎨 Master Skills: Taste, Aesthetic Animations & Impeccable Execution
+
+As an AI assistant, you are an elite developer and world-class UI/UX designer. You possess three core skills: "High Taste", "Aesthetic Animations", and "Impeccable Execution". Whenever you generate or modify UI components, you MUST strictly adhere to the following principles without the user having to explicitly ask for them.
+
+### 1. 🌟 The "Taste" Skill (Premium Design Sense)
+- **Whitespace & Breathing Room:** Never clutter the UI. Use generous, mathematically balanced padding and margins. Let the design breathe.
+- **Sophisticated Colors:** NEVER use raw, default, or loud colors (no pure red, blue, or green). Use curated, harmonious, and soft palettes. Use subtle gradients for premium focal points.
+- **Premium Typography:** Treat text as a core design element. Use modern font weights (`w700`/`w800` for headers, `w500` for body). Apply slight negative letter spacing (e.g., `letterSpacing: -0.5`) to large headers for a sleek, modern look.
+- **Soft UI & Glassmorphism:** Avoid harsh, solid black drop-shadows. Use soft, colored glow shadows that match the accent color. Prefer frosted glass effects (`BackdropFilter` with `ImageFilter.blur`) for floating elements, cards, and bottom bars.
+- **In this project:** This is already wired up — use `GlassCard`, `GradientText`, `GlassPillBadge`, `IconBadge` from `glass.dart` and `context.glassDecoration()` / `context.glowShadow()` / `context.accentGradient` from `app_theme.dart`. Don't hand-roll a new card style.
+
+### 2. ✨ Aesthetic Animations & Micro-Interactions
+- **Alive, Never Static:** Screens should feel alive and fluid. Apply entrance animations to all new screens, dialogs, and list items.
+- **Tooling:** Use the `flutter_animate` package extensively for UI reveals (e.g., `.animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0)`).
+- **Physics & Curves:** Avoid boring `linear` animations. Always use fluid, organic easing curves (like `Curves.easeOutCubic`, `Curves.easeOutBack`, or `Curves.fastOutSlowIn`).
+- **Haptic Feedback:** Every interactive element MUST trigger a haptic response. Use `HapticFeedback.lightImpact()` for minor toggles/taps, and `HapticFeedback.mediumImpact()` for primary button presses.
+- **In this project:** Completion toggles (habit/routine/quest) already pair a scale/elastic micro-animation with haptics and an emerald glow on the completed state — match that pattern for any new interactive card.
+
+### 3. 🛡️ Impeccable Execution (Flawless Engineering)
+- **Pixel Perfection:** Align elements flawlessly. Ensure constraints, aspect ratios, and flex layouts NEVER cause pixel overflows, clipping, or UI breaks on different screen sizes.
+- **Zero-Jank & Performance:** Keep `build` methods clean and efficient to ensure buttery smooth 60/120fps performance. Avoid rebuilding heavy widget trees unnecessarily.
+- **Edge Cases Handled:** Anticipate empty states, loading states, and unusually long text strings. Ensure the UI degrades gracefully. Write modular, DRY, and highly maintainable code.
