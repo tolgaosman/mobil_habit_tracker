@@ -33,6 +33,7 @@ dependencies:
   # Auth & Profile
   image_picker: ^1.1.2
   crypto: ^3.0.3
+  image_cropper: ^12.2.1
 
 dev_dependencies:
   flutter_test:
@@ -46,9 +47,11 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "taskLogo.jpeg"
-  adaptive_icon_background: "#F9F5EB"
-  adaptive_icon_foreground: "taskLogo.jpeg"
+  image_path: "newLogo2.png"
+  adaptive_icon_background: "#0B0F14"
+  adaptive_icon_foreground: "newLogo2.png"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
