@@ -5,6 +5,7 @@ import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
+import '../widgets/glass.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -91,7 +92,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      body: Stack(
+        children: [
+          // Decorative emerald glow blobs in the background
+          Positioned(
+            top: -120,
+            right: -100,
+            child: _GlowBlob(
+              color: AppColors.tealGlow,
+              size: 320,
+              opacity: context.isDarkMode ? 0.30 : 0.18,
+            ),
+          ),
+          Positioned(
+            bottom: -140,
+            left: -120,
+            child: _GlowBlob(
+              color: AppColors.violet,
+              size: 300,
+              opacity: context.isDarkMode ? 0.22 : 0.12,
+            ),
+          ),
+          SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -122,6 +144,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+          ),
+        ],
       ),
     );
   }
@@ -133,13 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
         width: 120,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.teal.withValues(alpha: 0.2),
-              offset: const Offset(0, 10),
-              blurRadius: 24,
-            )
-          ],
+          boxShadow: context.glowShadow(AppColors.tealGlow, strength: 1.2),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
@@ -158,11 +176,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Text(
+        GradientText(
           _isSignUp ? 'Create Account'.tr(context) : 'Welcome Back'.tr(context),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w700,
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
               ),
         ),
@@ -302,13 +320,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return SizedBox(
-      height: 54,
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: context.accentGradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: context.glowShadow(AppColors.teal, strength: 0.9),
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.teal,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -362,5 +386,32 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
+  }
+}
+
+/// Soft blurred color blob used as decorative background lighting.
+class _GlowBlob extends StatelessWidget {
+  final Color color;
+  final double size;
+  final double opacity;
+
+  const _GlowBlob({
+    required this.color,
+    required this.size,
+    required this.opacity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color.withValues(alpha: opacity), color.withValues(alpha: 0)],
+        ),
+      ),
+    );
   }
 }

@@ -11,6 +11,7 @@ import '../../core/providers/theme_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
+import '../widgets/glass.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -141,14 +142,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.teal, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.teal.withValues(alpha: 0.15),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  )
-                ],
+                border: Border.all(
+                  color: AppColors.tealGlow.withValues(alpha: 0.7),
+                  width: 2,
+                ),
+                boxShadow: context.glowShadow(AppColors.tealGlow, strength: 1.1),
               ),
               child: ClipOval(
                 child: _isUpdatingPhoto
@@ -173,10 +171,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: GestureDetector(
                 onTap: _isUpdatingPhoto ? null : _pickImage,
                 child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: AppColors.teal,
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    gradient: context.accentGradient,
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      width: 2,
+                    ),
+                    boxShadow: context.glowShadow(AppColors.teal, strength: 0.6),
                   ),
                   child: const Icon(
                     Icons.camera_alt_rounded,
@@ -264,17 +267,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: context.softShadow,
-      ),
       child: Column(
         children: children,
       ),
@@ -291,14 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.teal.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: AppColors.tealDim, size: 20),
-        ),
+        IconBadge(icon: icon, color: AppColors.teal, size: 38, radius: 11),
         const SizedBox(width: 16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,17 +457,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'it': '🇮🇹',
     };
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: context.softShadow,
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

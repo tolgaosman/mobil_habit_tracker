@@ -89,33 +89,37 @@ class _DayChip extends StatelessWidget {
 
     final dayLabel = DateFormat('E').format(day).tr(context).substring(0, 1);
     final dateLabel = day.day.toString();
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
 
     return GestureDetector(
       onTap: isBeforeStart ? null : onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 62,
+          duration: const Duration(milliseconds: 200),
+          height: 64,
           decoration: BoxDecoration(
+            gradient: isSelected && !isBeforeStart
+                ? context.accentGradient
+                : null,
             color: isBeforeStart
                 ? Colors.transparent
-                : (isSelected
-                    ? AppColors.teal
-                    : (Theme.of(context).cardTheme.color ?? AppColors.card)),
-            borderRadius: BorderRadius.circular(14),
+                : (isSelected ? null : context.glassFill()),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isBeforeStart
                   ? Colors.transparent
                   : (isSelected
                       ? AppColors.teal
-                      : (isToday ? AppColors.teal : dividerColor)),
+                      : (isToday
+                          ? AppColors.teal.withValues(alpha: 0.6)
+                          : context.glassBorder)),
               width: isToday && !isSelected ? 1.5 : 1,
             ),
-            boxShadow: (isSelected || isBeforeStart)
+            boxShadow: isBeforeStart
                 ? null
-                : context.softShadow,
+                : (isSelected
+                    ? context.glowShadow(AppColors.tealGlow)
+                    : context.softShadow),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

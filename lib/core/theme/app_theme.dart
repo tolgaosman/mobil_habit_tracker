@@ -1,41 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// App color palette — Modern & Professional (Emerald / Neutral Grey)
+/// App color palette — Premium "Neon Glass" (Emerald / Deep Neutral)
 class AppColors {
   AppColors._();
 
-  // Light Mode (clean neutral greys)
-  static const Color background = Color(0xFFF9FAFB); // Soft off-white
-  static const Color surface = Color(0xFFF3F4F6); // Light grey surface
+  // Light Mode (clean white base)
+  static const Color background = Color(0xFFFFFFFF); // Pure white base
+  static const Color surface = Color(0xFFF6F8F7); // Faint cool grey
   static const Color card = Color(0xFFFFFFFF);
-  static const Color cardElevated = Color(0xFFF9FAFB);
+  static const Color cardElevated = Color(0xFFFBFCFC);
 
-  // Dark Mode (deep neutral slate)
-  static const Color darkBackground = Color(0xFF0B0F14);
-  static const Color darkSurface = Color(0xFF111827);
-  static const Color darkCard = Color(0xFF1A2232);
-  static const Color darkCardElevated = Color(0xFF232E40);
+  // Dark Mode (deep black-grey)
+  static const Color darkBackground = Color(0xFF0A0C0E); // Near black
+  static const Color darkSurface = Color(0xFF12161A); // Charcoal
+  static const Color darkCard = Color(0xFF161B21);
+  static const Color darkCardElevated = Color(0xFF1E252D);
 
   // Accents (emerald primary, indigo secondary)
-  static const Color teal = Color(0xFF059669); // Emerald
+  static const Color teal = Color(0xFF059669); // Emerald (brand)
   static const Color tealDim = Color(0xFF047857);
-  static const Color violet = Color(0xFF6366F1); // Indigo
+  static const Color tealGlow = Color(0xFF10B981); // Brighter emerald for glow/gradient
+  static const Color emeraldDeep = Color(0xFF065F46); // Deep stop for gradients
+  static const Color violet = Color(0xFF6366F1); // Indigo (secondary, sparing)
   static const Color violetDim = Color(0xFF4F46E5);
 
   // Text Light Mode
-  static const Color textPrimary = Color(0xFF111827);
+  static const Color textPrimary = Color(0xFF0F1729);
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color textTertiary = Color(0xFF9CA3AF);
 
   // Text Dark Mode
-  static const Color darkTextPrimary = Color(0xFFF9FAFB);
-  static const Color darkTextSecondary = Color(0xFF9CA3AF);
-  static const Color darkTextTertiary = Color(0xFF6B7280);
+  static const Color darkTextPrimary = Color(0xFFF3F5F7);
+  static const Color darkTextSecondary = Color(0xFF9BA5B0);
+  static const Color darkTextTertiary = Color(0xFF5C6672);
 
   // Dividers / Borders (subtle hairline)
-  static const Color divider = Color(0xFFE5E7EB); // Light neutral border
-  static const Color darkDivider = Color(0xFF2A3441); // Dark neutral border
+  static const Color divider = Color(0xFFEAEDEF); // Light neutral border
+  static const Color darkDivider = Color(0xFF252C34); // Dark neutral border
+
+  // Glass: thin light edge on glass surfaces
+  static const Color glassBorderLight = Color(0x14000000); // ~8% black edge (light theme)
+  static const Color glassBorderDark = Color(0x1FFFFFFF); // ~12% white edge (dark theme)
+
+  // Neon glow color
+  static const Color glowTeal = Color(0xFF10B981);
 
   // Soft elevation shadow color
   static const Color shadow = Color(0x14000000); // ~8% black
@@ -43,6 +52,7 @@ class AppColors {
   // States
   static const Color success = Color(0xFF10B981);
   static const Color error = Color(0xFFEF4444);
+  static const Color amber = Color(0xFFF59E0B); // Streak / warning accent
 }
 
 class AppTheme {
@@ -245,9 +255,78 @@ extension AppThemeContext on BuildContext {
   /// Subtle modern elevation shadow used across cards & raised surfaces.
   List<BoxShadow> get softShadow => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDarkMode ? 0.30 : 0.06),
-          offset: const Offset(0, 4),
-          blurRadius: 12,
+          color: Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.05),
+          offset: const Offset(0, 6),
+          blurRadius: 18,
+        ),
+        if (!isDarkMode)
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            offset: const Offset(0, 1),
+            blurRadius: 3,
+          ),
+      ];
+
+  /// Translucent fill for frosted-glass surfaces. Optionally tinted with [tint].
+  Color glassFill([Color? tint]) {
+    if (tint != null) {
+      return tint.withValues(alpha: isDarkMode ? 0.14 : 0.08);
+    }
+    return isDarkMode
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white.withValues(alpha: 0.70);
+  }
+
+  /// Thin light edge that gives glass surfaces a crisp rim.
+  Color get glassBorder =>
+      isDarkMode ? AppColors.glassBorderDark : AppColors.glassBorderLight;
+
+  /// Full glass decoration: translucent fill + light rim + layered shadow.
+  /// Single source of truth for the frosted-card look across the app.
+  BoxDecoration glassDecoration({
+    Color? tint,
+    double radius = 20,
+    bool glow = false,
+    Color? glowColor,
+  }) {
+    return BoxDecoration(
+      color: glassFill(tint),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(
+        color: tint != null
+            ? tint.withValues(alpha: 0.35)
+            : glassBorder,
+        width: 1,
+      ),
+      boxShadow: [
+        ...softShadow,
+        if (glow) ...glowShadow(glowColor ?? AppColors.glowTeal),
+      ],
+    );
+  }
+
+  /// Colored neon glow used on active/completed elements & progress.
+  List<BoxShadow> glowShadow(Color color, {double strength = 1}) => [
+        BoxShadow(
+          color: color.withValues(alpha: (isDarkMode ? 0.45 : 0.30) * strength),
+          blurRadius: 24 * strength,
+          spreadRadius: -2,
         ),
       ];
+
+  /// Emerald hero gradient used behind screen headers (theme-aware).
+  LinearGradient get heroGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: isDarkMode
+            ? const [AppColors.emeraldDeep, Color(0xFF0A0C0E)]
+            : const [AppColors.tealGlow, AppColors.teal],
+      );
+
+  /// Emerald accent gradient for buttons, rings, active chips.
+  LinearGradient get accentGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [AppColors.tealGlow, AppColors.tealDim],
+      );
 }

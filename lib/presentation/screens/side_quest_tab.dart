@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +11,7 @@ import '../../core/providers/side_quest_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/utils/icon_mapper.dart';
 import '../../data/models/side_quest_model.dart';
+import '../widgets/glass.dart';
 
 class SideQuestTab extends StatelessWidget {
   const SideQuestTab({super.key});
@@ -75,29 +79,18 @@ class SideQuestTab extends StatelessWidget {
     final rate = total == 0 ? 0.0 : completed / total;
     final percentage = (rate * 100).toStringAsFixed(0);
 
-    return Container(
+    final allDone = total > 0 && rate >= 1.0;
+    return GlassCard(
       margin: const EdgeInsets.fromLTRB(24, 6, 24, 6),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: context.softShadow,
-      ),
+      glow: allDone,
+      glowColor: AppColors.tealGlow,
       child: Row(
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.bolt_rounded,
-                color: AppColors.teal, size: 26),
+          const IconBadge(
+            icon: Icons.bolt_rounded,
+            color: AppColors.teal,
+            size: 50,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -108,27 +101,16 @@ class SideQuestTab extends StatelessWidget {
                   '${"Today's Quests".tr(context)} · $completed/$total',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: rate,
-                    minHeight: 6,
-                    backgroundColor:
-                        Theme.of(context).dividerTheme.color ?? Colors.grey,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(AppColors.teal),
-                  ),
-                ),
+                const SizedBox(height: 10),
+                GlowProgressBar(rate: rate, height: 7),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Text(
+          const SizedBox(width: 14),
+          GradientText(
             '$percentage%',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.teal,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
           ),
         ],
@@ -149,20 +131,9 @@ class SideQuestTab extends StatelessWidget {
                 ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.teal,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '$count',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
+          GlassPillBadge(label: '$count'),
+          const Spacer(),
+          const _CountdownTimer(),
         ],
       ),
     );
@@ -208,13 +179,14 @@ class SideQuestTab extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: AppColors.teal,
-            borderRadius: BorderRadius.circular(16),
+            gradient: context.accentGradient,
+            borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: AppColors.teal.withValues(alpha: 0.35),
-                offset: const Offset(0, 6),
-                blurRadius: 16,
+                color: AppColors.teal.withValues(alpha: 0.40),
+                offset: const Offset(0, 8),
+                blurRadius: 22,
+                spreadRadius: -2,
               ),
             ],
           ),
@@ -258,87 +230,74 @@ class _SideQuestCard extends StatelessWidget {
     final dividerColor =
         Theme.of(context).dividerTheme.color ?? Colors.transparent;
 
-    return Container(
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? accentColor.withValues(alpha: 0.10)
-            : Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCompleted
-              ? accentColor.withValues(alpha: 0.4)
-              : dividerColor,
-          width: 1,
-        ),
-        boxShadow: isCompleted ? null : context.softShadow,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          splashColor: accentColor.withValues(alpha: 0.08),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+      padding: const EdgeInsets.all(16),
+      radius: 18,
+      tint: isCompleted ? accentColor : null,
+      glow: isCompleted,
+      glowColor: accentColor,
+      onTap: onTap,
+      child: Row(
+        children: [
+          IconBadge(
+            icon: iconData,
+            color: accentColor,
+            size: 50,
+            glow: isCompleted,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(iconData, color: accentColor, size: 26),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        quest.title.tr(context),
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: isCompleted
-                                      ? context.textSecondaryColor
-                                      : null,
-                                  decoration: isCompleted
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                  decorationColor: context.textTertiaryColor,
-                                ),
+                Text(
+                  quest.title.tr(context),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: isCompleted ? context.textSecondaryColor : null,
+                        decoration:
+                            isCompleted ? TextDecoration.lineThrough : null,
+                        decorationColor: context.textTertiaryColor,
                       ),
-                      const SizedBox(height: 6),
-                      _DifficultyBadge(difficulty: quest.difficulty),
-                    ],
-                  ),
                 ),
-                const SizedBox(width: 12),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOut,
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(9),
-                    color: isCompleted ? accentColor : Colors.transparent,
-                    border: Border.all(
-                      color: isCompleted ? accentColor : dividerColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: isCompleted
-                      ? const Icon(Icons.check_rounded,
-                          color: Colors.white, size: 20)
-                      : null,
-                ),
+                const SizedBox(height: 8),
+                _DifficultyBadge(difficulty: quest.difficulty),
               ],
             ),
           ),
-        ),
+          const SizedBox(width: 12),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: isCompleted
+                  ? LinearGradient(
+                      colors: [accentColor, accentColor.withValues(alpha: 0.75)],
+                    )
+                  : null,
+              color: isCompleted ? null : Colors.transparent,
+              border: Border.all(
+                color: isCompleted ? accentColor : dividerColor,
+                width: 2,
+              ),
+              boxShadow: isCompleted
+                  ? [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.5),
+                        blurRadius: 10,
+                        spreadRadius: -2,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: isCompleted
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                : null,
+          ),
+        ],
       ),
     )
         .animate()
@@ -371,20 +330,9 @@ class _DifficultyBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _colors[difficulty] ?? AppColors.teal;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        difficulty.tr(context).toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
-            ),
-      ),
+    return GlassPillBadge(
+      label: difficulty.tr(context).toUpperCase(),
+      color: color,
     );
   }
 }
@@ -579,6 +527,78 @@ class _HistorySheet extends StatelessWidget {
                     decorationColor: context.textTertiaryColor,
                   ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CountdownTimer extends StatefulWidget {
+  const _CountdownTimer();
+
+  @override
+  State<_CountdownTimer> createState() => _CountdownTimerState();
+}
+
+class _CountdownTimerState extends State<_CountdownTimer> {
+  late Timer _timer;
+  late Duration _timeLeft;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTimeLeft();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _calculateTimeLeft();
+    });
+  }
+
+  void _calculateTimeLeft() {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final difference = tomorrow.difference(now);
+    if (mounted) {
+      setState(() {
+        _timeLeft = difference;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hours = _timeLeft.inHours.toString().padLeft(2, '0');
+    final minutes = (_timeLeft.inMinutes % 60).toString().padLeft(2, '0');
+    final seconds = (_timeLeft.inSeconds % 60).toString().padLeft(2, '0');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.teal.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.teal.withValues(alpha: 0.30),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.timer_outlined, size: 14, color: AppColors.teal),
+          const SizedBox(width: 6),
+          Text(
+            '$hours:$minutes:$seconds',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: AppColors.teal,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
           ),
         ],
       ),

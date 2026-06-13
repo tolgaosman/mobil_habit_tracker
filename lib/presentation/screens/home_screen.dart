@@ -11,6 +11,8 @@ import '../../core/providers/language_provider.dart';
 import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/progress_header.dart';
+import '../widgets/glass.dart';
+import 'dart:ui';
 import 'add_habit_screen.dart';
 import 'profile_screen.dart';
 import 'history_tab.dart';
@@ -68,20 +70,37 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = auth.currentUser;
     final name = user?.name ?? '';
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 4),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+      decoration: BoxDecoration(
+        gradient: context.heroGradient,
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: context.glowShadow(AppColors.teal, strength: 0.8),
+      ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              'assets/images/app_logo.png',
-              width: 52,
-              height: 52,
-              fit: BoxFit.contain,
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.25),
+                width: 1,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                width: 42,
+                height: 42,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   _greeting(name, context),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.textSecondaryColor,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w600,
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -97,7 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Your Habits'.tr(context),
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: -0.8,
                       ),
                   overflow: TextOverflow.ellipsis,
@@ -109,7 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildAvatarButton(context, user),
         ],
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 500.ms)
+        .slideY(begin: -0.1, end: 0, duration: 500.ms, curve: Curves.easeOut);
   }
 
   Widget _buildAvatarButton(BuildContext context, dynamic user) {
@@ -124,11 +148,20 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Container(
-        width: 42,
-        height: 42,
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.teal, width: 1.5),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.6),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 8,
+            ),
+          ],
         ),
         child: ClipOval(
           child: hasImage
@@ -156,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: const Icon(
         Icons.person_rounded,
         color: Colors.white,
-        size: 20,
+        size: 24,
       ),
     );
   }
@@ -177,23 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
               ),
               const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.teal,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$count',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ),
+              GlassPillBadge(label: '$count'),
             ],
           );
         },
@@ -215,13 +232,14 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.only(bottom: 8, right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.teal,
-          borderRadius: BorderRadius.circular(16),
+          gradient: context.accentGradient,
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: AppColors.teal.withValues(alpha: 0.35),
-              offset: const Offset(0, 6),
-              blurRadius: 16,
+              color: AppColors.teal.withValues(alpha: 0.45),
+              offset: const Offset(0, 8),
+              blurRadius: 22,
+              spreadRadius: -2,
             ),
           ],
         ),
@@ -248,24 +266,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNavBar() {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.transparent;
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        border: Border(
-          top: BorderSide(color: dividerColor, width: 1),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.track_changes_rounded, 'Habits'),
-              _buildNavItem(1, Icons.calendar_month_rounded, 'History'),
-              _buildNavItem(2, Icons.bolt_rounded, 'Side Quests'),
-            ],
+    final isDark = context.isDarkMode;
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          decoration: BoxDecoration(
+            color: (isDark ? AppColors.darkSurface : Colors.white)
+                .withValues(alpha: isDark ? 0.65 : 0.80),
+            border: Border(
+              top: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.05),
+                width: 1,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(0, Icons.track_changes_rounded, 'Habits'),
+                  _buildNavItem(1, Icons.calendar_month_rounded, 'History'),
+                  _buildNavItem(2, Icons.bolt_rounded, 'Side Quests'),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -294,9 +324,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.teal.withValues(alpha: 0.12)
+              ? AppColors.teal.withValues(alpha: 0.14)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
+          border: isSelected
+              ? Border.all(
+                  color: AppColors.teal.withValues(alpha: 0.30),
+                  width: 1,
+                )
+              : null,
+          boxShadow:
+              isSelected ? context.glowShadow(AppColors.teal, strength: 0.5) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

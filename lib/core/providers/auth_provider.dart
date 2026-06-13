@@ -68,6 +68,7 @@ class AuthProvider extends ChangeNotifier {
       phoneNumber: cleanPhone,
       name: name.trim(),
       passwordHash: _hashPassword(password),
+      createdAt: DateTime.now().toIso8601String(),
     );
 
     await _usersBox.put(userId, user);

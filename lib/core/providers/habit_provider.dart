@@ -11,6 +11,7 @@ class HabitProvider extends ChangeNotifier {
   final _uuid = const Uuid();
   Box<HabitModel>? _box;
   String? _currentUserId;
+  UserModel? _currentUser;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -25,7 +26,15 @@ class HabitProvider extends ChangeNotifier {
   }
 
   DateTime getStartingDate() {
-    DateTime startingDate = DateTime(2026, 5, 20);
+    DateTime startingDate = DateTime(2026, 5, 20); // Default fallback
+
+    if (_currentUser?.createdAt != null) {
+      try {
+        final created = DateTime.parse(_currentUser!.createdAt!);
+        return DateTime(created.year, created.month, created.day);
+      } catch (_) {}
+    }
+
     if (_box == null) return startingDate;
     for (final habit in _box!.values) {
       try {
@@ -76,15 +85,20 @@ class HabitProvider extends ChangeNotifier {
       if (_currentUserId != null || _box != null) {
         _box = null;
         _currentUserId = null;
+        _currentUser = null;
         Future.microtask(() => notifyListeners());
       }
       WidgetSyncService.instance.syncLoggedOut();
       return;
     }
 
-    if (_currentUserId == user.id) return;
+    if (_currentUserId == user.id) {
+      _currentUser = user; // Update the reference in case fields changed
+      return;
+    }
 
     _currentUserId = user.id;
+    _currentUser = user;
     _box = null;
     Future.microtask(() => notifyListeners());
 

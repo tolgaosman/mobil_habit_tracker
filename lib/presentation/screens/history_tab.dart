@@ -7,6 +7,7 @@ import '../../core/providers/habit_provider.dart';
 import '../../data/models/habit_model.dart';
 import '../../core/utils/icon_mapper.dart';
 import '../../core/providers/language_provider.dart';
+import '../widgets/glass.dart';
 
 class HistoryTab extends StatefulWidget {
   const HistoryTab({super.key});
@@ -190,18 +191,12 @@ class _HistoryTabState extends State<HistoryTab> {
       BuildContext context, double rate, int completed, int total) {
     final percentage = (rate * 100).toStringAsFixed(0);
 
-    return Container(
+    final isPerfect = rate >= 1.0 && total > 0;
+    return GlassCard(
       margin: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: context.softShadow,
-      ),
+      padding: const EdgeInsets.all(18),
+      glow: isPerfect,
+      glowColor: AppColors.tealGlow,
       child: Row(
         children: [
           Expanded(
@@ -216,11 +211,14 @@ class _HistoryTabState extends State<HistoryTab> {
                       ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                GradientText(
                   '$percentage%',
+                  gradient: isPerfect
+                      ? const LinearGradient(
+                          colors: [AppColors.success, AppColors.tealGlow])
+                      : null,
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: rate == 1.0 ? AppColors.success : AppColors.teal,
                       ),
                 ),
                 const SizedBox(height: 8),
@@ -235,23 +233,11 @@ class _HistoryTabState extends State<HistoryTab> {
               ],
             ),
           ),
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: (rate == 1.0 ? AppColors.success : AppColors.teal)
-                  .withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(
-              child: Icon(
-                rate == 1.0
-                    ? Icons.emoji_events_rounded
-                    : Icons.calendar_month_rounded,
-                color: rate == 1.0 ? AppColors.success : AppColors.teal,
-                size: 28,
-              ),
-            ),
+          const SizedBox(width: 12),
+          GlowProgressRing(
+            rate: rate,
+            size: 60,
+            color: isPerfect ? AppColors.success : AppColors.teal,
           ),
         ],
       ),
@@ -263,8 +249,6 @@ class _HistoryTabState extends State<HistoryTab> {
 
   Widget _buildCalendarSection(
       BuildContext context, List<HabitModel> allHabits) {
-    final dividerColor = Theme.of(context).dividerTheme.color ?? Colors.black;
-
     // Calculate dates
     final firstDayOfMonth =
         DateTime(_focusedMonth.year, _focusedMonth.month, 1);
@@ -277,15 +261,9 @@ class _HistoryTabState extends State<HistoryTab> {
     final totalDaysInMonth = lastDayOfMonth.day;
     final totalCells = emptyPrefixCells + totalDaysInMonth;
 
-    return Container(
+    return GlassCard(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: dividerColor, width: 1),
-        boxShadow: context.softShadow,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       child: Column(
         children: [
           // Month Selector Header
@@ -449,11 +427,23 @@ class _HistoryTabState extends State<HistoryTab> {
               });
             },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: cellBg,
-          borderRadius: BorderRadius.circular(8),
+          gradient: isSelected ? context.accentGradient : null,
+          color: isSelected ? null : cellBg,
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: borderCol, width: borderWidth),
+          boxShadow: isSelected
+              ? context.glowShadow(AppColors.tealGlow, strength: 0.6)
+              : (allDone && !isFuture
+                  ? [
+                      BoxShadow(
+                        color: AppColors.success.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        spreadRadius: -3,
+                      ),
+                    ]
+                  : null),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -522,21 +512,7 @@ class _HistoryTabState extends State<HistoryTab> {
                 ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.teal,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '$count',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          GlassPillBadge(label: '$count'),
           const Spacer(),
           Text(
             '${'Today: '.tr(context)}$todayPercentage%',
@@ -589,92 +565,82 @@ class _HistoryTabState extends State<HistoryTab> {
         final accentColor = _hexToColor(habit.colorHex);
         final iconData = IconMapper.getIcon(habit.iconCodePoint);
 
-        return Container(
+        return GlassCard(
           margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: isCompleted
-                ? accentColor.withValues(alpha: 0.08)
-                : Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isCompleted
-                  ? accentColor.withValues(alpha: 0.4)
-                  : (Theme.of(context).dividerTheme.color ??
-                      Colors.transparent),
-              width: 1,
-            ),
-            boxShadow: isCompleted ? null : context.softShadow,
-          ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                HapticFeedback.lightImpact();
-                context
-                    .read<HabitProvider>()
-                    .toggleCompletionForDate(habit, _selectedDate);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    // Icon Box
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.all(12),
+          radius: 16,
+          tint: isCompleted ? accentColor : null,
+          glow: isCompleted,
+          glowColor: accentColor,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context
+                .read<HabitProvider>()
+                .toggleCompletionForDate(habit, _selectedDate);
+          },
+          child: Row(
+            children: [
+              IconBadge(
+                icon: iconData,
+                color: accentColor,
+                size: 42,
+                radius: 12,
+                glow: isCompleted,
+              ),
+              const SizedBox(width: 12),
+              // Name
+              Expanded(
+                child: Text(
+                  habit.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        decoration:
+                            isCompleted ? TextDecoration.lineThrough : null,
+                        color: isCompleted ? context.textSecondaryColor : null,
+                        decorationColor: context.textTertiaryColor,
                       ),
-                      child: Icon(iconData, color: accentColor, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    // Name
-                    Expanded(
-                      child: Text(
-                        habit.name,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  decoration: isCompleted
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                  color: isCompleted
-                                      ? context.textSecondaryColor
-                                      : null,
-                                  decorationColor: context.textTertiaryColor,
-                                ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Status Checkbox
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: isCompleted ? accentColor : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isCompleted
-                              ? accentColor
-                              : (Theme.of(context).dividerTheme.color ??
-                                  Colors.grey),
-                          width: 2,
-                        ),
-                      ),
-                      child: isCompleted
-                          ? const Icon(Icons.check_rounded,
-                              color: Colors.white, size: 16)
-                          : (!canInteract
-                              ? const Icon(Icons.close_rounded,
-                                  color: AppColors.error, size: 16)
-                              : null),
-                    ),
-                  ],
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              // Status Checkbox
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  gradient: isCompleted
+                      ? LinearGradient(
+                          colors: [
+                            accentColor,
+                            accentColor.withValues(alpha: 0.75)
+                          ],
+                        )
+                      : null,
+                  color: isCompleted ? null : Colors.transparent,
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: isCompleted
+                        ? accentColor
+                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
+                    width: 2,
+                  ),
+                  boxShadow: isCompleted
+                      ? [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.5),
+                            blurRadius: 10,
+                            spreadRadius: -2,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: isCompleted
+                    ? const Icon(Icons.check_rounded,
+                        color: Colors.white, size: 16)
+                    : (!canInteract
+                        ? const Icon(Icons.close_rounded,
+                            color: AppColors.error, size: 16)
+                        : null),
+              ),
+            ],
           ),
         );
       },

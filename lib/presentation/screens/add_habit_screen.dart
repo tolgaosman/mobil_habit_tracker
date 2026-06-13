@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -134,10 +135,25 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         : (safetyBottom > 0 ? safetyBottom : 12.0);
     final theme = Theme.of(context);
 
+    final accent = _hexToColor(_selectedColorHex);
     return Container(
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: accent.withValues(alpha: 0.5),
+            width: 2,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: 0.18),
+            blurRadius: 30,
+            spreadRadius: -4,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + totalBottom),
       child: SingleChildScrollView(
@@ -272,8 +288,18 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
+                    gradient: isSelected
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              accentColor.withValues(alpha: 0.30),
+                              accentColor.withValues(alpha: 0.15),
+                            ],
+                          )
+                        : null,
                     color: isSelected
-                        ? accentColor.withValues(alpha: 0.2)
+                        ? null
                         : (theme.cardTheme.color ?? AppColors.card),
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -282,6 +308,9 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                           : dividerColor.withValues(alpha: 0.3),
                       width: isSelected ? 2.5 : 1.5,
                     ),
+                    boxShadow: isSelected
+                        ? context.glowShadow(accentColor, strength: 0.7)
+                        : null,
                   ),
                   child: Center(
                     child: Icon(
@@ -350,36 +379,86 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   }
 
   Future<void> _pickTime() async {
-    final picked = await showTimePicker(
+    final DateTime initialDateTime = DateTime(
+      2020,
+      1,
+      1,
+      _notificationTime.hour,
+      _notificationTime.minute,
+    );
+
+    await showModalBottomSheet(
       context: context,
-      initialTime: _notificationTime,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppColors.teal,
-                  onPrimary: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CupertinoButton(
+                    child: Text('Cancel'.tr(context), style: const TextStyle(color: AppColors.textSecondary)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  CupertinoButton(
+                    child: Text('Done'.tr(context), style: const TextStyle(color: AppColors.teal, fontWeight: FontWeight.bold)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CupertinoTheme(
+                  data: CupertinoThemeData(
+                    brightness: Theme.of(context).brightness,
+                  ),
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    use24hFormat: true,
+                    initialDateTime: initialDateTime,
+                    onDateTimeChanged: (DateTime newDateTime) {
+                      setState(() {
+                        _notificationTime = TimeOfDay(
+                          hour: newDateTime.hour,
+                          minute: newDateTime.minute,
+                        );
+                      });
+                    },
+                  ),
                 ),
+              ),
+            ],
           ),
-          child: child!,
         );
       },
     );
-    if (picked != null) {
-      setState(() => _notificationTime = picked);
-    }
   }
 
   Widget _buildSubmitButton() {
     final accentColor = _hexToColor(_selectedColorHex);
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 54,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [accentColor, accentColor.withValues(alpha: 0.78)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: context.glowShadow(accentColor, strength: 0.8),
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: accentColor,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -499,8 +578,18 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                 height: 42,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  gradient: isSelected
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            accentColor,
+                            accentColor.withValues(alpha: 0.78),
+                          ],
+                        )
+                      : null,
                   color: isSelected
-                      ? accentColor
+                      ? null
                       : Theme.of(context).scaffoldBackgroundColor,
                   border: Border.all(
                     color: isSelected
@@ -509,6 +598,9 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
                             Colors.transparent),
                     width: 1.5,
                   ),
+                  boxShadow: isSelected
+                      ? context.glowShadow(accentColor, strength: 0.5)
+                      : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(

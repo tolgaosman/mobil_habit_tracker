@@ -9,6 +9,7 @@ import '../../core/providers/routine_provider.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../data/models/routine_task_model.dart';
 import 'profile_screen.dart';
+import '../widgets/glass.dart';
 import 'dart:io';
 
 class RoutineTab extends StatelessWidget {
@@ -151,22 +152,18 @@ class RoutineTab extends StatelessWidget {
 
   Widget _buildProgressCard(
       BuildContext context, int completed, int total, double progress) {
-    return Container(
+    final allDone = total > 0 && progress >= 1.0;
+    return GlassCard(
       margin: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
-        boxShadow: context.softShadow,
-      ),
+      glow: allDone,
+      glowColor: AppColors.tealGlow,
       child: Column(
         children: [
           Row(
             children: [
+              GlowProgressRing(rate: progress, size: 58, stroke: 6),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,21 +194,13 @@ class RoutineTab extends StatelessWidget {
                   label: const Text('Reset'),
                   style: TextButton.styleFrom(
                     foregroundColor: context.textSecondaryColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: Theme.of(context).dividerTheme.color,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.teal),
-            ),
-          ),
+          GlowProgressBar(rate: progress),
         ],
       ),
     )
@@ -233,20 +222,7 @@ class RoutineTab extends StatelessWidget {
                 ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.teal,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '$count',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
+          GlassPillBadge(label: '$count'),
         ],
       ),
     );
@@ -262,8 +238,20 @@ class RoutineTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.teal.withValues(alpha: 0.1),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.tealGlow.withValues(alpha: 0.22),
+                    AppColors.teal.withValues(alpha: 0.10),
+                  ],
+                ),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.teal.withValues(alpha: 0.30),
+                  width: 1,
+                ),
+                boxShadow: context.glowShadow(AppColors.tealGlow, strength: 0.7),
               ),
               child: const Icon(
                 Icons.calendar_today_rounded,
@@ -411,120 +399,114 @@ class _RoutineCardState extends State<_RoutineCard>
   Widget build(BuildContext context) {
     final accentColor = AppColors.teal;
     final isCompleted = widget.task.isCompleted;
+    final iconColor = isCompleted ? AppColors.teal : AppColors.violet;
 
-    return GestureDetector(
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      radius: 18,
+      tint: isCompleted ? accentColor : null,
+      glow: isCompleted,
+      glowColor: accentColor,
       onTap: () => _toggle(context),
       onLongPress: () => _showOptions(context),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: isCompleted
-              ? accentColor.withValues(alpha: 0.10)
-              : Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isCompleted
-                ? accentColor.withValues(alpha: 0.4)
-                : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
-            width: 1,
+      child: Row(
+        children: [
+          IconBadge(
+            icon: Icons.alarm_rounded,
+            color: iconColor,
+            size: 46,
+            radius: 13,
+            glow: isCompleted,
           ),
-          boxShadow: isCompleted ? null : context.softShadow,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Clock Icon with retro border
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: (isCompleted ? accentColor : AppColors.violet)
-                      .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+          const SizedBox(width: 14),
+          // Name + scheduled time
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.task.title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        decoration:
+                            isCompleted ? TextDecoration.lineThrough : null,
+                        color: isCompleted ? context.textSecondaryColor : null,
+                      ),
                 ),
-                child: Icon(
-                  Icons.alarm_rounded,
-                  color: isCompleted ? AppColors.tealDim : AppColors.violet,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 14),
-              // Name + scheduled time
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 6),
+                Row(
                   children: [
-                    Text(
-                      widget.task.title,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            decoration:
-                                isCompleted ? TextDecoration.lineThrough : null,
-                            color: isCompleted ? AppColors.textSecondary : null,
-                          ),
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: 14,
+                      color: context.textSecondaryColor,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          widget.task.time,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
+                    const SizedBox(width: 4),
+                    Text(
+                      widget.task.time,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: context.textSecondaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              // Completion toggle - Retro Square Checkbox
-              GestureDetector(
-                onTap: () => _toggle(context),
-                child: ScaleTransition(
-                  scale: Tween(begin: 1.0, end: 0.9).animate(
-                    CurvedAnimation(
-                      parent: _checkController,
-                      curve: Curves.easeOut,
-                    ),
-                  ),
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isCompleted
-                            ? accentColor
-                            : (Theme.of(context).dividerTheme.color ??
-                                Colors.grey),
-                        width: 2,
-                      ),
-                      color: isCompleted ? accentColor : Colors.transparent,
-                    ),
-                    child: isCompleted
-                        ? const Icon(
-                            Icons.check_rounded,
-                            size: 18,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Completion toggle
+          GestureDetector(
+            onTap: () => _toggle(context),
+            child: ScaleTransition(
+              scale: Tween(begin: 1.0, end: 0.9).animate(
+                CurvedAnimation(
+                  parent: _checkController,
+                  curve: Curves.easeOut,
                 ),
               ),
-            ],
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: isCompleted
+                        ? accentColor
+                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
+                    width: 2,
+                  ),
+                  gradient: isCompleted
+                      ? LinearGradient(
+                          colors: [
+                            accentColor,
+                            accentColor.withValues(alpha: 0.75)
+                          ],
+                        )
+                      : null,
+                  color: isCompleted ? null : Colors.transparent,
+                  boxShadow: isCompleted
+                      ? [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.5),
+                            blurRadius: 10,
+                            spreadRadius: -2,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: isCompleted
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -787,14 +769,22 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
     final title = _titleController.text.trim();
     final isEnabled = title.isNotEmpty && !_isLoading;
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 56,
+      decoration: isEnabled
+          ? BoxDecoration(
+              gradient: context.accentGradient,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: context.glowShadow(AppColors.teal, strength: 0.7),
+            )
+          : null,
       child: ElevatedButton(
         onPressed: isEnabled ? _submit : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.teal,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           disabledBackgroundColor: Theme.of(context).dividerTheme.color,
           disabledForegroundColor: context.textTertiaryColor,
           elevation: 0,

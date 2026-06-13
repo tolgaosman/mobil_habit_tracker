@@ -9,6 +9,7 @@ import '../../core/providers/habit_provider.dart';
 import '../../core/utils/icon_mapper.dart';
 import '../../data/models/habit_model.dart';
 import '../screens/add_habit_screen.dart';
+import 'glass.dart';
 
 class HabitList extends StatelessWidget {
   const HabitList({super.key});
@@ -108,131 +109,102 @@ class _HabitCardState extends State<HabitCard>
     final streak = widget.habit.currentStreak;
     final canInteract = _canToggle(provider.selectedDate);
 
-    return GestureDetector(
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      radius: 18,
+      tint: isCompleted ? accentColor : null,
+      glow: isCompleted,
+      glowColor: accentColor,
+      onTap: () => _toggle(context),
       onLongPress: () => _showOptions(context),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: isCompleted
-              ? accentColor.withValues(alpha: 0.10)
-              : Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isCompleted
-                ? accentColor.withValues(alpha: 0.4)
-                : (Theme.of(context).dividerTheme.color ?? Colors.transparent),
-            width: 1,
+      child: Row(
+        children: [
+          // Icon badge
+          IconBadge(
+            icon: iconData,
+            color: accentColor,
+            size: 50,
+            radius: 14,
+            glow: isCompleted,
           ),
-          boxShadow: isCompleted ? null : context.softShadow,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => _toggle(context),
-            splashColor: accentColor.withValues(alpha: 0.08),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  // Icon container
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(iconData, color: accentColor, size: 26),
-                  ),
-                  const SizedBox(width: 14),
-                  // Name + streak
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.habit.name.tr(context),
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: isCompleted
-                                        ? context.textSecondaryColor
-                                        : null,
-                                    decoration: isCompleted
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                    decorationColor: context.textTertiaryColor,
-                                  ),
-                        ),
-                        if (streak > 0) ...[
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.local_fire_department_rounded,
-                                color: Color(0xFFF59E0B),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                '$streak ${'day streak'.tr(context)}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: const Color(0xFFF59E0B),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Completion toggle
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: GestureDetector(
-                      onTap: () => _toggle(context),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOut,
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(9),
-                          color: isCompleted
-                              ? (canInteract
-                                  ? accentColor
-                                  : accentColor.withValues(alpha: 0.4))
-                              : Colors.transparent,
-                          border: Border.all(
-                            color: isCompleted
-                                ? accentColor
-                                : (Theme.of(context).dividerTheme.color ??
-                                    Colors.grey),
-                            width: 2,
-                          ),
-                        ),
-                        child: isCompleted
-                            ? const Icon(
-                                Icons.check_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              )
-                            : null,
+          const SizedBox(width: 14),
+          // Name + streak
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.habit.name.tr(context),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: isCompleted ? context.textSecondaryColor : null,
+                        decoration:
+                            isCompleted ? TextDecoration.lineThrough : null,
+                        decorationColor: context.textTertiaryColor,
                       ),
-                    ),
+                ),
+                if (streak > 0) ...[
+                  const SizedBox(height: 6),
+                  GlassPillBadge(
+                    label: '$streak ${'day streak'.tr(context)}',
+                    icon: Icons.local_fire_department_rounded,
+                    color: AppColors.amber,
                   ),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Completion toggle
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: GestureDetector(
+              onTap: () => _toggle(context),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: isCompleted
+                      ? LinearGradient(
+                          colors: canInteract
+                              ? [accentColor, accentColor.withValues(alpha: 0.75)]
+                              : [
+                                  accentColor.withValues(alpha: 0.4),
+                                  accentColor.withValues(alpha: 0.3),
+                                ],
+                        )
+                      : null,
+                  color: isCompleted ? null : Colors.transparent,
+                  border: Border.all(
+                    color: isCompleted
+                        ? accentColor
+                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
+                    width: 2,
+                  ),
+                  boxShadow: isCompleted
+                      ? [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.5),
+                            blurRadius: 10,
+                            spreadRadius: -2,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: isCompleted
+                    ? const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                    : null,
               ),
             ),
           ),
-        ),
+        ],
       ),
     )
         .animate()
@@ -375,16 +347,28 @@ class _EmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 90,
-            height: 90,
+            width: 96,
+            height: 96,
             decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.1),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.tealGlow.withValues(alpha: 0.22),
+                  AppColors.teal.withValues(alpha: 0.10),
+                ],
+              ),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.teal.withValues(alpha: 0.30),
+                width: 1,
+              ),
+              boxShadow: context.glowShadow(AppColors.tealGlow, strength: 0.7),
             ),
             child: const Icon(
               Icons.add_task_rounded,
               color: AppColors.teal,
-              size: 40,
+              size: 42,
             ),
           ),
           const SizedBox(height: 20),
