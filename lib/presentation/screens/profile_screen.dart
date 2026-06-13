@@ -484,46 +484,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Language flags
+          // Language Dropdown
           Expanded(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: flags.entries.map((entry) {
-                final isSelected = entry.key == currentLang;
-                return GestureDetector(
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    langProvider.changeLanguage(entry.key);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 44,
-                    height: 44,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.teal.withValues(alpha: 0.15)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.teal
-                            : (Theme.of(context).dividerTheme.color ??
-                                Colors.transparent),
-                        width: isSelected ? 1.5 : 1,
-                      ),
+            child: PopupMenuButton<String>(
+              initialValue: currentLang,
+              tooltip: 'Select Language'.tr(context),
+              onSelected: (String newValue) {
+                HapticFeedback.mediumImpact();
+                langProvider.changeLanguage(newValue);
+              },
+              offset: const Offset(0, -280), // Forces the menu to open upwards
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              color: Theme.of(context).cardTheme.color,
+              elevation: 8,
+              itemBuilder: (context) {
+                return flags.entries.map((entry) {
+                  return PopupMenuItem<String>(
+                    value: entry.key,
+                    child: Row(
+                      children: [
+                        Text(entry.value, style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: 12),
+                        Text(
+                          entry.key.toUpperCase(),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: entry.key == currentLang ? FontWeight.bold : FontWeight.w600,
+                                color: entry.key == currentLang ? AppColors.teal : null,
+                              ),
+                        ),
+                      ],
                     ),
-                    child: Opacity(
-                      opacity: isSelected ? 1.0 : 0.5,
-                      child: Text(
-                        entry.value,
-                        style: const TextStyle(fontSize: 22),
-                      ),
-                    ),
+                  );
+                }).toList();
+              },
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.teal.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
+                    width: 1,
                   ),
-                );
-              }).toList(),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(flags[currentLang] ?? '', style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: 12),
+                        Text(
+                          currentLang.toUpperCase(),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const Icon(Icons.arrow_drop_up_rounded, color: AppColors.tealDim, size: 28),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -534,8 +557,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context.read<ThemeProvider>().toggleTheme();
             },
             child: Container(
-              width: 44,
-              height: 44,
+              width: 48,
+              height: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: AppColors.teal.withValues(alpha: 0.15),
@@ -544,7 +567,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                 color: AppColors.tealDim,
-                size: 22,
+                size: 24,
               ),
             ),
           ),
