@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/side_quest_model.dart';
+import '../services/widget_sync_service.dart';
 
 /// Global (not per-user) provider for the daily Side Quests feature.
 ///
@@ -79,6 +80,7 @@ class SideQuestProvider extends ChangeNotifier {
     }
     ensureTodayGenerated();
     notifyListeners();
+    WidgetSyncService.instance.syncQuests(todayQuests);
   }
 
   String _dateKey(DateTime date) =>
@@ -130,6 +132,7 @@ class SideQuestProvider extends ChangeNotifier {
 
     await _box!.put(_todayKey, updated.map((q) => q.toMap()).toList());
     notifyListeners();
+    WidgetSyncService.instance.syncQuests(updated);
   }
 
   /// Past days' quests, keyed by date-key, sorted descending (newest first).

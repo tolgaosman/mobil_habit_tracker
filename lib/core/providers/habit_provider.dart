@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../data/models/habit_model.dart';
 import '../../data/models/user_model.dart';
 import '../services/notification_service.dart';
+import '../services/widget_sync_service.dart';
 
 class HabitProvider extends ChangeNotifier {
   final _uuid = const Uuid();
@@ -16,6 +17,12 @@ class HabitProvider extends ChangeNotifier {
   DateTime get selectedDate => _selectedDate;
 
   bool get isLoading => _currentUserId != null && _box == null;
+
+  /// Pushes the current habit snapshot to the Android home-screen widget.
+  void _syncWidget() {
+    if (_box == null) return;
+    WidgetSyncService.instance.syncHabits(habits, _selectedDate);
+  }
 
   DateTime getStartingDate() {
     DateTime startingDate = DateTime(2026, 5, 20);
@@ -71,6 +78,7 @@ class HabitProvider extends ChangeNotifier {
         _currentUserId = null;
         Future.microtask(() => notifyListeners());
       }
+      WidgetSyncService.instance.syncLoggedOut();
       return;
     }
 
@@ -84,11 +92,13 @@ class HabitProvider extends ChangeNotifier {
     final openedBox = await Hive.openBox<HabitModel>(boxName);
     _box = openedBox;
     Future.microtask(() => notifyListeners());
+    _syncWidget();
   }
 
   void selectDate(DateTime date) {
     _selectedDate = date;
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> addHabit({
@@ -118,6 +128,7 @@ class HabitProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> updateHabit(HabitModel habit) async {
@@ -131,6 +142,7 @@ class HabitProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> deleteHabit(String habitId) async {
@@ -138,6 +150,7 @@ class HabitProvider extends ChangeNotifier {
     await NotificationService.instance.cancelNotification(habitId);
     await _box!.delete(habitId);
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> toggleCompletion(HabitModel habit) async {
@@ -146,6 +159,7 @@ class HabitProvider extends ChangeNotifier {
       await _box!.put(habit.id, habit);
     }
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> toggleCompletionForDate(HabitModel habit, DateTime date) async {
@@ -154,6 +168,7 @@ class HabitProvider extends ChangeNotifier {
       await _box!.put(habit.id, habit);
     }
     notifyListeners();
+    _syncWidget();
   }
 
   Future<void> _scheduleNotification(HabitModel habit) async {
@@ -177,5 +192,6 @@ class HabitProvider extends ChangeNotifier {
     }
     await _box!.clear();
     notifyListeners();
+    _syncWidget();
   }
 }

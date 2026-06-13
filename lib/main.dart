@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/widget_sync_service.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/habit_provider.dart';
 import 'core/providers/routine_provider.dart';
@@ -28,6 +30,9 @@ void main() async {
   
   await Hive.openBox<UserModel>('users');
   await Hive.openBox<String>('auth_session');
+
+  // Register the home-screen widget tap handler (background isolate).
+  await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
 
   // Initialize Notifications
   await NotificationService.instance.initialize();

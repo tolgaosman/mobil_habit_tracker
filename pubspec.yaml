@@ -18,6 +18,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
+  # Android home-screen widgets
+  home_widget: ^0.7.0
+
   # Local notifications
   flutter_local_notifications: ^21.0.0
   timezone: ^0.11.0
@@ -49,8 +52,6 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/images/app_logo.png"
-  adaptive_icon_background: "#0B0F14"
-  adaptive_icon_foreground: "assets/images/app_logo.png"
 
 flutter_native_splash:
   color: "#0B0F14"

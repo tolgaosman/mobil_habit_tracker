@@ -344,6 +344,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "home_widget",
+      "rootUri": "file:///C:/Users/Osman/AppData/Local/Pub/Cache/hosted/pub.dev/home_widget-0.7.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "hooks",
       "rootUri": "file:///C:/Users/Osman/AppData/Local/Pub/Cache/hosted/pub.dev/hooks-2.0.0",
       "packageUri": "lib/",
