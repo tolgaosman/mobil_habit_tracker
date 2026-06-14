@@ -38,6 +38,7 @@ class HabitsWidgetProvider : HomeWidgetProvider() {
 
             val progress = widgetData.getInt("habits_progress", 0)
             views.setProgressBar(R.id.widget_progress, 100, progress, false)
+            views.setTextViewText(R.id.widget_progress_text, "$progress%")
 
             // Bind the scrollable list to its RemoteViewsService.
             val serviceIntent = Intent(context, HabitsRemoteViewsService::class.java).apply {

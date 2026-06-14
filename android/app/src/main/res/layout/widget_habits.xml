@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="10dp">
+        android:paddingBottom="6dp">
 
         <TextView
             android:id="@+id/widget_title"
@@ -21,6 +21,16 @@
             android:text="Habits"
             android:textColor="@color/widget_text_primary"
             android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="0%"
+            android:textColor="#26A69A"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -36,10 +46,11 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="6dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="10dp"
         android:max="100"
         android:progress="0"
-        android:progressTint="#26A69A" />
+        android:progressTint="#26A69A"
+        android:progressBackgroundTint="#1A1A1A" />
 
     <ListView
         android:id="@+id/widget_list"

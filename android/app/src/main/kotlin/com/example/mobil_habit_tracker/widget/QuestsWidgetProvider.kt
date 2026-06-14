@@ -37,6 +37,7 @@ class QuestsWidgetProvider : HomeWidgetProvider() {
 
             val progress = widgetData.getInt("quests_progress", 0)
             views.setProgressBar(R.id.widget_progress, 100, progress, false)
+            views.setTextViewText(R.id.widget_progress_text, "$progress%")
 
             val serviceIntent = Intent(context, QuestsRemoteViewsService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
