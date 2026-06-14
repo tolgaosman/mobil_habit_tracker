@@ -19,45 +19,63 @@ class ProgressHeader extends StatelessWidget {
         final rate = provider.completionRate;
         final allDone = total > 0 && rate >= 1.0;
 
-        return GlassCard(
-          margin: const EdgeInsets.fromLTRB(24, 4, 24, 8),
-          padding: const EdgeInsets.all(24),
-          radius: AppRadius.xl,
-          glow: allDone,
-          glowColor: AppColors.tealGlow,
+        final accent = allDone ? AppColors.success : null;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Big hero ring — the cozy centerpiece.
-              GlowProgressRing(
-                rate: rate,
-                size: 132,
-                stroke: 12,
-                labelStyle:
-                    Theme.of(context).textTheme.displayMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: allDone
-                              ? AppColors.success
-                              : Theme.of(context).textTheme.displayMedium?.color,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Left: big percentage + subtitle, reads instantly.
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${(rate * 100).round()}%',
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1,
+                                color: accent,
+                              ),
                         ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                total == 0
-                    ? 'Add your first habit below'.tr(context)
-                    : allDone
-                        ? 'All done for today!'.tr(context)
-                        : '$completed ${'of'.tr(context)} $total ${'habits done'.tr(context)}',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: allDone
-                          ? AppColors.success
-                          : context.textSecondaryColor,
-                      fontWeight: FontWeight.w600,
+                        const SizedBox(height: 2),
+                        Text(
+                          total == 0
+                              ? 'Add your first habit below'.tr(context)
+                              : allDone
+                                  ? 'All done for today!'.tr(context)
+                                  : '$completed ${'of'.tr(context)} $total ${'habits done'.tr(context)}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                color: accent ?? context.textSecondaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Right: compact ring — glanceable companion (no label, number is on the left).
+                  GlowProgressRing(
+                    rate: rate,
+                    size: 56,
+                    stroke: 6,
+                    showLabel: false,
+                    color: accent,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              GlowProgressBar(rate: rate),
+              const SizedBox(height: 14),
+              GlowProgressBar(rate: rate, height: 8, color: accent),
             ],
           ),
         )

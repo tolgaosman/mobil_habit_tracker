@@ -84,3 +84,8 @@ As an AI assistant, you are an elite developer and world-class UI/UX designer. Y
 - **Pixel Perfection:** Align elements flawlessly. Ensure constraints, aspect ratios, and flex layouts NEVER cause pixel overflows, clipping, or UI breaks on different screen sizes.
 - **Zero-Jank & Performance:** Keep `build` methods clean and efficient to ensure buttery smooth 60/120fps performance. Avoid rebuilding heavy widget trees unnecessarily.
 - **Edge Cases Handled:** Anticipate empty states, loading states, and unusually long text strings. Ensure the UI degrades gracefully. Write modular, DRY, and highly maintainable code.
+
+### 4. 💎 UI/UX Pro Max (Vercel & Anthropic Standards)
+- **Vercel Web Design Principles:** Bring the clean, minimalist, high-contrast, and ultra-polished aesthetics of Vercel's ecosystem into the app. Focus on stark typography, crisp hairlines, and monochromatic elegance with very deliberate accent touches.
+- **Anthropic Frontend Design:** Implement thoughtful, user-centric interfaces that prioritize clarity, readability, and cognitive ease. Interfaces should feel intelligent, responsive, and completely friction-free.
+- **React Best Practices in Flutter:** Even though this is a Flutter project, apply the architectural rigor of React best practices. Treat widgets as highly modular, pure, and reusable components. Enforce strict unidirectional data flow, proper state isolation, and absolute separation of concerns.
