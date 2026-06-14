@@ -104,11 +104,11 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF4C9C5B),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(16),
               boxShadow: context.softShadow,
             ),
-            child: ClipOval(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
               child: Image.asset(
                 'assets/images/app_logo_full_square.png',
                 fit: BoxFit.cover,

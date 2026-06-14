@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen widget palette — dark "Aydınlık Editorial" (matches app dark theme).
+         Same color names as values/colors.xml; Android swaps to these when the
+         system is in dark mode, so the widgets adapt with no layout changes. -->
+    <color name="widget_bg">#000000</color>
+    <color name="widget_card">#1C1C1E</color>
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_secondary">#98989F</color>
+    <color name="widget_teal">#7FA38B</color>
+    <color name="widget_divider">#38383A</color>
+    <!-- Quest difficulty dots — muted pastels (read fine on dark) -->
+    <color name="widget_easy">#7FA38B</color>
+    <color name="widget_medium">#D7A86E</color>
+    <color name="widget_hard">#D08C7A</color>
+</resources>
