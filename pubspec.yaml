@@ -58,12 +58,13 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#0B0F14"
-  image: assets/images/app_logo.png
+  image: "assets/images/squareLogo.png"
+  fullscreen: true
   android: true
   ios: false
   android_12:
     color: "#0B0F14"
-    image: assets/images/app_logo_splash.png
+    image: "assets/images/squareLogo.png"
 
 flutter:
   uses-material-design: true
