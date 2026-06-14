@@ -80,27 +80,6 @@ class HabitProvider extends ChangeNotifier {
   double get completionRate =>
       habits.isEmpty ? 0 : completedToday / habits.length;
 
-  bool isDayCompleted(DateTime date) {
-    if (_box == null) return false;
-
-    final targetMidnight = DateTime(date.year, date.month, date.day);
-    final startMidnight = getStartingDate();
-    if (targetMidnight.isBefore(startMidnight)) {
-      return false;
-    }
-
-    final targetWeekday = date.weekday;
-    final dayHabits = _box!.values.where((habit) {
-      final days = habit.repeatDays;
-      if (days == null || days.isEmpty) return true;
-      return days.contains(targetWeekday);
-    }).toList();
-
-    if (dayHabits.isEmpty) return false;
-
-    return dayHabits.every((h) => h.isCompletedOn(date));
-  }
-
   Future<void> updateUser(UserModel? user) async {
     if (user == null) {
       if (_currentUserId != null || _box != null) {
@@ -126,6 +105,12 @@ class HabitProvider extends ChangeNotifier {
     final boxName = 'habits_${user.id}';
     final openedBox = await Hive.openBox<HabitModel>(boxName);
     _box = openedBox;
+    
+    // Listen to changes (e.g. from the background isolate for home widgets)
+    _box!.watch().listen((_) {
+      notifyListeners();
+    });
+
     Future.microtask(() => notifyListeners());
     _syncWidget();
   }

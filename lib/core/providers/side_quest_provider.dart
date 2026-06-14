@@ -78,6 +78,10 @@ class SideQuestProvider extends ChangeNotifier {
     } else {
       _box = await Hive.openBox(boxName);
     }
+
+    _box!.watch().listen((_) {
+      notifyListeners();
+    });
     ensureTodayGenerated();
     notifyListeners();
     WidgetSyncService.instance.syncQuests(todayQuests);

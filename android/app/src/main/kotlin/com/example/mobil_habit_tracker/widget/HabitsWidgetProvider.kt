@@ -36,6 +36,9 @@ class HabitsWidgetProvider : HomeWidgetProvider() {
                 views.setTextViewText(R.id.widget_empty, "No habits today")
             }
 
+            val progress = widgetData.getInt("habits_progress", 0)
+            views.setProgressBar(R.id.widget_progress, 100, progress, false)
+
             // Bind the scrollable list to its RemoteViewsService.
             val serviceIntent = Intent(context, HabitsRemoteViewsService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
@@ -48,7 +51,7 @@ class HabitsWidgetProvider : HomeWidgetProvider() {
             val toggleIntent = Intent().apply {
                 action = WidgetConstants.BACKGROUND_ACTION
                 component = ComponentName(
-                    "es.antonborri.home_widget",
+                    context,
                     "es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
                 )
             }

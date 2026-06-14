@@ -48,7 +48,6 @@ class WeekCalendar extends StatelessWidget {
                         day: day,
                         isSelected: _isSameDay(day, provider.selectedDate),
                         isToday: _isSameDay(day, now),
-                        isCompleted: provider.isDayCompleted(day),
                         animationDelay: index * 60,
                         onTap: () => provider.selectDate(day),
                       ),
@@ -71,7 +70,6 @@ class _DayChip extends StatelessWidget {
   final DateTime day;
   final bool isSelected;
   final bool isToday;
-  final bool isCompleted;
   final int animationDelay;
   final VoidCallback onTap;
 
@@ -79,7 +77,6 @@ class _DayChip extends StatelessWidget {
     required this.day,
     required this.isSelected,
     required this.isToday,
-    required this.isCompleted,
     required this.animationDelay,
     required this.onTap,
   });
@@ -118,48 +115,33 @@ class _DayChip extends StatelessWidget {
               width: isToday && !isSelected ? 1.5 : 1,
             ),
           ),
-          child: Stack(
-            alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dayLabel,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: isBeforeStart
-                              ? context.textTertiaryColor.withValues(alpha: 0.5)
-                              : (isSelected
-                                  ? Colors.white
-                                  : (isToday
-                                      ? AppColors.teal
-                                      : context.textSecondaryColor)),
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    dateLabel,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isBeforeStart
-                              ? context.textTertiaryColor.withValues(alpha: 0.5)
-                              : (isSelected
-                                  ? Colors.white
-                                  : (isToday ? AppColors.teal : null)),
-                        ),
-                  ),
-                ],
+              Text(
+                dayLabel,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: isBeforeStart
+                          ? context.textTertiaryColor.withValues(alpha: 0.5)
+                          : (isSelected
+                              ? Colors.white
+                              : (isToday
+                                  ? AppColors.teal
+                                  : context.textSecondaryColor)),
+                    ),
               ),
-              if (isCompleted)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Icon(
-                    Icons.star_rounded,
-                    size: 12,
-                    color: isSelected ? Colors.white : AppColors.teal,
-                  ),
-                ),
+              const SizedBox(height: 4),
+              Text(
+                dateLabel,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: isBeforeStart
+                          ? context.textTertiaryColor.withValues(alpha: 0.5)
+                          : (isSelected
+                              ? Colors.white
+                              : (isToday ? AppColors.teal : null)),
+                    ),
+              ),
             ],
           ),
         ),

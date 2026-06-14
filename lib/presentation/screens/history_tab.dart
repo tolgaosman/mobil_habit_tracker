@@ -457,15 +457,28 @@ class _HistoryTabState extends State<HistoryTab> {
             ),
             if (hasQuests && !isFuture) ...[
               const SizedBox(height: 2),
-              Text(
-                '$completedCount/$totalCount',
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: allDone
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : context.textTertiaryColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$completedCount/$totalCount',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: allDone
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : context.textTertiaryColor,
+                    ),
+                  ),
+                  if (allDone) ...[
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 10,
+                      color: Colors.amberAccent,
+                    ),
+                  ],
+                ],
               ),
             ],
           ],

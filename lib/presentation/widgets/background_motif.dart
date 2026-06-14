@@ -78,11 +78,22 @@ class _IconScatterPainter extends CustomPainter {
     final rng = math.Random(seed);
     final painter = TextPainter(textDirection: TextDirection.ltr);
 
+    // Use a grid to ensure even distribution across the screen
+    final cols = math.max(1, math.sqrt(iconCount).ceil());
+    final rows = math.max(1, (iconCount / cols).ceil());
+    final cellWidth = size.width / cols;
+    final cellHeight = size.height / rows;
+
     for (var i = 0; i < iconCount; i++) {
       final icon = icons[i % icons.length];
       final fontSize = 18.0 + rng.nextDouble() * 16.0; // 18..34
-      final dx = rng.nextDouble() * size.width;
-      final dy = rng.nextDouble() * size.height;
+      
+      final c = i % cols;
+      final r = i ~/ cols;
+
+      // Random position within the grid cell
+      final dx = c * cellWidth + rng.nextDouble() * cellWidth;
+      final dy = r * cellHeight + rng.nextDouble() * cellHeight;
       final angle = (rng.nextDouble() - 0.5) * 0.6; // ~ +/-0.3 rad slight tilt
 
       painter.text = TextSpan(

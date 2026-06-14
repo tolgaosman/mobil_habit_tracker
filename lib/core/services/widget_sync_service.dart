@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -40,7 +41,12 @@ class WidgetSyncService {
               'completed': h.isCompletedOn(date),
             })
         .toList();
+    
+    final completedCount = habits.where((h) => h.isCompletedOn(date)).length;
+    final progress = habits.isEmpty ? 0 : ((completedCount / habits.length) * 100).round();
+
     await HomeWidget.saveWidgetData<String>(keyHabitsJson, jsonEncode(list));
+    await HomeWidget.saveWidgetData<int>('habits_progress', progress);
     await HomeWidget.saveWidgetData<String>(keyHabitsEmpty, 'none');
     await HomeWidget.updateWidget(name: habitsProvider, androidName: habitsProvider);
   }
@@ -55,7 +61,12 @@ class WidgetSyncService {
               'completed': q.isCompleted,
             })
         .toList();
+    
+    final completedCount = quests.where((q) => q.isCompleted).length;
+    final progress = quests.isEmpty ? 0 : ((completedCount / quests.length) * 100).round();
+
     await HomeWidget.saveWidgetData<String>(keyQuestsJson, jsonEncode(list));
+    await HomeWidget.saveWidgetData<int>('quests_progress', progress);
     await HomeWidget.saveWidgetData<String>(keyQuestsEmpty, 'none');
     await HomeWidget.updateWidget(name: questsProvider, androidName: questsProvider);
   }
@@ -88,6 +99,7 @@ Future<void> widgetBackgroundCallback(Uri? uri) async {
   final id = uri.queryParameters['id'];
   if (id == null || id.isEmpty) return;
 
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   _registerAdapters();
 

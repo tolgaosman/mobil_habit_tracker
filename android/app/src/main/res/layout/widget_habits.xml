@@ -31,6 +31,16 @@
             android:contentDescription="Habits" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/widget_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginBottom="12dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="#26A69A" />
+
     <ListView
         android:id="@+id/widget_list"
         android:layout_width="match_parent"
