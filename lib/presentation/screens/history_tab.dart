@@ -517,6 +517,15 @@ class _HistoryTabState extends State<HistoryTab> {
     );
   }
 
+  bool _isInCurrentWeek(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    final target = DateTime(date.year, date.month, date.day);
+    return !target.isBefore(startOfWeek) && !target.isAfter(endOfWeek);
+  }
+
   Widget _buildHistoryQuestList(BuildContext context, List<HabitModel> habits) {
     if (habits.isEmpty) {
       return Padding(
@@ -541,6 +550,8 @@ class _HistoryTabState extends State<HistoryTab> {
       ).animate().fadeIn(duration: 400.ms);
     }
 
+    final canEdit = _isInCurrentWeek(_selectedDate);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -559,12 +570,14 @@ class _HistoryTabState extends State<HistoryTab> {
           tint: isCompleted ? accentColor : null,
           glow: isCompleted,
           glowColor: accentColor,
-          onTap: () {
-            HapticFeedback.lightImpact();
-            context
-                .read<HabitProvider>()
-                .toggleCompletionForDate(habit, _selectedDate);
-          },
+          onTap: canEdit
+              ? () {
+                  HapticFeedback.lightImpact();
+                  context
+                      .read<HabitProvider>()
+                      .toggleCompletionForDate(habit, _selectedDate);
+                }
+              : null,
           child: Row(
             children: [
               IconBadge(
@@ -588,7 +601,17 @@ class _HistoryTabState extends State<HistoryTab> {
                 ),
               ),
               const SizedBox(width: 8),
-              CompletionCheck(completed: isCompleted, color: accentColor),
+              canEdit
+                  ? CompletionCheck(completed: isCompleted, color: accentColor)
+                  : Icon(
+                      isCompleted
+                          ? Icons.check_circle_rounded
+                          : Icons.lock_outline_rounded,
+                      color: isCompleted
+                          ? accentColor.withValues(alpha: 0.5)
+                          : context.textTertiaryColor.withValues(alpha: 0.4),
+                      size: 22,
+                    ),
             ],
           ),
         );
