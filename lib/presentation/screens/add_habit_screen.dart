@@ -139,10 +139,8 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     return Container(
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-        border: Border(
-          top: BorderSide(color: context.glassBorder, width: 1),
-        ),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
       ),
       padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + totalBottom),
       child: SingleChildScrollView(
@@ -365,7 +363,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
       context: context,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
       ),
       builder: (BuildContext context) {
         return Container(
@@ -417,7 +415,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     final accentColor = _hexToColor(_selectedColorHex);
     return SizedBox(
       width: double.infinity,
-      height: 54,
+      height: 56,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
@@ -426,7 +424,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(100),
           ),
         ),
         child: _isLoading

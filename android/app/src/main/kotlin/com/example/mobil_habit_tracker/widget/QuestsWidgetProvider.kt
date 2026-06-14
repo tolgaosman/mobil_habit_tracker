@@ -2,7 +2,6 @@ package com.example.mobil_habit_tracker.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -46,19 +45,16 @@ class QuestsWidgetProvider : HomeWidgetProvider() {
             views.setRemoteAdapter(R.id.widget_list, serviceIntent)
             views.setEmptyView(R.id.widget_list, R.id.widget_empty)
 
-            val toggleIntent = Intent().apply {
-                action = WidgetConstants.BACKGROUND_ACTION
-                component = ComponentName(
-                    context,
-                    "es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
-                )
+            // Template intent for row taps -> native WidgetClickReceiver.
+            val toggleIntent = Intent(context, WidgetClickReceiver::class.java).apply {
+                action = WidgetClickReceiver.ACTION_TOGGLE
             }
             var flags = PendingIntent.FLAG_UPDATE_CURRENT
             if (Build.VERSION.SDK_INT >= 31) {
                 flags = flags or PendingIntent.FLAG_MUTABLE
             }
             val pendingIntent = PendingIntent.getBroadcast(
-                context, widgetId, toggleIntent, flags
+                context, widgetId + 10000, toggleIntent, flags
             )
             views.setPendingIntentTemplate(R.id.widget_list, pendingIntent)
 

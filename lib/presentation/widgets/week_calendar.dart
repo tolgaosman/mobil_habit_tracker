@@ -95,8 +95,9 @@ class _DayChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 62,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          height: 66,
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.teal
@@ -105,15 +106,16 @@ class _DayChip extends StatelessWidget {
                         ? Colors.white.withValues(alpha: 0.02)
                         : Colors.black.withValues(alpha: 0.015))
                     : context.glassFill()),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(100),
             border: Border.all(
               color: isSelected
                   ? AppColors.teal
                   : (isToday && !isBeforeStart
                       ? AppColors.teal.withValues(alpha: 0.55)
-                      : context.glassBorder),
+                      : Colors.transparent),
               width: isToday && !isSelected ? 1.5 : 1,
             ),
+            boxShadow: isSelected ? context.softShadow : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

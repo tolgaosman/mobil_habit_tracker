@@ -441,44 +441,66 @@ class _HistoryTabState extends State<HistoryTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              '$dayNum',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: isFuture
-                    ? context.textTertiaryColor.withValues(alpha: 0.4)
-                    : (allDone
-                        ? Colors.white
-                        : (isToday
-                            ? Theme.of(context).colorScheme.primary
-                            : null)),
-              ),
-            ),
-            if (hasQuests && !isFuture) ...[
-              const SizedBox(height: 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '$completedCount/$totalCount',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: allDone
-                          ? Colors.white.withValues(alpha: 0.9)
-                          : context.textTertiaryColor,
-                    ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '$dayNum',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isFuture
+                        ? context.textTertiaryColor.withValues(alpha: 0.4)
+                        : (allDone
+                            ? Colors.white
+                            : (isToday
+                                ? Theme.of(context).colorScheme.primary
+                                : null)),
                   ),
-                  if (allDone) ...[
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.star_rounded,
-                      size: 10,
-                      color: Colors.amberAccent,
-                    ),
-                  ],
+                ),
+                if (allDone) ...[
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.star_rounded,
+                    size: 10,
+                    color: Colors.amberAccent,
+                  ),
                 ],
+              ],
+            ),
+            // Thin progress underline replaces the cramped "0/3" text — a calm,
+            // proportional sage fill that animates as completion changes.
+            if (hasQuests && !isFuture && !allDone) ...[
+              const SizedBox(height: 4),
+              SizedBox(
+                width: 18,
+                height: 2,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: context.isDarkMode
+                            ? Colors.white.withValues(alpha: 0.10)
+                            : Colors.black.withValues(alpha: 0.08),
+                      ),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(
+                          begin: 0,
+                          end: (completedCount / totalCount).clamp(0.0, 1.0),
+                        ),
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOutCubic,
+                        builder: (_, value, __) => FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: value,
+                          child: Container(color: AppColors.teal),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ],

@@ -39,14 +39,28 @@ class _HomeScreenState extends State<HomeScreen> {
           const BackgroundMotif(seed: 7),
           SafeArea(
             bottom: false,
-            child: IndexedStack(
-              index: _currentIndex,
-              children: [
-                _buildHabitsTab(context),
-                const HistoryTab(),
-                const InsightsTab(),
-                const SideQuestTab(),
-              ],
+            // Cross-fade between tabs instead of an instant snap. The
+            // IndexedStack stays as a single persistent instance (so each tab
+            // keeps its state); the AnimatedSwitcher fades a thin keyed layer
+            // on top whenever the active index changes.
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: KeyedSubtree(
+                key: ValueKey<int>(_currentIndex),
+                child: IndexedStack(
+                  index: _currentIndex,
+                  children: [
+                    _buildHabitsTab(context),
+                    const HistoryTab(),
+                    const InsightsTab(),
+                    const SideQuestTab(),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -87,14 +101,14 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // App logo on the far left
           Container(
-            width: 42,
-            height: 42,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: context.glowShadow(AppColors.tealGlow, strength: 0.6),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: context.softShadow,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               child: Image.asset(
                 'assets/images/app_logo.png',
                 fit: BoxFit.contain,
@@ -118,9 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _greeting(name, context),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
+                        letterSpacing: -0.5,
                       ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -207,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, right: 4),
-      child: FloatingActionButton.extended(
+      child: FloatingActionButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
           _showAddHabit(context);
@@ -218,14 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
         highlightElevation: 0,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
-        icon: const Icon(Icons.add_rounded, size: 22),
-        label: Text(
-          'New Habit'.tr(context),
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: Colors.white),
-        ),
+        child: const Icon(Icons.add_rounded, size: 28),
       ),
     ).animate().fadeIn(delay: 300.ms, duration: 350.ms).slideY(
         begin: 0.4, end: 0, delay: 300.ms, curve: Curves.easeOutCubic);
@@ -271,12 +278,24 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: color, size: 23),
-              const SizedBox(height: 5),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.teal.withValues(alpha: 0.14)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Icon(icon, color: color, size: 23),
+              ),
+              const SizedBox(height: 4),
               Text(
                 label.tr(context),
                 maxLines: 1,

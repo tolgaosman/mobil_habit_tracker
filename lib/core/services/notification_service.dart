@@ -19,6 +19,9 @@ class NotificationService {
     if (_initialized) return;
 
     tz.initializeTimeZones();
+    // tz.local defaults to UTC; without this, "09:00" would fire at 09:00 UTC
+    // (12:00 in Turkey). Pin to the user's local zone so reminders fire on time.
+    tz.setLocalLocation(tz.getLocation('Europe/Istanbul'));
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -39,12 +42,13 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Request permissions on Android 13+
+    // Request permissions on Android 13+ (notifications) and 12+ (exact alarms).
+    // exactAllowWhileIdle scheduling silently fails without the exact-alarm grant.
     if (Platform.isAndroid) {
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
+      final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await androidPlugin?.requestNotificationsPermission();
+      await androidPlugin?.requestExactAlarmsPermission();
     }
 
     _initialized = true;
@@ -108,6 +112,31 @@ class NotificationService {
       notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  /// Show an immediate test notification (no scheduling) to verify that the
+  /// notification pipeline (channel + permission + receivers) works end-to-end.
+  Future<void> showTestNotification() async {
+    const androidDetails = AndroidNotificationDetails(
+      'habit_reminders',
+      'Habit Reminders',
+      channelDescription: 'Daily reminders for your habits',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(),
+    );
+
+    await _plugin.show(
+      id: 999999,
+      title: 'Test 🔔',
+      body: 'Notifications are working!',
+      notificationDetails: details,
     );
   }
 

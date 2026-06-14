@@ -97,7 +97,7 @@ class InsightsTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              IconBadge(icon: icon, color: color, size: 42, radius: 12),
+              IconBadge(icon: icon, color: color, size: 44, radius: AppRadius.md),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

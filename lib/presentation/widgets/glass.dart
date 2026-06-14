@@ -7,7 +7,7 @@ import '../../data/models/habit_model.dart';
 /// Editorial surface card: clean opaque fill + hairline border + subtle lift.
 /// (Class name kept as `GlassCard` so existing imports/usages don't break,
 /// but there is no blur/glass anymore — this is the airy editorial card.)
-class GlassCard extends StatelessWidget {
+class GlassCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
@@ -38,36 +38,60 @@ class GlassCard extends StatelessWidget {
   });
 
   @override
+  State<GlassCard> createState() => _GlassCardState();
+}
+
+class _GlassCardState extends State<GlassCard> {
+  bool _pressed = false;
+
+  bool get _interactive => widget.onTap != null || widget.onLongPress != null;
+
+  @override
   Widget build(BuildContext context) {
+    final radius = widget.radius;
     final decoration = context.glassDecoration(
-      tint: tint,
+      tint: widget.tint,
       radius: radius,
-      glow: glow,
+      glow: widget.glow,
     );
 
-    Widget content = Padding(padding: padding, child: child);
+    Widget content = Padding(padding: widget.padding, child: widget.child);
 
-    if (onTap != null || onLongPress != null) {
+    if (_interactive) {
       content = Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(radius),
         child: InkWell(
           borderRadius: BorderRadius.circular(radius),
-          onTap: onTap,
-          onLongPress: onLongPress,
-          splashColor: (tint ?? AppColors.teal).withValues(alpha: 0.06),
-          highlightColor: (tint ?? AppColors.teal).withValues(alpha: 0.03),
+          onTap: widget.onTap,
+          onLongPress: widget.onLongPress,
+          onHighlightChanged: (v) => setState(() => _pressed = v),
+          splashColor:
+              (widget.tint ?? AppColors.teal).withValues(alpha: 0.06),
+          highlightColor:
+              (widget.tint ?? AppColors.teal).withValues(alpha: 0.03),
           child: content,
         ),
       );
     }
 
-    return Container(
-      margin: margin,
+    Widget card = Container(
       decoration: decoration,
       clipBehavior: Clip.antiAlias,
       child: content,
     );
+
+    if (_interactive) {
+      // Gentle tactile press-scale for the cozy feel.
+      card = AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        child: card,
+      );
+    }
+
+    return Container(margin: widget.margin, child: card);
   }
 }
 
@@ -133,7 +157,7 @@ class GlowProgressRing extends StatelessWidget {
     super.key,
     required this.rate,
     this.size = 64,
-    this.stroke = 6,
+    this.stroke = 9,
     this.color,
     this.labelStyle,
     this.showLabel = true,
@@ -230,7 +254,7 @@ class GlowProgressBar extends StatelessWidget {
   const GlowProgressBar({
     super.key,
     required this.rate,
-    this.height = 6,
+    this.height = 10,
     this.color,
   });
 
@@ -275,21 +299,29 @@ class GlassPillBadge extends StatelessWidget {
   final IconData? icon;
   final Color color;
 
+  /// Optional wide tracking for premium "micro-token" pills (e.g. difficulty).
+  final double? letterSpacing;
+
+  /// Optional padding override; defaults to the calm pill metrics.
+  final EdgeInsetsGeometry? padding;
+
   const GlassPillBadge({
     super.key,
     required this.label,
     this.icon,
     this.color = AppColors.teal,
+    this.letterSpacing,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          EdgeInsets.symmetric(horizontal: icon != null ? 9 : 10, vertical: 4),
+      padding: padding ??
+          EdgeInsets.symmetric(horizontal: icon != null ? 11 : 12, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: context.isDarkMode ? 0.16 : 0.10),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withValues(alpha: context.isDarkMode ? 0.18 : 0.12),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -303,6 +335,7 @@ class GlassPillBadge extends StatelessWidget {
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: color,
                   fontWeight: FontWeight.w600,
+                  letterSpacing: letterSpacing,
                 ),
           ),
         ],
@@ -324,7 +357,7 @@ class IconBadge extends StatelessWidget {
     required this.icon,
     required this.color,
     this.size = 48,
-    this.radius = AppRadius.md,
+    this.radius = AppRadius.lg,
     this.glow = false,
   });
 
@@ -334,7 +367,7 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: context.isDarkMode ? 0.24 : 0.15),
+        color: color.withValues(alpha: context.isDarkMode ? 0.26 : 0.16),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: Icon(icon, color: color, size: size * 0.46),
@@ -344,7 +377,11 @@ class IconBadge extends StatelessWidget {
 
 /// Shared circular completion toggle (filled accent when done, hairline ring
 /// when not). One definition so every list row reads identically.
-class CompletionCheck extends StatelessWidget {
+/// Circular completion toggle — filled accent when done, hairline ring when not.
+/// Plays a satisfying 2-phase elastic "pop" whenever it transitions into the
+/// completed state, so every call site (habits, routines, side quests) gets the
+/// same micro-interaction for free. Tap handling/haptics stay with the caller.
+class CompletionCheck extends StatefulWidget {
   final bool completed;
   final Color color;
   final double size;
@@ -359,26 +396,73 @@ class CompletionCheck extends StatelessWidget {
   });
 
   @override
+  State<CompletionCheck> createState() => _CompletionCheckState();
+}
+
+class _CompletionCheckState extends State<CompletionCheck>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _popController;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _popController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scale = TweenSequence([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 1.25)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 40,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.25, end: 1.0)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 60,
+      ),
+    ]).animate(_popController);
+  }
+
+  @override
+  void didUpdateWidget(CompletionCheck oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Pop only when transitioning into completion.
+    if (widget.completed && !oldWidget.completed) {
+      _popController.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _popController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final box = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
-      width: size,
-      height: size,
+      width: widget.size,
+      height: widget.size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: completed ? color : Colors.transparent,
+        color: widget.completed ? widget.color : Colors.transparent,
         border: Border.all(
-          color: completed ? color : context.glassBorder,
+          color: widget.completed ? widget.color : context.glassBorder,
           width: 1.5,
         ),
       ),
-      child: completed
-          ? Icon(Icons.check_rounded, color: Colors.white, size: size * 0.62)
+      child: widget.completed
+          ? Icon(Icons.check_rounded,
+              color: Colors.white, size: widget.size * 0.62)
           : null,
     );
-    if (onTap == null) return box;
-    return GestureDetector(onTap: onTap, child: box);
+    final scaled = ScaleTransition(scale: _scale, child: box);
+    if (widget.onTap == null) return scaled;
+    return GestureDetector(onTap: widget.onTap, child: scaled);
   }
 }
 

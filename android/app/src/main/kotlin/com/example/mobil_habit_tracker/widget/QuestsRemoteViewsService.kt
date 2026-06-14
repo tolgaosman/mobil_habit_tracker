@@ -60,8 +60,12 @@ class QuestsRemoteViewsFactory(private val context: Context) :
             if (completed) R.drawable.widget_check_on else R.drawable.widget_check_off
         )
 
-        val uri = Uri.parse("habitwidget://toggle?type=quest&id=$id")
-        val fillIn = Intent().apply { data = uri }
+        // Per-row fill-in intent: carries the type and id as extras + unique data URI.
+        val fillIn = Intent().apply {
+            putExtra(WidgetClickReceiver.EXTRA_TYPE, "quest")
+            putExtra(WidgetClickReceiver.EXTRA_ID, id)
+            data = Uri.parse("habitwidget://toggle?type=quest&id=$id")
+        }
         views.setOnClickFillInIntent(R.id.row_root, fillIn)
 
         return views

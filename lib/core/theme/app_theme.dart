@@ -1,6 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// ============================================================================
+// DESIGN TOKENS — "Aydınlık Editorial"
+// ----------------------------------------------------------------------------
+// Single source of truth for the visual language. Pull from these tokens
+// instead of hard-coding values, so the look stays consistent and tunable.
+//
+//   • Color      → AppColors      (surfaces, sage accent, muted pastels, text,
+//                                   dividers, states). Names are kept stable for
+//                                   back-compat; values are the editorial sage set.
+//   • Spacing    → AppSpacing     (4-pt rhythm: xs 4 · sm 8 · md 12 · lg 16 ·
+//                                   xl 20 · xxl 24)
+//   • Radius     → AppRadius      (sm 8 · md 12 · lg 16 · sheet 20)
+//   • Typography → AppTheme text  (Inter scale, weight/size/tracking hierarchy)
+//   • Elevation  → context.softShadow / context.glassDecoration()  (soft diffuse
+//                                   lift in light mode, surface contrast in dark)
+//
+// Decoration helpers live on the `AppThemeContext` extension at the bottom of
+// this file (glassDecoration / glassFill / glassBorder / softShadow / gradients).
+// Reusable components built on these tokens live in widgets/glass.dart.
+// ============================================================================
+
 /// App color palette — neutral iOS-system feel + a single calm sage accent.
 /// Cool neutral greys (systemGroupedBackground-like), hairline separators,
 /// one tint. Muted pastels stay for per-habit category color only.
@@ -75,13 +96,14 @@ class AppSpacing {
   static const double xxl = 24;
 }
 
-/// Corner-radius scale.
+/// Corner-radius scale — "Soft & Cozy": pillowy, generous rounding.
 class AppRadius {
   AppRadius._();
-  static const double sm = 8; // small chips/cells
-  static const double md = 12; // controls / pills
-  static const double lg = 16; // cards
-  static const double sheet = 20; // bottom sheets
+  static const double sm = 10; // small chips/cells
+  static const double md = 14; // controls / pills
+  static const double lg = 22; // cards (cozy/pillowy)
+  static const double xl = 26; // hero cards
+  static const double sheet = 28; // bottom sheets
 }
 
 class AppTheme {
@@ -119,7 +141,6 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: const BorderSide(color: AppColors.divider, width: 1),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -175,11 +196,10 @@ class AppTheme {
         iconTheme: IconThemeData(color: AppColors.darkTextPrimary),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.darkCard,
+        color: AppColors.darkCardElevated,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: const BorderSide(color: AppColors.darkDivider, width: 1),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -283,31 +303,40 @@ extension AppThemeContext on BuildContext {
   Color get textTertiaryColor =>
       isDarkMode ? AppColors.darkTextTertiary : AppColors.textTertiary;
 
-  /// Thin, neutral iOS-style lift. Light: a whisper of ambient shadow so white
-  /// cards separate from the grouped-grey background. Dark: cards rely on
-  /// surface contrast, so no shadow.
+  /// Cozy ambient lift. Light: a soft, diffuse pillowy shadow so cards float
+  /// gently off the warm background. Dark: a subtle deep shadow so pillowy
+  /// cards still lift off the true-black background.
   List<BoxShadow> get softShadow => isDarkMode
-      ? const []
+      ? [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            offset: const Offset(0, 8),
+            blurRadius: 24,
+            spreadRadius: -8,
+          ),
+        ]
       : [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, 4),
-            blurRadius: 14,
-            spreadRadius: -4,
+            color: Colors.black.withValues(alpha: 0.06),
+            offset: const Offset(0, 8),
+            blurRadius: 24,
+            spreadRadius: -6,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            offset: const Offset(0, 1),
-            blurRadius: 2,
+            color: Colors.black.withValues(alpha: 0.04),
+            offset: const Offset(0, 2),
+            blurRadius: 6,
+            spreadRadius: -2,
           ),
         ];
 
   /// Surface fill for cards/chips. Optional accent [tint].
   Color glassFill([Color? tint]) {
     if (tint != null) {
-      return tint.withValues(alpha: isDarkMode ? 0.16 : 0.10);
+      // Slightly warmer tint for the cozy, tactile feel.
+      return tint.withValues(alpha: isDarkMode ? 0.18 : 0.12);
     }
-    return isDarkMode ? AppColors.darkCard : AppColors.card;
+    return isDarkMode ? AppColors.darkCardElevated : AppColors.card;
   }
 
   /// Hairline border color (theme-aware).
@@ -327,10 +356,10 @@ extension AppThemeContext on BuildContext {
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
         color: hasTint
-            ? tint.withValues(alpha: 0.28)
-            // Dark: cards have no shadow, so a soft border gives separation.
-            // Light: hairline only when tinted; plain cards lean on the shadow.
-            : (isDarkMode ? glassBorder : Colors.transparent),
+            ? tint.withValues(alpha: 0.24)
+            // Cozy cards lean on the soft shadow. Tint gives a gentle edge;
+            // plain cards stay borderless for a pillowy, seamless look.
+            : Colors.transparent,
         width: 1,
       ),
       boxShadow: softShadow,

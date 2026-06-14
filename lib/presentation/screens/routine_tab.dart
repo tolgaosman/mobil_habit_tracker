@@ -287,47 +287,9 @@ class _RoutineCard extends StatefulWidget {
   State<_RoutineCard> createState() => _RoutineCardState();
 }
 
-class _RoutineCardState extends State<_RoutineCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _checkController;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    if (widget.task.isCompleted) {
-      _checkController.value = 1.0;
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant _RoutineCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.task.isCompleted != oldWidget.task.isCompleted) {
-      if (widget.task.isCompleted) {
-        _checkController.forward();
-      } else {
-        _checkController.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _checkController.dispose();
-    super.dispose();
-  }
-
+class _RoutineCardState extends State<_RoutineCard> {
   void _toggle(BuildContext context) {
     HapticFeedback.lightImpact();
-    if (!widget.task.isCompleted) {
-      _checkController.forward(from: 0);
-    } else {
-      _checkController.reverse(from: 1);
-    }
     context.read<RoutineProvider>().toggleCompletion(widget.task);
   }
 
@@ -386,7 +348,7 @@ class _RoutineCardState extends State<_RoutineCard>
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      radius: 18,
+      radius: AppRadius.lg,
       tint: isCompleted ? accentColor : null,
       glow: isCompleted,
       glowColor: accentColor,
@@ -397,8 +359,8 @@ class _RoutineCardState extends State<_RoutineCard>
           IconBadge(
             icon: Icons.alarm_rounded,
             color: iconColor,
-            size: 46,
-            radius: 13,
+            size: 52,
+            radius: AppRadius.lg,
             glow: isCompleted,
           ),
           const SizedBox(width: 14),
@@ -438,16 +400,11 @@ class _RoutineCardState extends State<_RoutineCard>
             ),
           ),
           const SizedBox(width: 16),
-          // Completion toggle
-          ScaleTransition(
-            scale: Tween(begin: 1.0, end: 0.9).animate(
-              CurvedAnimation(parent: _checkController, curve: Curves.easeOut),
-            ),
-            child: CompletionCheck(
-              completed: isCompleted,
-              color: accentColor,
-              onTap: () => _toggle(context),
-            ),
+          // Completion toggle (elastic pop handled inside CompletionCheck)
+          CompletionCheck(
+            completed: isCompleted,
+            color: accentColor,
+            onTap: () => _toggle(context),
           ),
         ],
       ),
@@ -725,7 +682,7 @@ class _AddRoutineSheetState extends State<AddRoutineSheet> {
           disabledForegroundColor: context.textTertiaryColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(100),
           ),
         ),
         child: _isLoading

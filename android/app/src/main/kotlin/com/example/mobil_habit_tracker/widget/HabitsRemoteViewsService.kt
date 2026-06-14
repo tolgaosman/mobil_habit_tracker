@@ -51,9 +51,13 @@ class HabitsRemoteViewsFactory(private val context: Context) :
             if (completed) R.drawable.widget_check_on else R.drawable.widget_check_off
         )
 
-        // Per-row tap data merged into the template PendingIntent.
-        val uri = Uri.parse("habitwidget://toggle?type=habit&id=$id")
-        val fillIn = Intent().apply { data = uri }
+        // Per-row fill-in intent: carries the type and id as extras + unique data URI.
+        val fillIn = Intent().apply {
+            putExtra(WidgetClickReceiver.EXTRA_TYPE, "habit")
+            putExtra(WidgetClickReceiver.EXTRA_ID, id)
+            // Unique data URI is critical so Android doesn't deduplicate PendingIntents.
+            data = Uri.parse("habitwidget://toggle?type=habit&id=$id")
+        }
         views.setOnClickFillInIntent(R.id.row_root, fillIn)
 
         return views

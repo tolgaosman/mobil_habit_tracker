@@ -40,6 +40,20 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- flutter_local_notifications (v16+): receivers are no longer bundled by the
+             plugin and MUST be declared here, otherwise scheduled notifications never fire. -->
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
             
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
@@ -77,6 +91,15 @@
             android:name=".widget.QuestsRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
+
+        <!-- Native widget click handler: toggles SharedPreferences immediately -->
+        <receiver
+            android:name=".widget.WidgetClickReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.mobil_habit_tracker.WIDGET_TOGGLE" />
+            </intent-filter>
+        </receiver>
 
         <!-- home_widget background receiver: receives widget tap broadcasts -->
         <receiver

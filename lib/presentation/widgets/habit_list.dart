@@ -55,38 +55,7 @@ class HabitCard extends StatefulWidget {
   State<HabitCard> createState() => _HabitCardState();
 }
 
-class _HabitCardState extends State<HabitCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _checkController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _scaleAnimation = TweenSequence([
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.25)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 40,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.25, end: 1.0)
-            .chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 60,
-      ),
-    ]).animate(_checkController);
-  }
-
-  @override
-  void dispose() {
-    _checkController.dispose();
-    super.dispose();
-  }
-
+class _HabitCardState extends State<HabitCard> {
   Color _hexToColor(String hex) => Color(int.parse(hex, radix: 16));
 
   bool _canToggle(DateTime selectedDate) {
@@ -96,7 +65,6 @@ class _HabitCardState extends State<HabitCard>
   void _toggle(BuildContext context) {
     final provider = context.read<HabitProvider>();
     HapticFeedback.lightImpact();
-    _checkController.forward(from: 0);
     provider.toggleCompletion(widget.habit);
   }
 
@@ -112,7 +80,7 @@ class _HabitCardState extends State<HabitCard>
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      radius: 18,
+      radius: AppRadius.lg,
       tint: isCompleted ? accentColor : null,
       glow: isCompleted,
       glowColor: accentColor,
@@ -124,8 +92,8 @@ class _HabitCardState extends State<HabitCard>
           IconBadge(
             icon: iconData,
             color: accentColor,
-            size: 50,
-            radius: 14,
+            size: 52,
+            radius: AppRadius.lg,
             glow: isCompleted,
           ),
           const SizedBox(width: 14),
@@ -155,17 +123,14 @@ class _HabitCardState extends State<HabitCard>
             ),
           ),
           const SizedBox(width: 12),
-          // Completion toggle
-          ScaleTransition(
-            scale: _scaleAnimation,
-            child: CompletionCheck(
-              completed: isCompleted,
-              color: canInteract
-                  ? accentColor
-                  : accentColor.withValues(alpha: 0.4),
-              size: 30,
-              onTap: () => _toggle(context),
-            ),
+          // Completion toggle (elastic pop handled inside CompletionCheck)
+          CompletionCheck(
+            completed: isCompleted,
+            color: canInteract
+                ? accentColor
+                : accentColor.withValues(alpha: 0.4),
+            size: 30,
+            onTap: () => _toggle(context),
           ),
         ],
       ),

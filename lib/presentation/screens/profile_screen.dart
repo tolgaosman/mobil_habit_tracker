@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/providers/habit_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/services/notification_service.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
@@ -126,6 +127,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildClearDataButton(context),
                   const SizedBox(height: 32),
                   _buildPreferencesSection(context),
+                  const SizedBox(height: 16),
+                  _buildTestNotificationButton(context),
                 ],
               ),
             ),
@@ -316,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (context) => AlertDialog(
               backgroundColor: Theme.of(context).cardTheme.color,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppRadius.sheet),
               ),
               title: Text('Log Out'.tr(context)),
               content: Text('Are you sure you want to log out of your account?'
@@ -344,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppColors.error, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(100),
           ),
         ),
         child: Row(
@@ -376,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (context) => AlertDialog(
               backgroundColor: Theme.of(context).cardTheme.color,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppRadius.sheet),
               ),
               title: Text('Clear All Data'.tr(context),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -416,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppColors.textSecondary, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(100),
           ),
         ),
         child: Row(
@@ -437,6 +440,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     ).animate().fadeIn(delay: 500.ms, duration: 400.ms);
+  }
+
+  // TEMPORARY: diagnostic button to verify the notification pipeline works.
+  // Safe to remove once habit reminders are confirmed working.
+  Widget _buildTestNotificationButton(BuildContext context) {
+    return SizedBox(
+      height: 54,
+      child: OutlinedButton(
+        onPressed: () async {
+          HapticFeedback.lightImpact();
+          await NotificationService.instance.showTestNotification();
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Test notification sent'.tr(context)),
+              backgroundColor: AppColors.teal,
+            ),
+          );
+        },
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.teal, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.notifications_active_rounded,
+                color: AppColors.teal, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              'Send Test Notification'.tr(context),
+              style: const TextStyle(
+                color: AppColors.teal,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 700.ms, duration: 400.ms);
   }
 
   Widget _buildPreferencesSection(BuildContext context) {
@@ -468,7 +515,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 langProvider.changeLanguage(newValue);
               },
               offset: const Offset(0, -280), // Forces the menu to open upwards
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
               color: Theme.of(context).cardTheme.color,
               elevation: 8,
               itemBuilder: (context) {
@@ -496,11 +543,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: AppColors.teal.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-                    width: 1,
-                  ),
+                  borderRadius: BorderRadius.circular(100),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -536,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: AppColors.teal.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(100),
               ),
               child: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,

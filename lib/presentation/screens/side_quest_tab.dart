@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,7 +81,8 @@ class SideQuestTab extends StatelessWidget {
     final allDone = total > 0 && rate >= 1.0;
     return GlassCard(
       margin: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      radius: AppRadius.xl,
       glow: allDone,
       glowColor: AppColors.tealGlow,
       child: Row(
@@ -90,7 +90,7 @@ class SideQuestTab extends StatelessWidget {
           const IconBadge(
             icon: Icons.bolt_rounded,
             color: AppColors.teal,
-            size: 50,
+            size: 52,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -177,11 +177,11 @@ class SideQuestTab extends StatelessWidget {
         },
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 15),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: context.glassBorder, width: 1),
+            color: context.glassFill(),
+            borderRadius: BorderRadius.circular(100),
+            boxShadow: context.softShadow,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +232,7 @@ class _SideQuestCard extends StatelessWidget {
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      radius: 18,
+      radius: AppRadius.lg,
       tint: isCompleted ? accentColor : null,
       glow: isCompleted,
       glowColor: accentColor,
@@ -242,7 +242,7 @@ class _SideQuestCard extends StatelessWidget {
           IconBadge(
             icon: iconData,
             color: iconTone,
-            size: 50,
+            size: 52,
             glow: isCompleted,
           ),
           const SizedBox(width: 14),
@@ -302,6 +302,8 @@ class _DifficultyBadge extends StatelessWidget {
     return GlassPillBadge(
       label: difficulty.tr(context).toUpperCase(),
       color: color,
+      letterSpacing: 1.2,
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4),
     );
   }
 }
@@ -344,7 +346,8 @@ class _HistorySheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       child: Column(
@@ -436,11 +439,7 @@ class _HistorySheet extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerTheme.color ?? Colors.transparent,
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,14 +546,10 @@ class _CountdownTimerState extends State<_CountdownTimer> {
     final seconds = (_timeLeft.inSeconds % 60).toString().padLeft(2, '0');
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
         color: AppColors.teal.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.teal.withValues(alpha: 0.30),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

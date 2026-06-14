@@ -2,7 +2,6 @@ package com.example.mobil_habit_tracker.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,7 +13,8 @@ import es.antonborri.home_widget.HomeWidgetProvider
 
 /**
  * Home-screen widget showing today's habits. Each row toggles completion via a
- * background broadcast to the home_widget plugin (which runs Dart code).
+ * native broadcast receiver for immediate feedback, which also triggers the
+ * Dart background callback for Hive data sync.
  */
 class HabitsWidgetProvider : HomeWidgetProvider() {
 
@@ -48,13 +48,9 @@ class HabitsWidgetProvider : HomeWidgetProvider() {
             views.setRemoteAdapter(R.id.widget_list, serviceIntent)
             views.setEmptyView(R.id.widget_list, R.id.widget_empty)
 
-            // Template intent for row taps -> background receiver (Dart callback).
-            val toggleIntent = Intent().apply {
-                action = WidgetConstants.BACKGROUND_ACTION
-                component = ComponentName(
-                    context,
-                    "es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
-                )
+            // Template intent for row taps -> native WidgetClickReceiver.
+            val toggleIntent = Intent(context, WidgetClickReceiver::class.java).apply {
+                action = WidgetClickReceiver.ACTION_TOGGLE
             }
             var flags = PendingIntent.FLAG_UPDATE_CURRENT
             if (Build.VERSION.SDK_INT >= 31) {
