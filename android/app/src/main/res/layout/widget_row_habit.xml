@@ -12,12 +12,12 @@
 
     <ImageView
         android:id="@+id/row_icon"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:padding="6dp"
-        android:background="@drawable/widget_icon_bg"
-        android:src="@drawable/widget_ic_item"
-        android:contentDescription="icon" />
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:src="@drawable/widget_icon_bg"
+        android:contentDescription="habit accent" />
 
     <TextView
         android:id="@+id/row_title"

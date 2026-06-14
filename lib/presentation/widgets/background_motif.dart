@@ -11,7 +11,7 @@ import '../../core/theme/app_theme.dart';
 class BackgroundMotif extends StatelessWidget {
   const BackgroundMotif({
     super.key,
-    this.iconCount = 20,
+    this.iconCount = 12,
     this.seed = 7,
   });
 
@@ -40,7 +40,7 @@ class BackgroundMotif extends StatelessWidget {
     final isDark = context.isDarkMode;
     final base = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
     // A whisper: text color at a very low alpha so it melts into the surface.
-    final color = base.withValues(alpha: isDark ? 0.05 : 0.04);
+    final color = base.withValues(alpha: isDark ? 0.03 : 0.022);
 
     return Positioned.fill(
       child: IgnorePointer(

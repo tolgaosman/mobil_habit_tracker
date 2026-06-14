@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          const BackgroundMotif(seed: 13, iconCount: 14),
+          const BackgroundMotif(seed: 13, iconCount: 10),
           SafeArea(
         child: Center(
           child: SingleChildScrollView(

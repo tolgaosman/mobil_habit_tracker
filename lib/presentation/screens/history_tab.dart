@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/habit_provider.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../data/models/habit_model.dart';
 import '../../core/utils/icon_mapper.dart';
 import '../../core/providers/language_provider.dart';
@@ -50,9 +51,8 @@ class _HistoryTabState extends State<HistoryTab> {
 
 
   List<HabitModel> _getHabitsForDate(
-      DateTime date, List<HabitModel> allHabits) {
+      DateTime date, List<HabitModel> allHabits, DateTime startingDate) {
     final targetMidnight = DateTime(date.year, date.month, date.day);
-    final startingDate = _getStartingDate(allHabits);
     if (targetMidnight.isBefore(startingDate)) {
       return [];
     }
@@ -72,27 +72,23 @@ class _HistoryTabState extends State<HistoryTab> {
     }).toList();
   }
 
-  DateTime _getStartingDate(List<HabitModel> allHabits) {
-    DateTime startingDate = DateTime(2026, 5, 20);
-    for (final habit in allHabits) {
+  DateTime _getStartingDate(BuildContext context) {
+    final authProvider = context.read<AuthProvider>();
+    final currentUser = authProvider.currentUser;
+    if (currentUser?.createdAt != null) {
       try {
-        final created = DateTime.parse(habit.createdAt);
-        final createdDate = DateTime(created.year, created.month, created.day);
-        if (createdDate.isBefore(startingDate)) {
-          startingDate = createdDate;
-        }
+        final created = DateTime.parse(currentUser!.createdAt!);
+        return DateTime(created.year, created.month, created.day);
       } catch (_) {}
     }
-    return startingDate;
+    return DateTime(2026, 5, 20); // Fallback
   }
 
-  Map<String, dynamic> _getMonthCompletionMetrics(List<HabitModel> allHabits) {
+  Map<String, dynamic> _getMonthCompletionMetrics(List<HabitModel> allHabits, DateTime startingDate) {
     final lastDay =
         DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
     int totalQuests = 0;
     int completedQuests = 0;
-
-    final startingDate = _getStartingDate(allHabits);
 
     for (int d = 1; d <= lastDay; d++) {
       final date = DateTime(_focusedMonth.year, _focusedMonth.month, d);
@@ -101,7 +97,7 @@ class _HistoryTabState extends State<HistoryTab> {
       if (date.isAfter(today)) continue;
       if (date.isBefore(startingDate)) continue;
 
-      final habits = _getHabitsForDate(date, allHabits);
+      final habits = _getHabitsForDate(date, allHabits, startingDate);
       totalQuests += habits.length;
       completedQuests += habits.where((h) => h.isCompletedOn(date)).length;
     }
@@ -118,10 +114,11 @@ class _HistoryTabState extends State<HistoryTab> {
   Widget build(BuildContext context) {
     final provider = context.watch<HabitProvider>();
     final allHabits = provider.allHabits;
-    final activeHabits = _getHabitsForDate(_selectedDate, allHabits);
+    final startingDate = _getStartingDate(context);
+    final activeHabits = _getHabitsForDate(_selectedDate, allHabits, startingDate);
 
     // Calculate overall metrics for the top card (focused month)
-    final overallMetrics = _getMonthCompletionMetrics(allHabits);
+    final overallMetrics = _getMonthCompletionMetrics(allHabits, startingDate);
     final overallRate = overallMetrics['rate'] as double;
     final overallTotal = overallMetrics['total'] as int;
     final overallCompleted = overallMetrics['completed'] as int;
@@ -129,7 +126,7 @@ class _HistoryTabState extends State<HistoryTab> {
     // Calculate today's rate
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final todayHabits = _getHabitsForDate(today, allHabits);
+    final todayHabits = _getHabitsForDate(today, allHabits, startingDate);
     final todayCompleted =
         todayHabits.where((h) => h.isCompletedOn(today)).length;
     final todayRate =
@@ -144,10 +141,10 @@ class _HistoryTabState extends State<HistoryTab> {
           _buildTopBar(context),
           _buildCompletionSummaryCard(
               context, overallRate, overallCompleted, overallTotal),
-          _buildCalendarSection(context, allHabits),
+          _buildCalendarSection(context, allHabits, startingDate),
           const SizedBox(height: 4),
           _buildQuestsHeader(context, activeHabits.length, todayPercentage),
-          _buildHistoryQuestList(context, activeHabits),
+          _buildHistoryQuestList(context, activeHabits, startingDate),
           const SizedBox(
               height: 32), // Add bottom padding for better scroll feel
         ],
@@ -245,7 +242,7 @@ class _HistoryTabState extends State<HistoryTab> {
   }
 
   Widget _buildCalendarSection(
-      BuildContext context, List<HabitModel> allHabits) {
+      BuildContext context, List<HabitModel> allHabits, DateTime startingDate) {
     // Calculate dates
     final firstDayOfMonth =
         DateTime(_focusedMonth.year, _focusedMonth.month, 1);
@@ -332,7 +329,7 @@ class _HistoryTabState extends State<HistoryTab> {
               final isToday = _isSameDay(cellDate, DateTime.now());
               final isSelected = _isSameDay(cellDate, _selectedDate);
 
-              final dayHabits = _getHabitsForDate(cellDate, allHabits);
+              final dayHabits = _getHabitsForDate(cellDate, allHabits, startingDate);
               final totalCount = dayHabits.length;
               final completedCount =
                   dayHabits.where((h) => h.isCompletedOn(cellDate)).length;
@@ -539,16 +536,7 @@ class _HistoryTabState extends State<HistoryTab> {
     );
   }
 
-  bool _isInCurrentWeek(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 6));
-    final target = DateTime(date.year, date.month, date.day);
-    return !target.isBefore(startOfWeek) && !target.isAfter(endOfWeek);
-  }
-
-  Widget _buildHistoryQuestList(BuildContext context, List<HabitModel> habits) {
+  Widget _buildHistoryQuestList(BuildContext context, List<HabitModel> habits, DateTime startingDate) {
     if (habits.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
@@ -572,7 +560,9 @@ class _HistoryTabState extends State<HistoryTab> {
       ).animate().fadeIn(duration: 400.ms);
     }
 
-    final canEdit = _isInCurrentWeek(_selectedDate);
+    final today = DateTime.now();
+    final todayMidnight = DateTime(today.year, today.month, today.day);
+    final canEdit = !_selectedDate.isBefore(startingDate) && !_selectedDate.isAfter(todayMidnight);
 
     return ListView.builder(
       shrinkWrap: true,
@@ -614,6 +604,8 @@ class _HistoryTabState extends State<HistoryTab> {
               Expanded(
                 child: Text(
                   habit.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         decoration:
                             isCompleted ? TextDecoration.lineThrough : null,

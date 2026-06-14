@@ -29,7 +29,7 @@ class AppColors {
   AppColors._();
 
   // Light Mode (iOS systemGroupedBackground / secondary surfaces)
-  static const Color background = Color(0xFFF2F2F7); // grouped background
+  static const Color background = Color(0xFFFAF9F6); // warm editorial off-white
   static const Color surface = Color(0xFFE9E9EE); // faint neutral grey
   static const Color card = Color(0xFFFFFFFF);
   static const Color cardElevated = Color(0xFFFFFFFF);

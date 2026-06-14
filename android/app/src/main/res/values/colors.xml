@@ -2,14 +2,15 @@
 <resources>
     <color name="ic_launcher_background">#4C9C5B</color>
 
-    <!-- Home-screen widget palette (matches app theme) -->
-    <color name="widget_bg">#111827</color>
-    <color name="widget_card">#1A2232</color>
-    <color name="widget_text_primary">#F9FAFB</color>
-    <color name="widget_text_secondary">#9CA3AF</color>
-    <color name="widget_teal">#059669</color>
-    <color name="widget_divider">#2A3441</color>
-    <color name="widget_easy">#10B981</color>
-    <color name="widget_medium">#F59E0B</color>
-    <color name="widget_hard">#EF4444</color>
+    <!-- Home-screen widget palette — light "Aydınlık Editorial" (matches app theme) -->
+    <color name="widget_bg">#FAF9F6</color>
+    <color name="widget_card">#FFFFFF</color>
+    <color name="widget_text_primary">#1C1C1E</color>
+    <color name="widget_text_secondary">#6C6C70</color>
+    <color name="widget_teal">#5B7C6A</color>
+    <color name="widget_divider">#D9D9DE</color>
+    <!-- Quest difficulty dots — muted pastel category set -->
+    <color name="widget_easy">#7FA38B</color>
+    <color name="widget_medium">#D7A86E</color>
+    <color name="widget_hard">#D08C7A</color>
 </resources>

@@ -104,6 +104,8 @@ class _HabitCardState extends State<HabitCard> {
               children: [
                 Text(
                   widget.habit.name.tr(context),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: isCompleted ? context.textSecondaryColor : null,
                         decoration:
