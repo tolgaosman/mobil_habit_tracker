@@ -51,9 +51,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/images/app_logo_full_square.png"
+  image_path: "assets/images/squareLogo.png"
   adaptive_icon_background: "#4C9C5B"
-  adaptive_icon_foreground: "assets/images/app_logo_full_square.png"
+  adaptive_icon_foreground: "assets/images/squareLogo.png"
   adaptive_icon_foreground_inset: 0
 
 flutter_native_splash:
