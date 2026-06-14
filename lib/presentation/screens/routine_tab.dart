@@ -439,36 +439,14 @@ class _RoutineCardState extends State<_RoutineCard>
           ),
           const SizedBox(width: 16),
           // Completion toggle
-          GestureDetector(
-            onTap: () => _toggle(context),
-            child: ScaleTransition(
-              scale: Tween(begin: 1.0, end: 0.9).animate(
-                CurvedAnimation(
-                  parent: _checkController,
-                  curve: Curves.easeOut,
-                ),
-              ),
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isCompleted
-                        ? accentColor
-                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 1.5,
-                  ),
-                  color: isCompleted ? accentColor : Colors.transparent,
-                ),
-                child: isCompleted
-                    ? const Icon(
-                        Icons.check_rounded,
-                        size: 17,
-                        color: Colors.white,
-                      )
-                    : null,
-              ),
+          ScaleTransition(
+            scale: Tween(begin: 1.0, end: 0.9).animate(
+              CurvedAnimation(parent: _checkController, curve: Curves.easeOut),
+            ),
+            child: CompletionCheck(
+              completed: isCompleted,
+              color: accentColor,
+              onTap: () => _toggle(context),
             ),
           ),
         ],

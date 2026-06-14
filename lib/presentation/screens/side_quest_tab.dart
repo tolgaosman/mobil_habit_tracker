@@ -228,8 +228,6 @@ class _SideQuestCard extends StatelessWidget {
     final accentColor = AppColors.teal;
     final iconTone = _difficultyTones[quest.difficulty] ?? AppColors.teal;
     final iconData = IconMapper.getIcon(quest.icon);
-    final dividerColor =
-        Theme.of(context).dividerTheme.color ?? Colors.transparent;
 
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
@@ -267,23 +265,7 @@ class _SideQuestCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isCompleted ? accentColor : Colors.transparent,
-              border: Border.all(
-                color: isCompleted ? accentColor : dividerColor,
-                width: 1.5,
-              ),
-            ),
-            child: isCompleted
-                ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
-                : null,
-          ),
+          CompletionCheck(completed: isCompleted, color: accentColor, size: 30),
         ],
       ),
     )

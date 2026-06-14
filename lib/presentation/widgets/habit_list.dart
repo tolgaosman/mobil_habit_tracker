@@ -158,35 +158,13 @@ class _HabitCardState extends State<HabitCard>
           // Completion toggle
           ScaleTransition(
             scale: _scaleAnimation,
-            child: GestureDetector(
+            child: CompletionCheck(
+              completed: isCompleted,
+              color: canInteract
+                  ? accentColor
+                  : accentColor.withValues(alpha: 0.4),
+              size: 30,
               onTap: () => _toggle(context),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOut,
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isCompleted
-                      ? (canInteract
-                          ? accentColor
-                          : accentColor.withValues(alpha: 0.4))
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: isCompleted
-                        ? accentColor
-                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 1.5,
-                  ),
-                ),
-                child: isCompleted
-                    ? const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      )
-                    : null,
-              ),
             ),
           ),
         ],

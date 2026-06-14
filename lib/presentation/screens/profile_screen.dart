@@ -12,6 +12,7 @@ import '../../core/providers/theme_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
 import '../widgets/glass.dart';
+import '../widgets/background_motif.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -105,25 +106,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              _buildAvatarSection(user),
-              const SizedBox(height: 32),
-              _buildUserInfoCard(user),
-              const SizedBox(height: 40),
-              _buildLogoutButton(context),
-              const SizedBox(height: 16),
-              _buildClearDataButton(context),
-              const SizedBox(height: 32),
-              _buildPreferencesSection(context),
-            ],
+      body: Stack(
+        children: [
+          const BackgroundMotif(seed: 21),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 20),
+                  _buildAvatarSection(user),
+                  const SizedBox(height: 32),
+                  _buildUserInfoCard(user),
+                  const SizedBox(height: 40),
+                  _buildLogoutButton(context),
+                  const SizedBox(height: 16),
+                  _buildClearDataButton(context),
+                  const SizedBox(height: 32),
+                  _buildPreferencesSection(context),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

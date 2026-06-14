@@ -48,6 +48,7 @@ class WeekCalendar extends StatelessWidget {
                         day: day,
                         isSelected: _isSameDay(day, provider.selectedDate),
                         isToday: _isSameDay(day, now),
+                        isCompleted: provider.isDayCompleted(day),
                         animationDelay: index * 60,
                         onTap: () => provider.selectDate(day),
                       ),
@@ -70,6 +71,7 @@ class _DayChip extends StatelessWidget {
   final DateTime day;
   final bool isSelected;
   final bool isToday;
+  final bool isCompleted;
   final int animationDelay;
   final VoidCallback onTap;
 
@@ -77,6 +79,7 @@ class _DayChip extends StatelessWidget {
     required this.day,
     required this.isSelected,
     required this.isToday,
+    required this.isCompleted,
     required this.animationDelay,
     required this.onTap,
   });
@@ -98,42 +101,65 @@ class _DayChip extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           height: 62,
           decoration: BoxDecoration(
-            color: isBeforeStart
-                ? Colors.transparent
-                : (isSelected ? AppColors.teal : Colors.transparent),
+            color: isSelected
+                ? AppColors.teal
+                : (isBeforeStart
+                    ? (context.isDarkMode
+                        ? Colors.white.withValues(alpha: 0.02)
+                        : Colors.black.withValues(alpha: 0.015))
+                    : context.glassFill()),
             borderRadius: BorderRadius.circular(14),
-            border: isToday && !isSelected && !isBeforeStart
-                ? Border.all(color: AppColors.teal.withValues(alpha: 0.4), width: 1)
-                : null,
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.teal
+                  : (isToday && !isBeforeStart
+                      ? AppColors.teal.withValues(alpha: 0.55)
+                      : context.glassBorder),
+              width: isToday && !isSelected ? 1.5 : 1,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              Text(
-                dayLabel,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isBeforeStart
-                      ? context.textTertiaryColor.withValues(alpha: 0.5)
-                      : (isSelected
-                          ? Colors.white
-                          : (isToday ? AppColors.teal : context.textSecondaryColor)),
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    dayLabel,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: isBeforeStart
+                              ? context.textTertiaryColor.withValues(alpha: 0.5)
+                              : (isSelected
+                                  ? Colors.white
+                                  : (isToday
+                                      ? AppColors.teal
+                                      : context.textSecondaryColor)),
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    dateLabel,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isBeforeStart
+                              ? context.textTertiaryColor.withValues(alpha: 0.5)
+                              : (isSelected
+                                  ? Colors.white
+                                  : (isToday ? AppColors.teal : null)),
+                        ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                dateLabel,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: isBeforeStart
-                      ? context.textTertiaryColor.withValues(alpha: 0.5)
-                      : (isSelected
-                          ? Colors.white
-                          : (isToday ? AppColors.teal : null)),
+              if (isCompleted)
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Icon(
+                    Icons.star_rounded,
+                    size: 12,
+                    color: isSelected ? Colors.white : AppColors.teal,
+                  ),
                 ),
-              ),
             ],
           ),
         ),

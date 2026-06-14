@@ -5,6 +5,7 @@ import '../../core/providers/language_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/auth_provider.dart';
+import '../widgets/background_motif.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -91,7 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      body: Stack(
+        children: [
+          const BackgroundMotif(seed: 13, iconCount: 14),
+          SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -122,6 +126,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+          ),
+        ],
       ),
     );
   }

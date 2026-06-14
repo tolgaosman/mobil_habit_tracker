@@ -13,9 +13,11 @@ import '../widgets/week_calendar.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/progress_header.dart';
 import '../widgets/glass.dart';
+import '../widgets/background_motif.dart';
 import 'add_habit_screen.dart';
 import 'profile_screen.dart';
 import 'history_tab.dart';
+import 'insights_tab.dart';
 import 'side_quest_tab.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,16 +34,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [
-            _buildHabitsTab(context),
-            const HistoryTab(),
-            const SideQuestTab(),
-          ],
-        ),
+      body: Stack(
+        children: [
+          const BackgroundMotif(seed: 7),
+          SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _currentIndex,
+              children: [
+                _buildHabitsTab(context),
+                const HistoryTab(),
+                const InsightsTab(),
+                const SideQuestTab(),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: _buildFAB(context),
       bottomNavigationBar: _buildBottomNavBar(),
@@ -57,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildTopBar(context),
           const ProgressHeader(),
           const WeekCalendar(),
-          _buildHeatmap(context),
           const SizedBox(height: 8),
           _buildSectionHeader(context),
           const HabitList(),
@@ -153,38 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeatmap(BuildContext context) {
-    return Consumer<HabitProvider>(
-      builder: (context, provider, _) {
-        if (provider.allHabits.isEmpty) return const SizedBox.shrink();
-        return Container(
-          margin: const EdgeInsets.fromLTRB(24, 8, 24, 4),
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-          decoration: context.glassDecoration(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Last 12 weeks'.tr(context),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: context.textSecondaryColor,
-                    ),
-              ),
-              const SizedBox(height: 14),
-              CompletionHeatmap(
-                habits: provider.allHabits,
-                startingDate: provider.getStartingDate(),
-              ),
-            ],
-          ),
-        )
-            .animate()
-            .fadeIn(delay: 250.ms, duration: 500.ms)
-            .slideY(begin: 0.08, end: 0, delay: 250.ms, duration: 500.ms);
-      },
-    );
-  }
-
   Widget _buildSectionHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
@@ -207,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget? _buildFAB(BuildContext context) {
-    if (_currentIndex == 1 || _currentIndex == 2) return null;
+    if (_currentIndex != 0) return null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, right: 4),
@@ -220,11 +195,15 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         highlightElevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
         icon: const Icon(Icons.add_rounded, size: 22),
         label: Text(
           'New Habit'.tr(context),
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Colors.white),
         ),
       ),
     ).animate().fadeIn(delay: 300.ms, duration: 350.ms).slideY(
@@ -248,7 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildNavItem(0, Icons.check_circle_outline_rounded, 'Habits'),
               _buildNavItem(1, Icons.calendar_today_rounded, 'History'),
-              _buildNavItem(2, Icons.auto_awesome_outlined, 'Side Quests'),
+              _buildNavItem(2, Icons.insights_rounded, 'Insights'),
+              _buildNavItem(3, Icons.auto_awesome_outlined, 'Side Quests'),
             ],
           ),
         ),

@@ -26,9 +26,9 @@ class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(18),
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.margin,
-    this.radius = 18,
+    this.radius = AppRadius.lg,
     this.blur = 0,
     this.tint,
     this.glow = false,
@@ -324,7 +324,7 @@ class IconBadge extends StatelessWidget {
     required this.icon,
     required this.color,
     this.size = 48,
-    this.radius = 14,
+    this.radius = AppRadius.md,
     this.glow = false,
   });
 
@@ -334,11 +334,51 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: context.isDarkMode ? 0.20 : 0.13),
+        color: color.withValues(alpha: context.isDarkMode ? 0.24 : 0.15),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: Icon(icon, color: color, size: size * 0.46),
     );
+  }
+}
+
+/// Shared circular completion toggle (filled accent when done, hairline ring
+/// when not). One definition so every list row reads identically.
+class CompletionCheck extends StatelessWidget {
+  final bool completed;
+  final Color color;
+  final double size;
+  final VoidCallback? onTap;
+
+  const CompletionCheck({
+    super.key,
+    required this.completed,
+    this.color = AppColors.teal,
+    this.size = 28,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final box = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: completed ? color : Colors.transparent,
+        border: Border.all(
+          color: completed ? color : context.glassBorder,
+          width: 1.5,
+        ),
+      ),
+      child: completed
+          ? Icon(Icons.check_rounded, color: Colors.white, size: size * 0.62)
+          : null,
+    );
+    if (onTap == null) return box;
+    return GestureDetector(onTap: onTap, child: box);
   }
 }
 
@@ -352,11 +392,15 @@ class CompletionHeatmap extends StatelessWidget {
   /// Number of weeks (columns) to show.
   final int weeks;
 
+  /// Fill color for completed cells (defaults to the sage brand accent).
+  final Color? color;
+
   const CompletionHeatmap({
     super.key,
     required this.habits,
     required this.startingDate,
     this.weeks = 12,
+    this.color,
   });
 
   /// Completion ratio for a given day: completed / scheduled (0..1, -1 = none).
@@ -402,7 +446,7 @@ class CompletionHeatmap extends StatelessWidget {
           ? Colors.white.withValues(alpha: 0.08)
           : Colors.black.withValues(alpha: 0.07);
     }
-    // Stepped sage tone by completion ratio.
+    // Stepped tone by completion ratio, in the habit's accent color.
     final double alpha;
     if (ratio < 0.34) {
       alpha = 0.28;
@@ -413,7 +457,7 @@ class CompletionHeatmap extends StatelessWidget {
     } else {
       alpha = 1.0;
     }
-    return AppColors.teal.withValues(alpha: alpha);
+    return (color ?? AppColors.teal).withValues(alpha: alpha);
   }
 
   @override
@@ -425,7 +469,12 @@ class CompletionHeatmap extends StatelessWidget {
     final totalDays = weeks * 7;
     final firstDay = endOfWeek.subtract(Duration(days: totalDays - 1));
 
-    // Build columns (weeks); each column is 7 rows (Mon..Sun).
+    const gap = 3.0;
+    // Cells stretch horizontally to fill the card (same width as the calendar);
+    // height stays short & fixed so vertical size is unchanged.
+    const cellHeight = 11.0;
+
+    // Build columns (weeks); columns share the full width equally via Expanded.
     final columns = <Widget>[];
     for (int w = 0; w < weeks; w++) {
       final cells = <Widget>[];
@@ -433,27 +482,24 @@ class CompletionHeatmap extends StatelessWidget {
         final date = firstDay.add(Duration(days: w * 7 + d));
         final ratio = _ratioFor(date);
         cells.add(
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(1.5),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _toneFor(context, ratio),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-              ),
+          Container(
+            height: cellHeight,
+            margin: EdgeInsets.only(bottom: d == 6 ? 0 : gap),
+            decoration: BoxDecoration(
+              color: _toneFor(context, ratio),
+              borderRadius: BorderRadius.circular(3),
             ),
           ),
         );
       }
       columns.add(
         Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: cells,
+          child: Padding(
+            padding: EdgeInsets.only(right: w == weeks - 1 ? 0 : gap),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: cells,
+            ),
           ),
         ),
       );

@@ -1,53 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// App color palette — "Aydınlık Editorial" (calm, airy, ink + sage).
-/// No neon, no glass: warm neutral surfaces, hairline dividers, soft pastels.
+/// App color palette — neutral iOS-system feel + a single calm sage accent.
+/// Cool neutral greys (systemGroupedBackground-like), hairline separators,
+/// one tint. Muted pastels stay for per-habit category color only.
 class AppColors {
   AppColors._();
 
-  // Light Mode (paper-white, warm neutral)
-  static const Color background = Color(0xFFFCFCFB); // Near-white warm paper
-  static const Color surface = Color(0xFFF4F3F0); // Faint warm grey
+  // Light Mode (iOS systemGroupedBackground / secondary surfaces)
+  static const Color background = Color(0xFFF2F2F7); // grouped background
+  static const Color surface = Color(0xFFE9E9EE); // faint neutral grey
   static const Color card = Color(0xFFFFFFFF);
   static const Color cardElevated = Color(0xFFFFFFFF);
 
-  // Dark Mode (matte charcoal, NOT pitch black, warm tint)
-  static const Color darkBackground = Color(0xFF171614); // Warm near-black
-  static const Color darkSurface = Color(0xFF1F1E1B); // Warm charcoal
-  static const Color darkCard = Color(0xFF232220);
-  static const Color darkCardElevated = Color(0xFF2A2926);
+  // Dark Mode (iOS grouped dark surfaces)
+  static const Color darkBackground = Color(0xFF000000); // true grouped base
+  static const Color darkSurface = Color(0xFF1C1C1E); // secondary surface
+  static const Color darkCard = Color(0xFF1C1C1E);
+  static const Color darkCardElevated = Color(0xFF2C2C2E);
 
-  // Primary accent — calm sage green (editorial, low saturation)
-  static const Color teal = Color(0xFF5B7C6A); // Sage (brand, replaces emerald)
+  // Primary accent — calm sage green (single system tint)
+  static const Color teal = Color(0xFF5B7C6A);
   static const Color tealDim = Color(0xFF4A6857);
-  static const Color tealGlow = Color(0xFF6E9079); // Slightly lighter sage
-  static const Color emeraldDeep = Color(0xFF3C5447); // Deep sage
+  static const Color tealGlow = Color(0xFF7FA38B); // lighter sage (dark-mode tint)
+  static const Color emeraldDeep = Color(0xFF3C5447);
   // Secondary — muted clay (used sparingly)
-  static const Color violet = Color(0xFF9A7B6B); // Warm taupe (replaces indigo)
+  static const Color violet = Color(0xFF9A7B6B);
   static const Color violetDim = Color(0xFF856657);
 
-  // Text Light Mode (ink)
-  static const Color textPrimary = Color(0xFF1C1A17); // Warm ink
-  static const Color textSecondary = Color(0xFF6E6A63); // Warm grey
-  static const Color textTertiary = Color(0xFFA8A39B); // Light warm grey
+  // Text Light Mode (iOS label tones, neutral)
+  static const Color textPrimary = Color(0xFF1C1C1E); // label
+  static const Color textSecondary = Color(0xFF6C6C70); // secondaryLabel ~60%
+  static const Color textTertiary = Color(0xFFAEAEB2); // tertiaryLabel
 
   // Text Dark Mode
-  static const Color darkTextPrimary = Color(0xFFF2F0EC);
-  static const Color darkTextSecondary = Color(0xFFA8A39B);
-  static const Color darkTextTertiary = Color(0xFF6E6A63);
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFF98989F);
+  static const Color darkTextTertiary = Color(0xFF636366);
 
-  // Dividers / hairlines
-  static const Color divider = Color(0xFFEAE8E3);
-  static const Color darkDivider = Color(0xFF302E2A);
+  // Separators (iOS separator / opaqueSeparator, neutral)
+  static const Color divider = Color(0xFFD9D9DE);
+  static const Color darkDivider = Color(0xFF38383A);
 
-  // Soft pastel category palette (muted, harmonious — no raw colors)
-  static const Color pastelTerracotta = Color(0xFFD08C7A); // was coral
-  static const Color pastelBlue = Color(0xFF8AA9C2); // dusty blue
-  static const Color pastelAmber = Color(0xFFD7A86E); // soft amber
-  static const Color pastelPlum = Color(0xFF9B8AAE); // muted plum (was indigo)
-  static const Color pastelLavender = Color(0xFFAE9BC4); // soft lavender
-  static const Color pastelSage = Color(0xFF7FA38B); // soft sage (was teal)
+  // Soft pastel category palette (per-habit color only — muted, harmonious)
+  static const Color pastelTerracotta = Color(0xFFD08C7A);
+  static const Color pastelBlue = Color(0xFF8AA9C2);
+  static const Color pastelAmber = Color(0xFFD7A86E);
+  static const Color pastelPlum = Color(0xFF9B8AAE);
+  static const Color pastelLavender = Color(0xFFAE9BC4);
+  static const Color pastelSage = Color(0xFF7FA38B);
 
   // Legacy alias kept for code that references it
   static const Color glassBorderLight = divider;
@@ -55,12 +56,32 @@ class AppColors {
   static const Color glowTeal = teal;
 
   // Soft elevation shadow color
-  static const Color shadow = Color(0x0F000000); // ~6% black
+  static const Color shadow = Color(0x0F000000);
 
   // States
-  static const Color success = Color(0xFF5B7C6A); // sage (matches brand)
-  static const Color error = Color(0xFFC15F52); // muted brick red
-  static const Color amber = Color(0xFFC79A4E); // muted gold (streak)
+  static const Color success = Color(0xFF5B7C6A);
+  static const Color error = Color(0xFFC15F52);
+  static const Color amber = Color(0xFFC79A4E);
+}
+
+/// 4-pt spacing scale (iOS-like rhythm).
+class AppSpacing {
+  AppSpacing._();
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 20; // screen edge
+  static const double xxl = 24;
+}
+
+/// Corner-radius scale.
+class AppRadius {
+  AppRadius._();
+  static const double sm = 8; // small chips/cells
+  static const double md = 12; // controls / pills
+  static const double lg = 16; // cards
+  static const double sheet = 20; // bottom sheets
 }
 
 class AppTheme {
@@ -87,8 +108,8 @@ class AppTheme {
         scrolledUnderElevation: 0,
         titleTextStyle: TextStyle(
           color: AppColors.textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
           letterSpacing: -0.4,
         ),
         iconTheme: IconThemeData(color: AppColors.textPrimary),
@@ -97,7 +118,7 @@ class AppTheme {
         color: AppColors.card,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           side: const BorderSide(color: AppColors.divider, width: 1),
         ),
       ),
@@ -115,7 +136,7 @@ class AppTheme {
         backgroundColor: AppColors.card,
         modalBackgroundColor: AppColors.card,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
         ),
       ),
       inputDecorationTheme: _inputTheme(
@@ -147,8 +168,8 @@ class AppTheme {
         scrolledUnderElevation: 0,
         titleTextStyle: TextStyle(
           color: AppColors.darkTextPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
           letterSpacing: -0.4,
         ),
         iconTheme: IconThemeData(color: AppColors.darkTextPrimary),
@@ -157,7 +178,7 @@ class AppTheme {
         color: AppColors.darkCard,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           side: const BorderSide(color: AppColors.darkDivider, width: 1),
         ),
       ),
@@ -175,7 +196,7 @@ class AppTheme {
         backgroundColor: AppColors.darkCard,
         modalBackgroundColor: AppColors.darkCard,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
         ),
       ),
       inputDecorationTheme: _inputTheme(
@@ -195,15 +216,15 @@ class AppTheme {
       filled: true,
       fillColor: fill,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: BorderSide(color: border, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: BorderSide(color: border, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
       ),
       hintStyle: TextStyle(color: hint),
@@ -211,24 +232,29 @@ class AppTheme {
     );
   }
 
-  /// Modern sans (Inter) across the board; hierarchy via weight/size/spacing.
+  /// Inter tuned to the iOS type scale: integer sizes, restrained weights,
+  /// gentle negative tracking on large titles, tight but readable leading.
   static TextTheme _buildTextTheme(Color textColor) {
     final base = TextTheme(
-      displayLarge: _style(34, FontWeight.w800, -1.0, textColor, 1.15),
-      displayMedium: _style(28, FontWeight.w800, -0.8, textColor, 1.2),
-      displaySmall: _style(23, FontWeight.w700, -0.6, textColor, 1.25),
-      headlineLarge: _style(20, FontWeight.w700, -0.4, textColor, 1.3),
-      headlineMedium: _style(18, FontWeight.w700, -0.3, textColor, 1.3),
-      headlineSmall: _style(16, FontWeight.w700, -0.2, textColor, 1.35),
-      titleLarge: _style(16, FontWeight.w600, -0.2, textColor, 1.35),
-      titleMedium: _style(14, FontWeight.w600, -0.1, textColor, 1.4),
-      titleSmall: _style(12.5, FontWeight.w600, 0.0, textColor, 1.4),
-      bodyLarge: _style(15, FontWeight.w400, 0.0, textColor, 1.5),
-      bodyMedium: _style(13.5, FontWeight.w400, 0.0, textColor, 1.5),
-      bodySmall: _style(11.5, FontWeight.w400, 0.1, textColor, 1.45),
-      labelLarge: _style(13, FontWeight.w600, 0.0, textColor, 1.3),
-      labelMedium: _style(11, FontWeight.w600, 0.2, textColor, 1.3),
-      labelSmall: _style(9.5, FontWeight.w600, 0.4, textColor, 1.3),
+      // Large titles (w700, modest tracking — not w800)
+      displayLarge: _style(34, FontWeight.w700, -0.5, textColor, 1.2),
+      displayMedium: _style(28, FontWeight.w700, -0.4, textColor, 1.2),
+      displaySmall: _style(22, FontWeight.w700, -0.4, textColor, 1.25),
+      // Section / nav titles (w600)
+      headlineLarge: _style(20, FontWeight.w600, -0.4, textColor, 1.3),
+      headlineMedium: _style(17, FontWeight.w600, -0.4, textColor, 1.3),
+      headlineSmall: _style(16, FontWeight.w600, -0.3, textColor, 1.35),
+      titleLarge: _style(16, FontWeight.w600, -0.3, textColor, 1.35),
+      titleMedium: _style(15, FontWeight.w600, -0.2, textColor, 1.35),
+      titleSmall: _style(13, FontWeight.w600, -0.1, textColor, 1.35),
+      // Body
+      bodyLarge: _style(17, FontWeight.w400, -0.2, textColor, 1.4),
+      bodyMedium: _style(15, FontWeight.w400, -0.2, textColor, 1.4),
+      bodySmall: _style(13, FontWeight.w400, -0.1, textColor, 1.4),
+      // Labels / captions
+      labelLarge: _style(13, FontWeight.w600, -0.1, textColor, 1.3),
+      labelMedium: _style(12, FontWeight.w600, 0.0, textColor, 1.3),
+      labelSmall: _style(11, FontWeight.w600, 0.1, textColor, 1.3),
     );
     return GoogleFonts.interTextTheme(base);
   }
@@ -257,15 +283,24 @@ extension AppThemeContext on BuildContext {
   Color get textTertiaryColor =>
       isDarkMode ? AppColors.darkTextTertiary : AppColors.textTertiary;
 
-  /// Very light, neutral editorial lift (no neon, no harsh black).
-  List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: isDarkMode ? 0.22 : 0.04),
-          offset: const Offset(0, 4),
-          blurRadius: 16,
-          spreadRadius: -4,
-        ),
-      ];
+  /// Thin, neutral iOS-style lift. Light: a whisper of ambient shadow so white
+  /// cards separate from the grouped-grey background. Dark: cards rely on
+  /// surface contrast, so no shadow.
+  List<BoxShadow> get softShadow => isDarkMode
+      ? const []
+      : [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            offset: const Offset(0, 4),
+            blurRadius: 14,
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ];
 
   /// Surface fill for cards/chips. Optional accent [tint].
   Color glassFill([Color? tint]) {
@@ -282,7 +317,7 @@ extension AppThemeContext on BuildContext {
   /// (Name kept for backward-compat; no glass/blur anymore.)
   BoxDecoration glassDecoration({
     Color? tint,
-    double radius = 18,
+    double radius = AppRadius.lg,
     bool glow = false, // kept for compat; maps to a subtle lift
     Color? glowColor,
   }) {
@@ -291,10 +326,14 @@ extension AppThemeContext on BuildContext {
       color: hasTint ? glassFill(tint) : glassFill(),
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
-        color: hasTint ? tint.withValues(alpha: 0.30) : glassBorder,
+        color: hasTint
+            ? tint.withValues(alpha: 0.28)
+            // Dark: cards have no shadow, so a soft border gives separation.
+            // Light: hairline only when tinted; plain cards lean on the shadow.
+            : (isDarkMode ? glassBorder : Colors.transparent),
         width: 1,
       ),
-      boxShadow: glow || !hasTint ? softShadow : null,
+      boxShadow: softShadow,
     );
   }
 

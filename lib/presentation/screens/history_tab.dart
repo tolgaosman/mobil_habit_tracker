@@ -48,9 +48,6 @@ class _HistoryTabState extends State<HistoryTab> {
     return names[month - 1].tr(context);
   }
 
-  bool _canToggle(DateTime date) {
-    return true;
-  }
 
   List<HabitModel> _getHabitsForDate(
       DateTime date, List<HabitModel> allHabits) {
@@ -531,8 +528,6 @@ class _HistoryTabState extends State<HistoryTab> {
       ).animate().fadeIn(duration: 400.ms);
     }
 
-    final canInteract = _canToggle(_selectedDate);
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -580,28 +575,7 @@ class _HistoryTabState extends State<HistoryTab> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Status Checkbox
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: isCompleted ? accentColor : Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isCompleted
-                        ? accentColor
-                        : (Theme.of(context).dividerTheme.color ?? Colors.grey),
-                    width: 1.5,
-                  ),
-                ),
-                child: isCompleted
-                    ? const Icon(Icons.check_rounded,
-                        color: Colors.white, size: 16)
-                    : (!canInteract
-                        ? const Icon(Icons.close_rounded,
-                            color: AppColors.error, size: 16)
-                        : null),
-              ),
+              CompletionCheck(completed: isCompleted, color: accentColor),
             ],
           ),
         );
