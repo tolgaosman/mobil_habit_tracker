@@ -15,6 +15,9 @@ class AddHabitSheet extends StatefulWidget {
   final String? initialIconCodePoint;
   final String? initialColorHex;
   final List<int>? initialRepeatDays;
+  final bool? initialNotificationsEnabled;
+  final bool? initialIsAlarm;
+  final String? initialNotificationTime;
 
   const AddHabitSheet({
     super.key,
@@ -24,6 +27,9 @@ class AddHabitSheet extends StatefulWidget {
     this.initialIconCodePoint,
     this.initialColorHex,
     this.initialRepeatDays,
+    this.initialNotificationsEnabled,
+    this.initialIsAlarm,
+    this.initialNotificationTime,
   });
 
   @override
@@ -37,6 +43,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   late String _selectedColorHex;
   late List<int> _selectedDays;
   bool _notificationsEnabled = false;
+  bool _isAlarm = false;
   TimeOfDay _notificationTime = const TimeOfDay(hour: 9, minute: 0);
   bool _isLoading = false;
 
@@ -111,6 +118,19 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
     if (widget.initialName != null) {
       _nameController.text = widget.initialName!;
     }
+    
+    _notificationsEnabled = widget.initialNotificationsEnabled ?? false;
+    _isAlarm = widget.initialIsAlarm ?? false;
+    if (widget.initialNotificationTime != null) {
+      final parts = widget.initialNotificationTime!.split(':');
+      if (parts.length == 2) {
+        _notificationTime = TimeOfDay(
+          hour: int.tryParse(parts[0]) ?? 9,
+          minute: int.tryParse(parts[1]) ?? 0,
+        );
+      }
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -302,16 +322,122 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
   }
 
   Widget _buildNotificationSection() {
+    final accentColor = _hexToColor(_selectedColorHex);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _sectionLabel('Daily Reminder'.tr(context)),
+        const SizedBox(height: 12),
         Row(
           children: [
-            _sectionLabel('Daily Reminder'.tr(context)),
-            const Spacer(),
-            Switch(
-              value: _notificationsEnabled,
-              onChanged: (val) => setState(() => _notificationsEnabled = val),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    if (_notificationsEnabled && !_isAlarm) {
+                      _notificationsEnabled = false;
+                    } else {
+                      _notificationsEnabled = true;
+                      _isAlarm = false;
+                    }
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: (_notificationsEnabled && !_isAlarm)
+                        ? accentColor.withValues(alpha: 0.15)
+                        : Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: (_notificationsEnabled && !_isAlarm)
+                          ? accentColor
+                          : Theme.of(context).dividerTheme.color ?? Colors.transparent,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications_active_rounded,
+                        size: 18,
+                        color: (_notificationsEnabled && !_isAlarm)
+                            ? accentColor
+                            : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Notification'.tr(context),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: (_notificationsEnabled && !_isAlarm)
+                              ? accentColor
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    if (_notificationsEnabled && _isAlarm) {
+                      _notificationsEnabled = false;
+                    } else {
+                      _notificationsEnabled = true;
+                      _isAlarm = true;
+                    }
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: (_notificationsEnabled && _isAlarm)
+                        ? accentColor.withValues(alpha: 0.15)
+                        : Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: (_notificationsEnabled && _isAlarm)
+                          ? accentColor
+                          : Theme.of(context).dividerTheme.color ?? Colors.transparent,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.alarm_rounded,
+                        size: 18,
+                        color: (_notificationsEnabled && _isAlarm)
+                            ? accentColor
+                            : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Alarm'.tr(context),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: (_notificationsEnabled && _isAlarm)
+                              ? accentColor
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -470,6 +596,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         iconCodePoint: _selectedIconCodePoint,
         colorHex: _selectedColorHex,
         notificationsEnabled: _notificationsEnabled,
+        isAlarm: _isAlarm,
         notificationTime: timeString,
         repeatDays: _selectedDays,
       );
@@ -480,6 +607,7 @@ class _AddHabitSheetState extends State<AddHabitSheet> {
         iconCodePoint: _selectedIconCodePoint,
         colorHex: _selectedColorHex,
         notificationsEnabled: _notificationsEnabled,
+        isAlarm: _isAlarm,
         notificationTime: timeString,
         repeatDays: _selectedDays,
       );

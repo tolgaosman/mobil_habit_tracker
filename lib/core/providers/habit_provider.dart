@@ -126,6 +126,7 @@ class HabitProvider extends ChangeNotifier {
     required String iconCodePoint,
     required String colorHex,
     bool notificationsEnabled = false,
+    bool isAlarm = false,
     String notificationTime = '09:00',
     List<int>? repeatDays,
   }) async {
@@ -138,6 +139,7 @@ class HabitProvider extends ChangeNotifier {
       colorHex: colorHex,
       createdAt: DateTime.now().toIso8601String(),
       notificationsEnabled: notificationsEnabled,
+      isAlarm: isAlarm,
       notificationTime: notificationTime,
       repeatDays: repeatDays,
     );
@@ -202,6 +204,7 @@ class HabitProvider extends ChangeNotifier {
       body: 'Don\'t forget: ${habit.name}',
       hour: hour,
       minute: minute,
+      isAlarm: habit.isAlarm,
     );
   }
 

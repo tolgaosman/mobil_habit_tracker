@@ -66,17 +66,21 @@ class NotificationService {
     required String body,
     required int hour,
     required int minute,
+    bool isAlarm = false,
   }) async {
     final notificationId = id.hashCode.abs() % 100000;
 
-    const androidDetails = AndroidNotificationDetails(
-      'habit_reminders',
-      'Habit Reminders',
-      channelDescription: 'Daily reminders for your habits',
+    final androidDetails = AndroidNotificationDetails(
+      isAlarm ? 'habit_alarms' : 'habit_reminders',
+      isAlarm ? 'Habit Alarms' : 'Habit Reminders',
+      channelDescription: isAlarm ? 'Daily alarms for your habits' : 'Daily reminders for your habits',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      color: Color(0xFF00E5C3),
+      color: const Color(0xFF00E5C3),
+      fullScreenIntent: isAlarm,
+      category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
+      audioAttributesUsage: isAlarm ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
     );
 
     const darwinDetails = DarwinNotificationDetails(

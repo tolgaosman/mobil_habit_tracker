@@ -31,6 +31,9 @@ class HabitModel extends HiveObject {
   @HiveField(8)
   List<int>? repeatDays; // 1 = Monday, ..., 7 = Sunday
 
+  @HiveField(9, defaultValue: false)
+  bool isAlarm;
+
   HabitModel({
     required this.id,
     required this.name,
@@ -39,6 +42,7 @@ class HabitModel extends HiveObject {
     required this.createdAt,
     List<HabitCompletion>? completions,
     this.notificationsEnabled = false,
+    this.isAlarm = false,
     this.notificationTime = '09:00',
     this.repeatDays,
   }) : completions = completions ?? [];
@@ -88,6 +92,7 @@ class HabitModel extends HiveObject {
     String? iconCodePoint,
     String? colorHex,
     bool? notificationsEnabled,
+    bool? isAlarm,
     String? notificationTime,
     List<int>? repeatDays,
   }) {
@@ -99,6 +104,7 @@ class HabitModel extends HiveObject {
       createdAt: createdAt,
       completions: completions,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      isAlarm: isAlarm ?? this.isAlarm,
       notificationTime: notificationTime ?? this.notificationTime,
       repeatDays: repeatDays ?? this.repeatDays,
     );
